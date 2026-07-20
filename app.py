@@ -36,6 +36,7 @@ from routes.api import (
     register_api_routes,
     register_topology_intelligence_api_routes,
 )
+from routes.topology_api import register_topology_lifecycle_api_routes
 
 
 
@@ -20086,70 +20087,32 @@ def build_phase26_infrastructure_payload():
     }
 
 
-@app.route("/api/self-building-topology")
-def api_self_building_topology():
-    try:
-        return jsonify(build_self_building_topology_summary())
-    except Exception as e:
-        write_event(f"ERROR | SELF-BUILDING TOPOLOGY API | {e}")
-        return jsonify({"success": False, "phase": "26B.4", "message": str(e)}), 500
+# PHASE 28.8 - TOPOLOGY LIFECYCLE API ROUTES
+register_topology_lifecycle_api_routes(
+    app,
+    build_self_building_topology_summary=build_self_building_topology_summary,
+    build_self_building_topology=build_self_building_topology,
+    build_topology_change_summary=build_topology_change_summary,
+    check_topology_changes=check_topology_changes,
+    discover_cdp_neighbors=discover_cdp_neighbors,
+    discover_lldp_neighbors=discover_lldp_neighbors,
+    build_link_confidence_database=build_link_confidence_database,
+    build_snapshot=_phase26b5_snapshot,
+    topology_change_settings=_phase26b5_settings,
+    save_config=save_config,
+    write_event=write_event,
+    now=now,
+    config=config,
+)
 
 
-@app.route("/api/self-building-topology/rebuild", methods=["POST"])
-def api_self_building_topology_rebuild():
-    try:
-        payload = build_self_building_topology(force=True)
-        return jsonify(payload)
-    except Exception as e:
-        write_event(f"ERROR | SELF-BUILDING TOPOLOGY REBUILD API | {e}")
-        return jsonify({"success": False, "phase": "26B.4", "message": str(e)}), 500
 
 
-@app.route("/api/topology-change-detection")
-def api_topology_change_detection():
-    try:
-        return jsonify(build_topology_change_summary())
-    except Exception as e:
-        write_event(f"ERROR | TOPOLOGY CHANGE DETECTION API | {e}")
-        return jsonify({"success": False, "phase": "26B.5", "message": str(e)}), 500
 
 
-@app.route("/api/topology-change-detection/check", methods=["POST"])
-def api_topology_change_detection_check():
-    try:
-        body = request.get_json(silent=True) or {}
-        confirm_immediately = bool(body.get("confirm_immediately", False))
-        return jsonify(check_topology_changes(force=True, confirm_immediately=confirm_immediately))
-    except Exception as e:
-        write_event(f"ERROR | TOPOLOGY CHANGE CHECK API | {e}")
-        return jsonify({"success": False, "phase": "26B.5", "message": str(e)}), 500
 
 
-@app.route("/api/topology-change-detection/baseline", methods=["POST"])
-def api_topology_change_detection_baseline():
-    try:
-        discover_cdp_neighbors(force=True)
-        discover_lldp_neighbors(force=True)
-        build_link_confidence_database(force=True)
-        topology = build_self_building_topology(force=True)
-        snapshot = _phase26b5_snapshot(topology)
-        stamp = now()
-        config["phase26b5_accepted_snapshot"] = snapshot
-        config["phase26b5_pending_change"] = {}
-        settings = _phase26b5_settings()
-        settings.update({
-            "status": "BASELINE RESET",
-            "last_check": stamp,
-            "last_reconciliation": stamp,
-            "accepted_link_count": len(snapshot.get("links", [])),
-            "pending_confirmation_count": 0,
-        })
-        save_config()
-        write_event(f"CONFIG | TOPOLOGY BASELINE RESET | Phase 26B.5 | Links: {len(snapshot.get('links', []))}")
-        return jsonify({"success": True, "phase": "26B.5", "status": "BASELINE RESET", "snapshot": snapshot})
-    except Exception as e:
-        write_event(f"ERROR | TOPOLOGY BASELINE API | {e}")
-        return jsonify({"success": False, "phase": "26B.5", "message": str(e)}), 500
+
 
 
 
