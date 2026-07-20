@@ -31,6 +31,7 @@ from services.config_service import (
     atomic_write_json_config,
     load_json_config,
 )
+from routes.dashboard import register_dashboard_routes
 
 
 
@@ -14807,34 +14808,17 @@ def get_switch_port_utilization_statistics():
 # PHASE 13D.1 - DASHBOARD CLEANUP PAGE ROUTES
 # New pages reuse the same dashboard context so nothing breaks.
 # ======================================================
-@app.route("/")
-def dashboard():
-    context = build_dashboard_context()
-    return render_template("dashboard.html", **context)
+# PHASE 28.5 - MODULAR DASHBOARD PAGE ROUTES
+register_dashboard_routes(app, build_dashboard_context)
 
 
-@app.route("/operations")
-def operations_page():
-    context = build_dashboard_context()
-    return render_template("operations.html", **context)
 
 
-@app.route("/provisioning")
-def provisioning_page():
-    context = build_dashboard_context()
-    return render_template("provisioning.html", **context)
 
 
-@app.route("/analytics")
-def analytics_page():
-    context = build_dashboard_context()
-    return render_template("analytics.html", **context)
 
 
-@app.route("/noc-tools")
-def noc_tools_page():
-    context = build_dashboard_context()
-    return render_template("noc_tools.html", **context)
+
 
 
 
