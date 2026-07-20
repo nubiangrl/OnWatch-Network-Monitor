@@ -32,6 +32,7 @@ from services.config_service import (
     load_json_config,
 )
 from routes.dashboard import register_dashboard_routes
+from routes.api import register_api_routes
 
 
 
@@ -14810,6 +14811,9 @@ def get_switch_port_utilization_statistics():
 # ======================================================
 # PHASE 28.5 - MODULAR DASHBOARD PAGE ROUTES
 register_dashboard_routes(app, build_dashboard_context)
+
+# PHASE 28.6 - CORE API ROUTES
+register_api_routes(app)
 
 
 
