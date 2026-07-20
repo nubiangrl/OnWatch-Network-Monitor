@@ -39,3 +39,6 @@ backups/
 topology.json
 # Local archived backup files
 archive/
+
+# Repository audit reports
+repository_audit_*.txt
