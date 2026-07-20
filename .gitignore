@@ -37,3 +37,5 @@ backups/
 
 # Runtime topology cache
 topology.json
+# Local archived backup files
+archive/
