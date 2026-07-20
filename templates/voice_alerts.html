@@ -1,0 +1,166 @@
+<script>
+(function () {
+    const enableButton = document.getElementById("enableVoiceAlerts");
+    const testButton = document.getElementById("testVoiceAlert");
+    const statusBox = document.getElementById("voiceAlertStatus");
+
+    const alerts = [
+        {% for alert in alerts %}
+        {
+            id: {{ alert.id|tojson }},
+            severity: {{ alert.severity|tojson }},
+            device: {{ alert.device|tojson }},
+            problem: {{ alert.problem|tojson }},
+            acknowledged: {{ alert.acknowledged|tojson }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    function setVoiceStatus(enabled) {
+        if (!statusBox) return;
+        if (enabled) {
+            statusBox.textContent = "Voice Alerts: ON";
+            statusBox.classList.remove("off");
+            statusBox.classList.add("on");
+            if (enableButton) enableButton.textContent = "Voice Alerts Enabled";
+        } else {
+            statusBox.textContent = "Voice Alerts: OFF";
+            statusBox.classList.remove("on");
+            statusBox.classList.add("off");
+            if (enableButton) enableButton.textContent = "Enable Voice Alerts";
+        }
+    }
+
+    function speak(message) {
+        if (!("speechSynthesis" in window)) {
+            alert("This browser does not support voice alerts.");
+            return;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function buildAlertMessage(alert) {
+        if (alert.problem && alert.problem.toLowerCase().includes("switch link")) {
+            return "Critical alert. Switch link down. " + alert.device + ".";
+        }
+        if (alert.problem && alert.problem.toLowerCase().includes("router interface")) {
+            return "Critical alert. Router interface down. " + alert.device + ".";
+        }
+        if (alert.problem && alert.problem.toLowerCase().includes("device")) {
+            return "Critical alert. " + alert.device + " is down.";
+        }
+        return "Critical alert. " + alert.device + ". " + alert.problem + ".";
+    }
+
+    function buildRecoveryMessage(previousAlert) {
+        if (previousAlert.problem && previousAlert.problem.toLowerCase().includes("switch link")) {
+            return "Alert resolved. Switch link restored. " + previousAlert.device + ".";
+        }
+        if (previousAlert.problem && previousAlert.problem.toLowerCase().includes("router interface")) {
+            return "Alert resolved. Router interface restored. " + previousAlert.device + ".";
+        }
+        if (previousAlert.problem && previousAlert.problem.toLowerCase().includes("device")) {
+            return "Alert resolved. " + previousAlert.device + " has recovered.";
+        }
+        return "Alert resolved. " + previousAlert.device + ".";
+    }
+
+    function speakNewCriticalAlerts() {
+        const voiceEnabled = localStorage.getItem("voiceAlertsEnabled") === "true";
+        if (!voiceEnabled) return;
+
+        const spokenAlerts = JSON.parse(localStorage.getItem("spokenCriticalAlerts") || "[]");
+        const spokenSet = new Set(spokenAlerts.map(String));
+
+        const newCriticalAlerts = alerts.filter(alert =>
+            alert.severity === "CRITICAL" &&
+            !alert.acknowledged &&
+            !spokenSet.has(String(alert.id))
+        );
+
+        if (newCriticalAlerts.length === 0) return;
+
+        let delay = 1000;
+        newCriticalAlerts.forEach(alert => {
+            setTimeout(() => {
+                speak("New critical alert. " + buildAlertMessage(alert));
+            }, delay);
+            spokenSet.add(String(alert.id));
+            delay += 4000;
+        });
+
+        localStorage.setItem("spokenCriticalAlerts", JSON.stringify(Array.from(spokenSet)));
+    }
+
+    function speakResolvedCriticalAlerts() {
+        const voiceEnabled = localStorage.getItem("voiceAlertsEnabled") === "true";
+        if (!voiceEnabled) return;
+
+        const previousAlerts = JSON.parse(localStorage.getItem("previousCriticalAlertDetails") || "[]");
+
+        const currentCriticalIds = alerts
+            .filter(alert => alert.severity === "CRITICAL" && !alert.acknowledged)
+            .map(alert => String(alert.id));
+
+        const resolvedAlerts = previousAlerts.filter(previousAlert =>
+            !currentCriticalIds.includes(String(previousAlert.id))
+        );
+
+        if (resolvedAlerts.length === 0) return;
+
+        let delay = 1000;
+        resolvedAlerts.forEach(previousAlert => {
+            setTimeout(() => {
+                speak(buildRecoveryMessage(previousAlert));
+            }, delay);
+            delay += 4000;
+        });
+    }
+
+    function saveCurrentCriticalAlertDetails() {
+        const currentCriticalAlerts = alerts
+            .filter(alert => alert.severity === "CRITICAL" && !alert.acknowledged)
+            .map(alert => ({
+                id: String(alert.id),
+                device: alert.device,
+                problem: alert.problem,
+                severity: alert.severity
+            }));
+
+        localStorage.setItem("previousCriticalAlertDetails", JSON.stringify(currentCriticalAlerts));
+    }
+
+    const activeIds = alerts.map(a => String(a.id));
+    const existingSpoken = JSON.parse(localStorage.getItem("spokenCriticalAlerts") || "[]");
+    const cleanedSpoken = existingSpoken.filter(id => activeIds.includes(String(id)));
+    localStorage.setItem("spokenCriticalAlerts", JSON.stringify(cleanedSpoken));
+
+    if (enableButton) {
+        enableButton.addEventListener("click", function () {
+            localStorage.setItem("voiceAlertsEnabled", "true");
+            setVoiceStatus(true);
+            speak("Voice alerts enabled.");
+        });
+    }
+
+    if (testButton) {
+        testButton.addEventListener("click", function () {
+            if (alerts.length > 0) {
+                speak(buildAlertMessage(alerts[0]));
+            } else {
+                speak("Test voice alert. No active alerts.");
+            }
+        });
+    }
+
+    setVoiceStatus(localStorage.getItem("voiceAlertsEnabled") === "true");
+    speakResolvedCriticalAlerts();
+    speakNewCriticalAlerts();
+    saveCurrentCriticalAlertDetails();
+})();
+</script>

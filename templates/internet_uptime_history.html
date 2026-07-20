@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Internet Uptime History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="topology-wrapper">
+    <div class="topology-title">Network Topology</div>
+
+    <div class="topology-row">
+        <div class="topology-node">
+            <div class="topology-icon">🌎</div>
+            <div>Internet</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">📡</div>
+            <div>Cox Modem</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">🛜</div>
+            <div>Cisco Router</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">🔌</div>
+            <div>Cisco Switch</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">💻</div>
+            <div>Endpoints</div>
+        </div>
+    </div>
+</div>
+
+<header class="main-header">
+    <h1>INTERNET UPTIME HISTORY</h1>
+    <div class="subtitle">
+        Outage Start • Recovery Time • Duration • Failed Targets
+    </div>
+</header>
+
+<div class="main-layout no-right-sidebar internet-history-page">
+
+    <aside class="left-sidebar">
+
+        <div class="side-title">🏠 Home Network Monitor</div>
+
+        <div class="time-card">
+            <div class="time-icon">🕒</div>
+            <div>{{ last_full_scan }}</div>
+        </div>
+
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+        <a href="/reset-center" class="side-nav">🔄 Reset Center</a>
+        <a href="/internet-history" class="side-nav active">🌐 Internet History</a>
+
+        <div class="system-state good-state">
+            🌐<br>Internet History
+        </div>
+
+    </aside>
+
+    <main class="dashboard-content">
+
+        <section class="stats-grid internet-availability-summary-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Availability</div>
+                <div class="stat-value green">{{ availability_report.total_availability }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Today</div>
+                <div class="stat-value blue">{{ availability_report.today.availability }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">This Month</div>
+                <div class="stat-value orange">{{ availability_report.month.availability }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Downtime</div>
+                <div class="stat-value red" style="font-size:24px;">{{ availability_report.total_downtime }}</div>
+            </div>
+        </section>
+
+
+        <section class="panel availability-report-panel">
+            <div class="panel-header">
+                <h2>Internet Availability Report</h2>
+                <a href="/reset-center" class="small-view-alerts-btn">Reset Availability</a>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Period</th>
+                    <th>Availability</th>
+                    <th>Monitored Time</th>
+                    <th>Outages</th>
+                    <th>Downtime</th>
+                    <th>Average Outage</th>
+                    <th>Longest Outage</th>
+                </tr>
+
+                {% for row in [availability_report.today, availability_report.week, availability_report.month, availability_report.last_30_days] %}
+                <tr>
+                    <td>{{ row.label }}</td>
+                    <td>{{ row.availability }}</td>
+                    <td>{{ row.monitored_time }}</td>
+                    <td>{{ row.outages }}</td>
+                    <td>{{ row.downtime }}</td>
+                    <td>{{ row.average_outage }}</td>
+                    <td>{{ row.longest_outage }}</td>
+                </tr>
+                {% endfor %}
+
+                <tr>
+                    <td>Total Since Monitor Started</td>
+                    <td>{{ availability_report.total_availability }}</td>
+                    <td>{{ availability_report.total_monitored_time }}</td>
+                    <td>{{ availability_report.total_outages }}</td>
+                    <td>{{ availability_report.total_downtime }}</td>
+                    <td>{{ availability_report.average_outage }}</td>
+                    <td>{{ availability_report.longest_outage }}</td>
+                </tr>
+            </table>
+        </section>
+
+        {% if active_history|length > 0 %}
+        <section class="panel dashboard-active-alerts-panel">
+            <h2>Active Internet Outage</h2>
+
+            <table>
+                <tr>
+                    <th>Start Time</th>
+                    <th>Recovery Time</th>
+                    <th>Current Duration</th>
+                    <th>Status</th>
+                    <th>Targets</th>
+                </tr>
+
+                {% for item in active_history %}
+                <tr>
+                    <td>{{ item.start_time }}</td>
+                    <td>{{ item.end_time }}</td>
+                    <td>{{ item.duration }}</td>
+                    <td><span class="severity-badge critical">Active</span></td>
+                    <td class="internet-history-targets">{{ item.targets }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </section>
+        {% endif %}
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Resolved Internet Outage History</h2>
+                <a href="/reset-center" class="small-view-alerts-btn">Reset Center</a>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Start Time</th>
+                    <th>Recovery Time</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Targets</th>
+                </tr>
+
+                {% if history %}
+                    {% for item in history %}
+                    <tr>
+                        <td>{{ item.start_time }}</td>
+                        <td>{{ item.end_time }}</td>
+                        <td>{{ item.duration }}</td>
+                        <td><span class="severity-badge normal">Resolved</span></td>
+                        <td class="internet-history-targets">{{ item.targets }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5">No resolved Internet outages recorded yet.</td>
+                    </tr>
+                {% endif %}
+            </table>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

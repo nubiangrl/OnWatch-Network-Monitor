@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Log - On Watch Network Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="main-header">
+    <h1>ON WATCH NETWORK MONITOR DASHBOARD</h1>
+    <div class="subtitle">Enterprise Event Log Center</div>
+</header>
+
+<div class="settings-page">
+    <a href="/" class="back-link">← Back to Dashboard</a>
+
+    <section class="panel event-log-center-panel">
+        <div class="panel-header">
+            <h2>📜 Monitor Server Event Log</h2>
+            <span class="network-intelligence-badge">Phase 10D.2</span>
+        </div>
+
+        <div class="event-log-summary-grid">
+            <div class="event-log-summary-card"><span>Total Events</span><strong>{{ counts.total }}</strong></div>
+            <div class="event-log-summary-card event-alert"><span>Alerts</span><strong>{{ counts.alerts }}</strong></div>
+            <div class="event-log-summary-card event-recovery"><span>Recoveries</span><strong>{{ counts.recoveries }}</strong></div>
+            <div class="event-log-summary-card event-config"><span>Config</span><strong>{{ counts.config }}</strong></div>
+            <div class="event-log-summary-card event-sleep"><span>Sleep Events</span><strong>{{ counts.sleep }}</strong></div>
+            <div class="event-log-summary-card event-error"><span>Errors</span><strong>{{ counts.errors }}</strong></div>
+        </div>
+
+        <div class="event-log-note">
+            Reading from <strong>logs/events.log</strong> on the Monitor Server. Newest events are shown first.
+        </div>
+
+        <div class="event-log-table-wrap">
+            <table class="event-log-table">
+                <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Message</th>
+                </tr>
+
+                {% for event in events %}
+                <tr class="{{ event.css_class }}">
+                    <td>{{ event.time }}</td>
+                    <td><span class="event-level-pill {{ event.css_class }}">{{ event.level }}</span></td>
+                    <td>{{ event.category }}</td>
+                    <td class="event-message-cell">{{ event.message }}</td>
+                </tr>
+                {% endfor %}
+
+                {% if events|length == 0 %}
+                <tr><td colspan="4">No event log entries found.</td></tr>
+                {% endif %}
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

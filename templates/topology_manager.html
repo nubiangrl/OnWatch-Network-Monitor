@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>On Watch Topology Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="main-header dashboard-cleanup-header identity-modern-header">
+    <div class="identity-center">
+        <div class="identity-brand-name">ON WATCH</div>
+        <h1>TOPOLOGY MANAGER</h1>
+        <div class="identity-subtitle">Phase 14E Switch + Router Available Port Dropdowns</div>
+        <div class="subtitle identity-path">Inventory → Saved Topology Links → Live Physical Map</div>
+    </div>
+</header>
+
+<div class="settings-page topology-manager-page">
+    <a href="/" class="back-link">← Back to Dashboard</a>
+
+    <section class="panel topology-manager-hero">
+        <div class="panel-header">
+            <h2>🧭 Network Topology Source of Truth</h2>
+            <span class="network-intelligence-badge">{{ topology.phase }}</span>
+        </div>
+
+        <p>
+            This page uses <strong>user-created inventory</strong> and <strong>topology_links</strong> only. Nothing is hard-coded or auto-created. The map answers <strong>what is physically connected to what, which interfaces are used, and whether the link is up or down</strong>.
+        </p>
+
+        <div class="topology-manager-stats">
+            <div class="stat-card">
+                <div class="stat-label">Topology Devices</div>
+                <div class="stat-value blue">{{ topology.device_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Saved Links</div>
+                <div class="stat-value green">{{ topology.link_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Visual Links</div>
+                <div class="stat-value blue">{{ topology.visual_link_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Duplicate Pairs</div>
+                <div class="stat-value orange">{{ topology.duplicate_pair_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Last Updated</div>
+                <div class="stat-value topology-time-value">{{ topology.last_updated }}</div>
+            </div>
+        </div>
+    </section>
+
+
+    {% macro render_physical_node(node, level=0) %}
+    <li class="physical-map-item level-{{ level }} link-{{ node.link_status_class|default('unknown') }}">
+        {% if level > 0 %}
+        <div class="endpoint-link-stack link-{{ node.link_status_class|default('unknown') }}">
+            <div class="endpoint-port-label endpoint-port-top">
+                {{ node.parent_interface or node.port_from_parent or "Interface A" }}
+            </div>
+            <div class="endpoint-cable-line" title="{{ node.link_state|default('UNKNOWN') }}"></div>
+            <div class="endpoint-port-label endpoint-port-bottom">
+                {{ node.this_interface or node.port_on_node or "Interface B" }}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="physical-map-node status-{{ node.state|lower }}">
+            <div class="physical-node-main">
+                <span class="physical-node-icon">{{ node.icon }}</span>
+                <div class="physical-node-text">
+                    <strong>{{ node.name }}</strong>
+                    <div class="physical-node-meta-row">
+                        <span class="physical-node-type">{{ node.type }}</span>
+                        {% if node.ip %}<span class="physical-node-ip">{{ node.ip }}</span>{% endif %}
+                    </div>
+                    <small class="physical-status-badge">{{ node.state }}</small>
+                </div>
+            </div>
+            {% if node.link_type or node.label or node.duplicate %}
+            <div class="physical-link-detail link-{{ node.link_status_class|default('unknown') }}">
+                {% if node.link_type %}<span>{{ node.link_type }}</span>{% endif %}
+                {% if node.label %}<small>{{ node.label }}</small>{% endif %}
+                {% if node.duplicate %}<em>Duplicate saved links detected</em>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if node.children %}
+        <ul class="physical-map-children child-count-{{ node.children|length }}">
+            {% for child in node.children %}
+                {{ render_physical_node(child, level + 1) }}
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+    {% endmacro %}
+
+    <section class="panel visual-topology-panel true-link-topology-panel">
+        <div class="panel-header">
+            <h2>🗺 Visual Network Map</h2>
+            <span class="network-intelligence-badge">True Physical Topology</span>
+        </div>
+
+        {% set map = topology.visual_map %}
+        <div class="topology-source-note">
+            Showing {{ map.mapped_device_count }} connected device{{ '' if map.mapped_device_count == 1 else 's' }} from saved topology links only.
+        </div>
+
+        {% if map.roots %}
+        <div class="true-physical-map-wrap">
+            {% for root in map.roots %}
+            <ul class="physical-map-root">
+                {{ render_physical_node(root) }}
+            </ul>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p class="warning-text">No visual topology can be drawn yet. Add a saved topology link below.</p>
+        {% endif %}
+
+        {% if topology.duplicate_pair_count > 0 %}
+        <div class="topology-duplicate-warning">
+            ⚠ Duplicate connection pairs were found. The visual map draws each same-device pair once, but the saved table below still shows every record so you can delete duplicates.
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="form-panel topology-link-form-panel">
+        <div class="panel-header">
+            <h2>➕ Add / Update Connection</h2>
+        </div>
+
+        <form method="POST" action="/topology-link/add" id="topology-link-form">
+            <label>Device A</label>
+            <select name="device_a" id="device-a-select" required>
+                <option value="">Select first device</option>
+                {% for name, ip in all_devices.items() %}
+                <option value="{{ name }}">{{ name }} - {{ ip }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Interface / Port On Device A</label>
+            <input type="hidden" name="port_a" id="port-a-final">
+            <select id="port-a-switch-select" class="topology-port-dropdown" style="display:none;">
+                <option value="">Select available port</option>
+            </select>
+            <input type="text" id="port-a-text" class="topology-port-text" placeholder="Example: Gi1/0/21, LAN1, eth0">
+            <div class="topology-port-help" id="port-a-help">Switches and routers use available-port dropdowns. Other devices use free text.</div>
+
+            <label>Device B</label>
+            <select name="device_b" id="device-b-select" required>
+                <option value="">Select connected device</option>
+                {% for name, ip in all_devices.items() %}
+                <option value="{{ name }}">{{ name }} - {{ ip }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Interface / Port On Device B</label>
+            <input type="hidden" name="port_b" id="port-b-final">
+            <select id="port-b-switch-select" class="topology-port-dropdown" style="display:none;">
+                <option value="">Select available port</option>
+            </select>
+            <input type="text" id="port-b-text" class="topology-port-text" placeholder="Example: Gi0/0, Ethernet, WAN">
+            <div class="topology-port-help" id="port-b-help">Switches and routers use available-port dropdowns. Other devices use free text.</div>
+
+            <label>Link Type</label>
+            <input type="text" name="link_type" value="Physical Link" placeholder="Example: Physical Link, Router Uplink, ISP Handoff">
+
+            <label>Label / Notes</label>
+            <input type="text" name="label" placeholder="Example: Main switch to edge router">
+
+            <button type="submit" class="save-btn">Save Topology Link</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>🔗 Saved Topology Links</h2>
+        </div>
+
+        {% if topology.links %}
+        <table class="topology-manager-table">
+            <thead>
+                <tr>
+                    <th>Device A</th>
+                    <th>Port A</th>
+                    <th>Device B</th>
+                    <th>Port B</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Label</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for link in topology.links %}
+                <tr>
+                    <td>{{ link.device_a }}</td>
+                    <td>{{ link.port_a or "—" }}</td>
+                    <td>{{ link.device_b }}</td>
+                    <td>{{ link.port_b or "—" }}</td>
+                    <td>{{ link.link_type }}</td>
+                    <td><span class="topology-link-state link-{{ link.link_status_class }}">{{ link.link_state }}</span></td>
+                    <td>{{ link.label or "—" }}</td>
+                    <td>
+                        <form method="POST" action="/topology-link/delete" onsubmit="return confirm('Delete this topology link?');">
+                            <input type="hidden" name="link_id" value="{{ link.id }}">
+                            <button type="submit" class="small-clear-btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="warning-text">No topology links have been saved yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>🖥 Topology Devices</h2>
+        </div>
+
+        <table class="topology-manager-table">
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>IP Address</th>
+                    <th>Type</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for device in topology.devices %}
+                <tr>
+                    <td>{{ device.name }}</td>
+                    <td>{{ device.ip }}</td>
+                    <td>{{ device.type }}</td>
+                    <td>{{ device.source }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<footer class="footer-bar">
+    On Watch Network Monitor • Phase 14E Switch + Router Available Port Dropdowns Map
+</footer>
+
+
+
+<script>
+const topologyPortPicker = {{ topology.port_picker|tojson }};
+
+function fillManagedPortDropdown(selectEl, ports) {
+    selectEl.innerHTML = '<option value="">Select available port</option>';
+    ports.forEach(function(port) {
+        const opt = document.createElement('option');
+        opt.value = port;
+        opt.textContent = port;
+        selectEl.appendChild(opt);
+    });
+}
+
+function updatePortPicker(side) {
+    const deviceSelect = document.getElementById(`device-${side}-select`);
+    const dropdown = document.getElementById(`port-${side}-switch-select`);
+    const textInput = document.getElementById(`port-${side}-text`);
+    const finalInput = document.getElementById(`port-${side}-final`);
+    const help = document.getElementById(`port-${side}-help`);
+    const deviceName = deviceSelect.value;
+    const info = topologyPortPicker.devices[deviceName] || {};
+
+    finalInput.value = '';
+    dropdown.value = '';
+    textInput.value = '';
+
+    if (info.is_managed_port_device) {
+        const ports = info.available_ports || [];
+        const kind = info.managed_device_kind || 'managed device';
+        fillManagedPortDropdown(dropdown, ports);
+        dropdown.style.display = 'block';
+        textInput.style.display = 'none';
+        dropdown.required = true;
+        textInput.required = false;
+        help.textContent = ports.length ? `${kind.charAt(0).toUpperCase() + kind.slice(1)} detected. Showing ${ports.length} available port(s) only.` : `${kind.charAt(0).toUpperCase() + kind.slice(1)} detected, but no free ports are available.`;
+    } else {
+        dropdown.style.display = 'none';
+        textInput.style.display = 'block';
+        dropdown.required = false;
+        textInput.required = false;
+        help.textContent = 'Non-switch/non-router device. Type the interface name manually.';
+    }
+}
+
+function syncFinalPortValue(side) {
+    const deviceName = document.getElementById(`device-${side}-select`).value;
+    const info = topologyPortPicker.devices[deviceName] || {};
+    const dropdown = document.getElementById(`port-${side}-switch-select`);
+    const textInput = document.getElementById(`port-${side}-text`);
+    const finalInput = document.getElementById(`port-${side}-final`);
+    finalInput.value = info.is_managed_port_device ? dropdown.value : textInput.value;
+}
+
+['a', 'b'].forEach(function(side) {
+    document.getElementById(`device-${side}-select`).addEventListener('change', function() {
+        updatePortPicker(side);
+    });
+    document.getElementById(`port-${side}-switch-select`).addEventListener('change', function() {
+        syncFinalPortValue(side);
+    });
+    document.getElementById(`port-${side}-text`).addEventListener('input', function() {
+        syncFinalPortValue(side);
+    });
+});
+
+document.getElementById('topology-link-form').addEventListener('submit', function(event) {
+    syncFinalPortValue('a');
+    syncFinalPortValue('b');
+
+    ['a', 'b'].forEach(function(side) {
+        const deviceName = document.getElementById(`device-${side}-select`).value;
+        const info = topologyPortPicker.devices[deviceName] || {};
+        const finalInput = document.getElementById(`port-${side}-final`);
+        if (info.is_managed_port_device && !finalInput.value) {
+            const kind = info.managed_device_kind || 'port';
+            event.preventDefault();
+            alert(`Please select an available ${kind} port/interface for Device ${side.toUpperCase()}.`);
+        }
+    });
+});
+
+updatePortPicker('a');
+updatePortPicker('b');
+</script>
+
+</body>
+</html>

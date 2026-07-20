@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Map | On Watch Network Monitor</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        :root {
+            --green: #00ff77;
+            --blue: #31a8ff;
+            --red: #ff4444;
+            --amber: #ffb000;
+            --background: #03101d;
+            --panel: #061525;
+            --card: #091c31;
+            --border: #214565;
+            --text: #eef7ff;
+            --muted: #9db4c8;
+            --interface-scale: 1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        .network-map-main {
+            min-width: 0;
+        }
+
+        .phase26-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            background: #07182b;
+        }
+
+        .phase26-toolbar-copy h2 {
+            margin: 0;
+            color: var(--green);
+            font-size: 17px;
+        }
+
+        .phase26-toolbar-copy p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .phase26-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .phase26-actions button,
+        .phase26-actions a {
+            padding: 8px 11px;
+            border: 1px solid #2d6c99;
+            border-radius: 8px;
+            background: #082139;
+            color: #dff3ff;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .phase26-actions button:hover,
+        .phase26-actions a:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .zoom-value {
+            min-width: 52px;
+            text-align: center;
+            color: #8fd1ff;
+            font-weight: 900;
+            font-size: 12px;
+        }
+
+        .phase26-summary {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(120px, 1fr));
+            gap: 10px;
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            background: #051321;
+        }
+
+        .summary-card {
+            padding: 11px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--card);
+            text-align: center;
+        }
+
+        .summary-card strong {
+            display: block;
+            color: var(--green);
+            font-size: 22px;
+        }
+
+        .summary-card span {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .infrastructure-tree {
+            padding: 18px;
+            overflow-x: hidden;
+        }
+
+        .tree-empty,
+        .tree-error {
+            padding: 28px;
+            border: 1px dashed #526c82;
+            border-radius: 10px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .tree-error {
+            border-color: var(--red);
+            color: #ff9a9a;
+        }
+
+        .infrastructure-branch {
+            position: relative;
+            min-width: 0;
+            margin-bottom: 14px;
+        }
+
+        .infrastructure-children {
+            position: relative;
+            margin-left: 18px;
+            padding-top: 12px;
+            padding-left: 22px;
+            border-left: 2px solid rgba(0, 255, 119, 0.65);
+        }
+
+        .infrastructure-children > .infrastructure-branch::before {
+            content: "";
+            position: absolute;
+            top: 24px;
+            left: -22px;
+            width: 22px;
+            height: 2px;
+            background: rgba(0, 255, 119, 0.65);
+        }
+
+        .infrastructure-children > .infrastructure-branch:last-child::after {
+            content: "";
+            position: absolute;
+            top: 26px;
+            bottom: -16px;
+            left: -24px;
+            width: 4px;
+            background: #061525;
+        }
+
+        .infrastructure-card {
+            border: 1px solid var(--green);
+            border-radius: 12px;
+            background: #07182b;
+            overflow: hidden;
+            box-shadow: 0 0 16px rgba(0, 255, 119, 0.10);
+        }
+
+        .infrastructure-card.map-down {
+            border-color: var(--red);
+        }
+
+        .infrastructure-card.map-warning,
+        .infrastructure-card.map-unknown {
+            border-color: var(--amber);
+        }
+
+        .infrastructure-header {
+            display: grid;
+            grid-template-columns: auto minmax(180px, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            padding: 13px 15px;
+            background: #091d32;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .infrastructure-icon {
+            font-size: 32px;
+        }
+
+        .infrastructure-copy strong {
+            display: block;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .infrastructure-copy span {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .infrastructure-meta {
+            text-align: right;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .advanced-interface-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            margin-top: 7px;
+            color: #bfe5ff;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .advanced-interface-toggle input {
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            accent-color: var(--green);
+            cursor: pointer;
+        }
+
+        .advanced-interface-note {
+            margin-top: 6px;
+            color: #8fa9bf;
+            font-size: 9px;
+            text-align: right;
+        }
+
+
+        .state-pill {
+            display: inline-block;
+            margin-bottom: 4px;
+            padding: 3px 8px;
+            border: 1px solid var(--green);
+            border-radius: 999px;
+            color: var(--green);
+            font-weight: 900;
+            font-size: 10px;
+        }
+
+        .map-down .state-pill {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .map-warning .state-pill,
+        .map-unknown .state-pill {
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+
+        .interface-section {
+            padding: 12px;
+            min-width: 0;
+            overflow-x: auto;
+        }
+
+        .interface-section-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .interface-section-title h4 {
+            margin: 0;
+            color: var(--blue);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .interface-section-title span {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .interface-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+            gap: 9px;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .infrastructure-card.role-router .interface-grid,
+        .infrastructure-card.role-modem .interface-grid,
+        .infrastructure-card.role-internet .interface-grid,
+        .infrastructure-card.role-firewall .interface-grid {
+            grid-template-columns: repeat(auto-fit, minmax(155px, 210px));
+            justify-content: start;
+        }
+
+        .infrastructure-card.role-router .interface-card,
+        .infrastructure-card.role-modem .interface-card,
+        .infrastructure-card.role-internet .interface-card,
+        .infrastructure-card.role-firewall .interface-card {
+            min-height: calc(105px * var(--interface-scale));
+        }
+
+        .interface-card {
+            position: relative;
+            min-width: 0;
+            min-height: calc(122px * var(--interface-scale));
+            padding: calc(9px * var(--interface-scale));
+            border: 1px solid #2d769f;
+            border-radius: 9px;
+            background: var(--card);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .interface-card.map-up {
+            border-color: var(--green);
+        }
+
+        .interface-card.map-down {
+            border-color: var(--red);
+        }
+
+        .interface-card.map-warning,
+        .interface-card.map-unknown {
+            border-color: var(--amber);
+        }
+
+        .interface-card.available {
+            border-style: dashed;
+            border-color: #536d83;
+        }
+
+        .interface-card.map-unmapped {
+            border-color: var(--amber);
+            box-shadow: 0 0 12px rgba(255, 176, 0, 0.14);
+        }
+
+        .interface-card.map-unmapped .interface-state {
+            color: var(--green);
+        }
+
+        .unmapped-endpoint {
+            margin-top: calc(14px * var(--interface-scale));
+            color: var(--amber);
+            font-size: calc(11px * var(--interface-scale));
+            font-weight: 900;
+        }
+
+        .map-device-button {
+            margin-top: calc(12px * var(--interface-scale));
+            padding: calc(7px * var(--interface-scale)) calc(12px * var(--interface-scale));
+            border: 1px solid var(--amber);
+            border-radius: 6px;
+            background: rgba(255, 176, 0, 0.10);
+            color: #ffd27a;
+            font-size: calc(10px * var(--interface-scale));
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .map-device-button:hover {
+            background: rgba(255, 176, 0, 0.22);
+        }
+
+        .detected-endpoint-details {
+            width: 100%;
+            margin-top: calc(9px * var(--interface-scale));
+            padding: calc(7px * var(--interface-scale));
+            border: 1px solid rgba(255, 176, 0, 0.45);
+            border-radius: 6px;
+            background: rgba(255, 176, 0, 0.06);
+            text-align: left;
+        }
+
+        .detected-endpoint-details strong {
+            display: block;
+            color: #ffe1a3;
+            font-size: calc(8.5px * var(--interface-scale));
+            overflow-wrap: anywhere;
+        }
+
+        .detected-endpoint-details span {
+            display: block;
+            margin-top: 3px;
+            color: #c7d8e7;
+            font-size: calc(8px * var(--interface-scale));
+            overflow-wrap: anywhere;
+        }
+
+        .detected-endpoint-more {
+            color: var(--amber) !important;
+            font-weight: 900;
+        }
+
+        .detected-vendor-name {
+            color: #ffe39a !important;
+            font-weight: 900;
+            font-size: calc(9px * var(--interface-scale)) !important;
+        }
+
+        .detected-confidence {
+            font-weight: 900;
+        }
+
+        .detected-confidence.high {
+            color: #70ffb0 !important;
+        }
+
+        .detected-confidence.low {
+            color: var(--amber) !important;
+        }
+
+        .detected-confidence.unknown {
+            color: #9eb3c5 !important;
+        }
+
+        .view-macs-button {
+            width: 100%;
+            margin-top: calc(7px * var(--interface-scale));
+            padding: calc(6px * var(--interface-scale)) calc(9px * var(--interface-scale));
+            border: 1px solid #4ebcff;
+            border-radius: 6px;
+            background: rgba(49, 168, 255, 0.10);
+            color: #9edcff;
+            font-size: calc(8.5px * var(--interface-scale));
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .view-macs-button:hover {
+            background: rgba(49, 168, 255, 0.22);
+        }
+
+        .mac-viewer-card {
+            width: min(760px, 96vw);
+        }
+
+        .mac-viewer-summary {
+            margin: 10px 0 14px;
+            padding: 10px 12px;
+            border: 1px solid #2b5b7d;
+            border-radius: 8px;
+            background: #081c30;
+            color: #cfe5f6;
+            font-size: 13px;
+        }
+
+        .mac-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .mac-table th,
+        .mac-table td {
+            padding: 9px 8px;
+            border-bottom: 1px solid #23445f;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .mac-table th {
+            color: #55c4ff;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .mac-table td {
+            color: #d6e7f4;
+        }
+
+        .mac-table .vendor-cell {
+            color: #ffe39a;
+            font-weight: 900;
+        }
+
+        .no-link-message {
+            margin-top: calc(20px * var(--interface-scale));
+            color: #92a9bc;
+            font-size: calc(10px * var(--interface-scale));
+            font-weight: 800;
+        }
+
+        .interface-label {
+            display: inline-block;
+            padding: 3px 6px;
+            border: 1px solid currentColor;
+            border-radius: 5px;
+            color: var(--blue);
+            font-size: calc(9px * var(--interface-scale));
+            font-weight: 900;
+        }
+
+        .interface-state {
+            margin-top: 6px;
+            color: var(--green);
+            font-size: calc(9px * var(--interface-scale));
+            font-weight: 900;
+        }
+
+        .map-down .interface-state {
+            color: var(--red);
+        }
+
+        .map-warning .interface-state,
+        .map-unknown .interface-state {
+            color: var(--amber);
+        }
+
+        .connection-card,
+        .endpoint-card {
+            margin-top: 8px;
+            padding: 7px;
+            border: 1px solid rgba(49, 168, 255, 0.55);
+            border-radius: 7px;
+            background: rgba(49, 168, 255, 0.06);
+        }
+
+        .connection-card strong,
+        .endpoint-card strong {
+            display: block;
+            color: #fff;
+            font-size: calc(10px * var(--interface-scale));
+            overflow-wrap: anywhere;
+        }
+
+        .connection-card span,
+        .endpoint-card span {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: calc(8px * var(--interface-scale));
+        }
+
+        .connection-direction {
+            color: var(--blue) !important;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .available-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 84px;
+            color: #7d94a8;
+            cursor: pointer;
+        }
+
+        .available-action:hover {
+            color: var(--blue);
+        }
+
+        .available-plus {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 1px dashed currentColor;
+            border-radius: 50%;
+            font-size: 25px;
+        }
+
+        .available-action span {
+            margin-top: 7px;
+            font-size: 9px;
+        }
+
+        .vm-list {
+            margin-top: 7px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(49, 168, 255, 0.35);
+        }
+
+        .vm-list-title {
+            color: var(--blue);
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .vm-item {
+            margin-top: 5px;
+            padding: 5px;
+            border: 1px solid rgba(49, 168, 255, 0.45);
+            border-radius: 5px;
+            font-size: 8px;
+            text-align: left;
+        }
+
+        .vm-item strong,
+        .vm-item span {
+            display: block;
+        }
+
+        .no-interface-message {
+            padding: 18px;
+            border: 1px dashed #536d83;
+            border-radius: 8px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .map-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(0, 0, 0, 0.78);
+        }
+
+        .map-modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            width: min(720px, 96vw);
+            max-height: 92vh;
+            overflow: auto;
+            padding: 18px;
+            border: 2px solid var(--green);
+            border-radius: 15px;
+            background: #07182b;
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-head h2 {
+            margin: 0;
+            color: var(--blue);
+            font-size: 18px;
+        }
+
+        .modal-close {
+            border: 0;
+            background: transparent;
+            color: #fff;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .modal-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+            margin: 14px 0;
+        }
+
+        .modal-tabs button {
+            padding: 8px;
+            border: 1px solid #2d5f82;
+            border-radius: 7px;
+            background: #081421;
+            color: #c8eaff;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .modal-tabs button.active {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .modal-pane {
+            display: none;
+        }
+
+        .modal-pane.active {
+            display: block;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .modal-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .modal-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .modal-field label {
+            color: #c8e7ff;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .modal-field input,
+        .modal-field select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #315978;
+            border-radius: 7px;
+            background: #f4f8fb;
+            color: #071421;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .modal-actions button,
+        .modal-actions a {
+            padding: 9px 12px;
+            border: 0;
+            border-radius: 7px;
+            color: #fff;
+            font-weight: 900;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .primary {
+            background: #00a94f;
+        }
+
+        .secondary {
+            background: #31506b;
+        }
+
+        .full-admin {
+            background: #0968c4;
+        }
+
+        .modal-message {
+            display: none;
+            margin: 10px 0;
+            padding: 9px;
+            border-radius: 7px;
+            font-weight: 800;
+        }
+
+        .modal-message.show {
+            display: block;
+        }
+
+        .modal-message.ok {
+            border: 1px solid var(--green);
+            background: rgba(0, 255, 119, 0.12);
+            color: #7cffb5;
+        }
+
+        .modal-message.error {
+            border: 1px solid var(--red);
+            background: rgba(255, 68, 68, 0.12);
+            color: #ff9898;
+        }
+
+        .service-check-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .service-check-card {
+            min-height: 108px;
+            border: 1px solid #2b5f83;
+            border-radius: 10px;
+            background: #071b2e;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 5px;
+        }
+
+        .service-check-card.map-up { border-color: #00ff77; }
+        .service-check-card.map-down { border-color: #ff3b45; }
+        .service-check-card.map-warning,
+        .service-check-card.map-unknown { border-color: #ffb000; }
+
+        .service-check-target {
+            color: #38bdf8;
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .service-check-state {
+            font-weight: 900;
+            color: #00ff77;
+        }
+
+        .service-check-card.map-down .service-check-state { color: #ff3b45; }
+        .service-check-card.map-warning .service-check-state,
+        .service-check-card.map-unknown .service-check-state { color: #ffb000; }
+
+        .service-check-latency {
+            color: #bcd0e3;
+            font-size: 11px;
+        }
+
+        .reachability-panel {
+            margin: 12px;
+            padding: 14px;
+            border: 1px dashed #315e7e;
+            border-radius: 9px;
+            color: #bfd0df;
+            text-align: center;
+            background: rgba(7, 27, 46, 0.6);
+        }
+
+        .inferred-link-note {
+            color: #ffcf5a !important;
+            font-size: 9px !important;
+            font-weight: 800;
+        }
+
+        @media (max-width: 1300px) {
+            .interface-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            .phase26-summary {
+                grid-template-columns: repeat(3, minmax(120px, 1fr));
+            }
+        }
+
+        @media (max-width: 850px) {
+            .phase26-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .interface-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .phase26-summary {
+                grid-template-columns: repeat(2, minmax(120px, 1fr));
+            }
+
+            .infrastructure-children {
+                margin-left: 10px;
+                padding-left: 14px;
+            }
+
+            .modal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        .auto-refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border: 1px solid #285b7e;
+            border-radius: 8px;
+            background: #071a2d;
+            color: #cfe9ff;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .auto-refresh-controls label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .auto-refresh-controls input {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--green);
+        }
+
+        .auto-refresh-controls .refresh-interval,
+        .auto-refresh-controls .refresh-time {
+            color: #9fc3df;
+        }
+
+        .section-collapse-button {
+            border: 1px solid #2c6b96;
+            background: #081e33;
+            color: #ccecff;
+            border-radius: 7px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 7px;
+        }
+
+        .section-collapse-button:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .infrastructure-card.interface-collapsed .interface-section {
+            display: none;
+        }
+
+
+        /* PHASE 26B.7 - MAINTENANCE MODE INTELLIGENCE */
+        .infrastructure-card.map-maintenance {
+            border-color: #38bdf8;
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.24);
+        }
+        .map-maintenance .state-pill, .maintenance-badge {
+            border-color: #38bdf8 !important;
+            background: rgba(37, 99, 235, 0.22);
+            color: #7dd3fc !important;
+        }
+        .maintenance-detail {
+            margin-top: 7px; padding: 7px 9px; border-left: 4px solid #38bdf8;
+            border-radius: 7px; background: rgba(37,99,235,.12); color: #dbeafe;
+            font-size: 10px; line-height: 1.45;
+        }
+
+        /* PHASE 26B.7E.1 - ENDPOINT MAINTENANCE RENDERER */
+        .endpoint-card.endpoint-maintenance {
+            border: 2px solid #38bdf8;
+            background: linear-gradient(180deg, rgba(37,99,235,.22), rgba(8,28,48,.96));
+            box-shadow: 0 0 18px rgba(56,189,248,.38);
+        }
+
+        .endpoint-maintenance-badge,
+        .vm-maintenance-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 7px;
+            padding: 4px 9px;
+            border: 1px solid #7dd3fc;
+            border-radius: 999px;
+            background: rgba(37,99,235,.34);
+            color: #dbeafe;
+            font-size: calc(8px * var(--interface-scale));
+            font-weight: 900;
+            letter-spacing: .35px;
+            box-shadow: 0 0 12px rgba(56,189,248,.26);
+        }
+
+        .vm-item.vm-maintenance {
+            border-color: #38bdf8;
+            background: rgba(37,99,235,.16);
+            box-shadow: 0 0 10px rgba(56,189,248,.18);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="map-page-header">
+        <div class="map-brand">
+            <div class="map-shield">🛡️</div>
+            <div>
+                <div class="map-brand-title">ON WATCH</div>
+                <div class="map-brand-subtitle">NETWORK MONITOR</div>
+            </div>
+        </div>
+
+        <div class="map-title-block">
+            <h1>ON WATCH NETWORK MONITOR</h1>
+            <div>SCALABLE INFRASTRUCTURE MAP</div>
+        </div>
+
+        <div class="map-header-status">
+            <div class="map-status-pill map-up">Phase 26 Online</div>
+            <div class="map-last-updated">
+                Last Updated:
+                <span id="mapLastUpdated">Loading...</span>
+                <span class="map-refresh-icon">↻</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="network-map-layout">
+        <aside class="network-map-left-sidebar">
+            <div class="map-time-card">
+                <div class="map-time-icon">🕒</div>
+                <div id="mapClock">Loading...</div>
+                <div id="mapDate">Loading...</div>
+            </div>
+
+            <a href="/" class="map-nav">🏠 Dashboard</a>
+            <a href="/device-status" class="map-nav">🖥 Device Status</a>
+            <a href="/cisco-links" class="map-nav">🔌 Cisco Links</a>
+            <a href="/network-map" class="map-nav active">🗺 Network Map</a>
+            <a href="/enterprise-inventory" class="map-nav">📦 Enterprise Inventory</a>
+            <a href="/infrastructure-registry" class="map-nav">🏗 Infrastructure Registry</a>
+            <a href="/event-log" class="map-nav">📜 Event Log</a>
+            <a href="/alerts" class="map-nav">
+                ⚠ Alerts
+                {% if active_alert_count > 0 %}
+                    <span class="map-alert-count">{{ active_alert_count }}</span>
+                {% endif %}
+            </a>
+            <a href="/knowledge-base" class="map-nav">📚 Knowledge Base</a>
+            <a href="/internet-history" class="map-nav">🌐 Internet History</a>
+            <a href="/backup-center" class="map-nav">🗄 Backup Center</a>
+            <a href="/reset-center" class="map-nav">🔄 Reset Center</a>
+
+            <div class="map-sidebar-title">QUICK ACTIONS</div>
+
+            <button class="map-action-btn green" onclick="openProvisionModal('physical')">
+                ➕ Add Physical Device
+            </button>
+
+            <button class="map-action-btn blue" onclick="openProvisionModal('infrastructure')">
+                🏗 Add Infrastructure
+            </button>
+
+            <a href="/provisioning" class="map-action-btn blue">
+                ⚙ Full Provisioning Center
+            </a>
+
+            <div class="map-system-card">
+                <div class="map-system-check">✅</div>
+                <div>
+                    <strong>SNMP Map Online</strong><br>
+                    <span id="mapSidebarSummary">Loading infrastructure...</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="network-map-main">
+            <section class="network-map-panel">
+                <div class="phase26-toolbar">
+                    <div class="phase26-toolbar-copy">
+                        <h2>ROUTER &amp; SWITCH INFRASTRUCTURE TREE</h2>
+                        <p>
+                            Router and switch interfaces are discovered through SNMP.
+                            Cached SNMP inventory is used only when live discovery is unavailable.
+                        </p>
+                    </div>
+
+                    <div class="phase26-actions">
+                        <div class="auto-refresh-controls">
+                            <label>
+                                <input id="autoRefreshToggle" type="checkbox" checked onchange="setAutoRefresh(this.checked)">
+                                <span>Auto Refresh</span>
+                            </label>
+                            <span class="refresh-interval">Every: 20 sec</span>
+                            <span class="refresh-time">Last Update: <strong id="clientLastUpdate">--:--:--</strong></span>
+                        </div>
+                        <button type="button" onclick="changeInterfaceZoom(-0.1)">−</button>
+                        <span id="interfaceZoomValue" class="zoom-value">100%</span>
+                        <button type="button" onclick="changeInterfaceZoom(0.1)">+</button>
+                        <button type="button" onclick="resetInterfaceZoom()">Reset</button>
+                        <button type="button" onclick="loadInfrastructureMap({ preserveView: true })">↻ Refresh</button>
+                        <a href="/infrastructure-registry">Manage Infrastructure</a>
+                    </div>
+                </div>
+
+                <div class="phase26-summary">
+                    <div class="summary-card">
+                        <strong id="summaryInfrastructure">0</strong>
+                        <span>Infrastructure</span>
+                    </div>
+                    <div class="summary-card">
+                        <strong id="summaryRouters">0</strong>
+                        <span>Routers</span>
+                    </div>
+                    <div class="summary-card">
+                        <strong id="summarySwitches">0</strong>
+                        <span>Switches</span>
+                    </div>
+                    <div class="summary-card">
+                        <strong id="summaryInterfaces">0</strong>
+                        <span>SNMP Interfaces</span>
+                    </div>
+                    <div class="summary-card">
+                        <strong id="summaryRoots">0</strong>
+                        <span>Topology Roots</span>
+                    </div>
+                    <div class="summary-card">
+                        <strong id="summaryUnmapped">0</strong>
+                        <span>Unmapped Endpoints</span>
+                    </div>
+                </div>
+
+                <div id="infrastructureTree" class="infrastructure-tree">
+                    <div class="tree-empty">Loading Phase 26A reconciled infrastructure tree...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="provisionModal" class="map-modal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h2>Network Map Provisioning</h2>
+                <button class="modal-close" type="button" onclick="closeProvisionModal()">×</button>
+            </div>
+
+            <div id="modalMessage" class="modal-message"></div>
+
+            <div class="modal-tabs">
+                <button id="tabMapExisting" type="button" onclick="showProvisionTab('existing')">
+                    Map Existing
+                </button>
+                <button id="tabPhysical" type="button" onclick="showProvisionTab('physical')">
+                    New Physical
+                </button>
+                <button id="tabInfrastructure" type="button" onclick="showProvisionTab('infrastructure')">
+                    Infrastructure
+                </button>
+            </div>
+
+            <div id="paneExisting" class="modal-pane">
+                <form onsubmit="submitQuickProvision(event, 'map_existing')">
+                    <div class="modal-grid">
+                        <div class="modal-field full">
+                            <label for="existingDevice">Existing unmapped device</label>
+                            <select id="existingDevice" required></select>
+                        </div>
+                        <div class="modal-field full">
+                            <label for="existingPort">SNMP switch interface</label>
+                            <select id="existingPort" required></select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="secondary" type="button" onclick="closeProvisionModal()">Cancel</button>
+                        <button class="primary" type="submit">Map Device</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="panePhysical" class="modal-pane">
+                <form onsubmit="submitQuickProvision(event, 'new_physical')">
+                    <div class="modal-grid">
+                        <div class="modal-field">
+                            <label for="physicalName">Device name</label>
+                            <input id="physicalName" type="text" required>
+                        </div>
+                        <div class="modal-field">
+                            <label for="physicalIp">IP address</label>
+                            <input id="physicalIp" type="text" required>
+                        </div>
+                        <div class="modal-field">
+                            <label for="physicalType">Device type</label>
+                            <select id="physicalType" required></select>
+                        </div>
+                        <div class="modal-field">
+                            <label for="physicalPort">SNMP switch interface</label>
+                            <select id="physicalPort" required></select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="secondary" type="button" onclick="closeProvisionModal()">Cancel</button>
+                        <button class="primary" type="submit">Provision Device</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="paneInfrastructure" class="modal-pane">
+                <form onsubmit="submitQuickProvision(event, 'new_infrastructure')">
+                    <div class="modal-grid">
+                        <div class="modal-field">
+                            <label for="infraName">Device name</label>
+                            <input id="infraName" type="text" required>
+                        </div>
+                        <div class="modal-field">
+                            <label for="infraIp">IP address</label>
+                            <input id="infraIp" type="text" required>
+                        </div>
+                        <div class="modal-field">
+                            <label for="infraRole">Infrastructure role</label>
+                            <select id="infraRole" required onchange="updateInfrastructureRoleFields()"></select>
+                        </div>
+                        <div id="infraParentField" class="modal-field">
+                            <label for="infraParent">Parent infrastructure device</label>
+                            <select id="infraParent" required onchange="refreshParentInterfaceOptions()"></select>
+                        </div>
+                        <div id="infraSourceField" class="modal-field">
+                            <label for="infraSourceInterface">Parent SNMP interface</label>
+                            <select id="infraSourceInterface" required></select>
+                        </div>
+                        <div id="infraTargetField" class="modal-field">
+                            <label for="infraTargetInterface">New device interface</label>
+                            <input id="infraTargetInterface" type="text" placeholder="Example: Gi0/0" required>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <a class="full-admin" href="/provisioning">Full Provisioning Center</a>
+                        <button class="secondary" type="button" onclick="closeProvisionModal()">Cancel</button>
+                        <button class="primary" type="submit">Add Infrastructure</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="macViewerModal" class="map-modal" aria-hidden="true" onclick="macViewerBackdropClose(event)">
+        <div class="modal-card mac-viewer-card">
+            <div class="modal-head">
+                <h2 id="macViewerTitle">Learned MAC Addresses</h2>
+                <button class="modal-close" type="button" onclick="closeMacViewer()">×</button>
+            </div>
+            <div id="macViewerSummary" class="mac-viewer-summary"></div>
+            <div style="overflow-x:auto;">
+                <table class="mac-table">
+                    <thead>
+                        <tr>
+                            <th>MAC Address</th>
+                            <th>Vendor</th>
+                            <th>Confidence</th>
+                            <th>Source</th>
+                            <th>VLAN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="macViewerBody"></tbody>
+                </table>
+            </div>
+            <div class="modal-actions">
+                <button class="secondary" type="button" onclick="closeMacViewer()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let phase26Data = null;
+        let macDetailRegistry = {};
+        let interfaceZoom = parseFloat(localStorage.getItem("onwatch-interface-zoom") || "1");
+        let selectedSwitchPort = "";
+        let autoRefreshEnabled = localStorage.getItem("onwatch-auto-refresh") !== "false";
+        let autoRefreshTimer = null;
+        const AUTO_REFRESH_MS = 20000;
+
+        // PHASE 26B.7K - LAZY INTERFACE RENDERING
+        // Infrastructure cards render immediately. Router and switch interface
+        // cards are created only after the user expands that device.
+
+        // PHASE 26B.7A HOTFIX
+        // Infrastructure devices belong in the recursive topology tree.
+        // Endpoints and virtual machines must render only inside their
+        // mapped SNMP interface card.
+        let renderedInfrastructureNodes = new Set();
+
+        function isInfrastructureTreeDevice(device) {
+            const role = String(device?.role || "").trim().toLowerCase();
+            return [
+                "internet",
+                "internet service",
+                "modem",
+                "gateway",
+                "router",
+                "switch",
+                "firewall",
+                "access point",
+                "ups",
+                "dns server",
+                "dhcp server",
+                "vpn gateway"
+            ].includes(role);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById("mapClock").textContent = now.toLocaleTimeString();
+            document.getElementById("mapDate").textContent = now.toLocaleDateString();
+        }
+
+        function applyInterfaceZoom() {
+            interfaceZoom = Math.min(1.5, Math.max(0.75, interfaceZoom));
+            document.documentElement.style.setProperty("--interface-scale", interfaceZoom.toFixed(2));
+            document.getElementById("interfaceZoomValue").textContent = `${Math.round(interfaceZoom * 100)}%`;
+            localStorage.setItem("onwatch-interface-zoom", String(interfaceZoom));
+        }
+
+        function changeInterfaceZoom(amount) {
+            interfaceZoom = Math.min(1.5, Math.max(0.75, interfaceZoom + amount));
+            applyInterfaceZoom();
+        }
+
+        function resetInterfaceZoom() {
+            interfaceZoom = 1;
+            applyInterfaceZoom();
+        }
+
+        function collapsedStorageKey(deviceName) {
+            return `onwatch-interface-collapsed-${String(deviceName || "").toLowerCase()}`;
+        }
+
+        function isInterfaceSectionCollapsed(deviceName) {
+            const storedValue = localStorage.getItem(collapsedStorageKey(deviceName));
+
+            // Phase 26B.7K - Lazy Interface Rendering
+            // Router and switch interface grids start collapsed unless the user
+            // has explicitly expanded them before.
+            if (storedValue === null) {
+                return true;
+            }
+
+            return storedValue === "true";
+        }
+
+        function toggleInterfaceSection(deviceName) {
+            const nextState = !isInterfaceSectionCollapsed(deviceName);
+            localStorage.setItem(collapsedStorageKey(deviceName), nextState ? "true" : "false");
+            renderInfrastructureTree();
+        }
+
+        function updateClientLastUpdate() {
+            const target = document.getElementById("clientLastUpdate");
+            if (target) {
+                target.textContent = new Date().toLocaleTimeString();
+            }
+        }
+
+        function scheduleAutoRefresh() {
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+                autoRefreshTimer = null;
+            }
+
+            if (autoRefreshEnabled) {
+                autoRefreshTimer = setInterval(() => {
+                    loadInfrastructureMap({ preserveView: true, silent: true });
+                }, AUTO_REFRESH_MS);
+            }
+        }
+
+        function setAutoRefresh(enabled) {
+            autoRefreshEnabled = Boolean(enabled);
+            localStorage.setItem("onwatch-auto-refresh", autoRefreshEnabled ? "true" : "false");
+            scheduleAutoRefresh();
+        }
+
+        function advancedInterfaceStorageKey(deviceName) {
+            return `onwatch-hide-advanced-${String(deviceName || "").toLowerCase()}`;
+        }
+
+        function shouldHideAdvancedInterfaces(deviceName) {
+            return localStorage.getItem(advancedInterfaceStorageKey(deviceName)) === "true";
+        }
+
+        function isAdvancedInterface(item) {
+            const interfaceName = String(
+                item.short_name || item.name || item.index || ""
+            ).trim().toLowerCase();
+
+            return (
+                interfaceName.startsWith("backplane") ||
+                interfaceName.startsWith("ese") ||
+                interfaceName.startsWith("embedded-service-engine") ||
+                interfaceName.startsWith("embedded service engine") ||
+                interfaceName.startsWith("stacksub") ||
+                interfaceName.startsWith("stackport")
+            );
+        }
+
+        function toggleAdvancedInterfaces(deviceName, hideAdvanced) {
+            localStorage.setItem(
+                advancedInterfaceStorageKey(deviceName),
+                hideAdvanced ? "true" : "false"
+            );
+            renderInfrastructureTree();
+        }
+
+        function isInterfaceUp(item) {
+            return String(item.state || "").trim().toUpperCase() === "UP";
+        }
+
+        function isUnmappedSwitchEndpoint(device, item) {
+            return (
+                String(device.role || "").toLowerCase() === "switch" &&
+                isInterfaceUp(item) &&
+                !item.connection &&
+                !item.endpoint
+            );
+        }
+
+        function countUnmappedEndpoints() {
+            if (!phase26Data || !phase26Data.devices) {
+                return 0;
+            }
+
+            return Object.values(phase26Data.devices).reduce((total, device) => {
+                if (String(device.role || "").toLowerCase() !== "switch") {
+                    return total;
+                }
+
+                return total + (device.interfaces || []).filter((item) =>
+                    isUnmappedSwitchEndpoint(device, item)
+                ).length;
+            }, 0);
+        }
+
+        function vendorConfidence(record) {
+            const source = String(record.vendor_source || "").toLowerCase();
+            const vendor = String(record.vendor || "").toLowerCase();
+
+            if (source.includes("ieee ma-") || source.includes("ieee oui") || source.includes("ieee iab")) {
+                return { label: "High", className: "high" };
+            }
+
+            if (source.includes("mac address flags") || vendor.includes("locally administered") || vendor.includes("randomized")) {
+                return { label: "Low", className: "low" };
+            }
+
+            return { label: "Unknown", className: "unknown" };
+        }
+
+        function detectedEndpointHtml(device, item) {
+            const detected = Array.isArray(item.detected_macs) ? item.detected_macs : [];
+            if (!detected.length) {
+                return `
+                    <div class="detected-endpoint-details">
+                        <strong>MAC address not learned yet</strong>
+                        <span>The switch link is UP, but the forwarding table has not reported a device MAC.</span>
+                    </div>
+                `;
+            }
+
+            const first = detected[0];
+            const vendor = first.vendor || "Unknown vendor";
+            const confidence = vendorConfidence(first);
+            const vendorSource = first.vendor_source
+                ? `<span>Vendor source: ${escapeHtml(first.vendor_source)}</span>`
+                : `<span>Vendor source: No IEEE registry match</span>`;
+            const vlan = first.vlan && first.vlan !== "Unknown"
+                ? `<span>VLAN: ${escapeHtml(first.vlan)}</span>`
+                : "";
+            const registryKey = `${device.name}||${item.index}`;
+            macDetailRegistry[registryKey] = {
+                deviceName: device.name,
+                interfaceName: item.short_name || item.name || item.index,
+                detected
+            };
+
+            const multiple = detected.length > 1;
+            const more = multiple
+                ? `
+                    <span class="detected-endpoint-more">${detected.length} learned MAC addresses</span>
+                    <button
+                        type="button"
+                        class="view-macs-button"
+                        data-mac-key="${escapeHtml(registryKey)}"
+                        onclick="event.stopPropagation(); openMacViewer(this.dataset.macKey)"
+                    >
+                        View All MACs
+                    </button>
+                `
+                : "";
+
+            return `
+                <div class="detected-endpoint-details">
+                    <strong>MAC: ${escapeHtml(first.mac)}</strong>
+                    <span class="detected-vendor-name">🏢 ${escapeHtml(vendor)}</span>
+                    <span class="detected-confidence ${confidence.className}">Confidence: ${confidence.label}</span>
+                    ${vendorSource}
+                    ${vlan}
+                    ${more}
+                </div>
+            `;
+        }
+
+        function serviceChecksHtml(device) {
+            const checks = Array.isArray(device.service_checks) ? device.service_checks : [];
+            if (!checks.length) {
+                return `
+                    <div class="reachability-panel">
+                        No Internet reachability targets are configured.
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="service-check-grid">
+                    ${checks.map((check) => `
+                        <div class="service-check-card ${escapeHtml(check.status_class || "map-unknown")}">
+                            <div class="service-check-target">${escapeHtml(check.target || check.name || "Target")}</div>
+                            <div class="service-check-state">${escapeHtml(check.state || "UNKNOWN")}</div>
+                            <div class="service-check-latency">${escapeHtml(check.latency || "N/A")}</div>
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function interfaceCardHtml(device, item) {
+            const label = item.short_name || item.name || item.index;
+            const connection = item.connection;
+            const endpoint = item.endpoint;
+            const canMapEndpoint = String(device.role || "").toLowerCase() === "switch";
+            const unmappedEndpoint = isUnmappedSwitchEndpoint(device, item);
+            const interfaceUp = isInterfaceUp(item);
+
+            let content = `
+                <div class="interface-label">${escapeHtml(label)}</div>
+                <div class="interface-state">${escapeHtml(item.state || "UNKNOWN")}</div>
+            `;
+
+            if (connection) {
+                content += `
+                    <div class="connection-card">
+                        <span class="connection-direction">${escapeHtml(connection.direction)}</span>
+                        <strong>${escapeHtml(connection.peer)}</strong>
+                        <span>${escapeHtml(connection.interface || connection.index || "Physical link")}</span>
+                        ${connection.inferred ? '<span class="inferred-link-note">Matched from SNMP interface description</span>' : ''}
+                    </div>
+                `;
+            }
+
+            if (endpoint) {
+                const virtualChildren = (endpoint.virtual_children || []).map((child) => {
+                    const childMaintenance = String(child.state || "").trim().toUpperCase() === "MAINTENANCE";
+                    return `
+                    <div class="vm-item ${childMaintenance ? "vm-maintenance" : ""}">
+                        ${childMaintenance ? '<div class="vm-maintenance-badge">🔧 MAINTENANCE</div>' : ''}
+                        <strong>${escapeHtml(child.icon)} ${escapeHtml(child.name)}</strong>
+                        <span>${escapeHtml(child.ip)} • ${escapeHtml(child.state)}</span>
+                    </div>
+                `;
+                }).join("");
+
+                const endpointMaintenance = String(endpoint.state || "").trim().toUpperCase() === "MAINTENANCE";
+
+                content += `
+                    <div class="endpoint-card ${endpointMaintenance ? "endpoint-maintenance" : ""}">
+                        ${endpointMaintenance ? '<div class="endpoint-maintenance-badge">🔧 MAINTENANCE</div>' : ''}
+                        <strong>${escapeHtml(endpoint.icon)} ${escapeHtml(endpoint.name)}</strong>
+                        <span>${escapeHtml(endpoint.ip)} • ${escapeHtml(endpoint.state)}</span>
+                        ${virtualChildren ? `
+                            <div class="vm-list">
+                                <div class="vm-list-title">Virtual Machines</div>
+                                ${virtualChildren}
+                            </div>
+                        ` : ""}
+                    </div>
+                `;
+            }
+
+            if (!connection && !endpoint) {
+                if (unmappedEndpoint) {
+                    content += `
+                        <div class="unmapped-endpoint">${Array.isArray(item.detected_macs) && item.detected_macs.length > 1 ? "⚠ Multiple Devices Detected" : "⚠ Unmapped Endpoint"}</div>
+                        ${detectedEndpointHtml(device, item)}
+                        <button
+                            type="button"
+                            class="map-device-button"
+                            onclick="openPortProvision('${escapeHtml(device.name)}||${escapeHtml(item.index)}')"
+                        >
+                            Map Device
+                        </button>
+                    `;
+                } else if (canMapEndpoint && !interfaceUp) {
+                    content += `
+                        <div class="no-link-message">No Link</div>
+                    `;
+                } else {
+                    content += `
+                        <div class="available-action" onclick="openProvisionModal('infrastructure')">
+                            <div class="available-plus">＋</div>
+                            <span>Available interface</span>
+                        </div>
+                    `;
+                }
+            }
+
+            const cardStatusClass = unmappedEndpoint
+                ? "map-unmapped"
+                : escapeHtml(item.status_class || "map-unknown");
+
+            return `
+                <div class="interface-card ${cardStatusClass} ${item.available ? "available" : ""}">
+                    ${content}
+                </div>
+            `;
+        }
+
+        function renderInfrastructureBranch(deviceName, ancestry = new Set()) {
+            if (!phase26Data || !phase26Data.devices[deviceName]) {
+                return "";
+            }
+
+            const requestedDevice = phase26Data.devices[deviceName];
+
+            // Never promote endpoints, hosts, laptops, Chromebooks, servers,
+            // or virtual machines into the recursive infrastructure tree.
+            // Those devices are displayed beneath their SNMP switch port.
+            if (!isInfrastructureTreeDevice(requestedDevice)) {
+                return "";
+            }
+
+            // Protect against duplicate roots and duplicate parent references.
+            if (renderedInfrastructureNodes.has(deviceName)) {
+                return "";
+            }
+
+            if (ancestry.has(deviceName)) {
+                return `
+                    <div class="tree-error">
+                        Cycle blocked while rendering ${escapeHtml(deviceName)}.
+                    </div>
+                `;
+            }
+
+            const nextAncestry = new Set(ancestry);
+            nextAncestry.add(deviceName);
+            renderedInfrastructureNodes.add(deviceName);
+
+            const device = requestedDevice;
+            const children = (phase26Data.children_by_parent[deviceName] || [])
+                .filter((childName) => {
+                    const child = phase26Data.devices[childName];
+                    return child && isInfrastructureTreeDevice(child);
+                });
+            const interfaces = device.interfaces || [];
+            const isRouter = String(device.role || "").toLowerCase() === "router";
+            const hideAdvanced = isRouter && shouldHideAdvancedInterfaces(device.name);
+            const visibleInterfaces = hideAdvanced
+                ? interfaces.filter((item) => !isAdvancedInterface(item))
+                : interfaces;
+            const hiddenAdvancedCount = interfaces.length - visibleInterfaces.length;
+            const roleLower = String(device.role || "").toLowerCase();
+            const isInternetService = roleLower === "internet";
+            const isModem = roleLower === "modem";
+            const canCollapseInterfaceSection = ["router", "switch"].includes(roleLower);
+            const interfaceSectionCollapsed = canCollapseInterfaceSection && isInterfaceSectionCollapsed(device.name);
+            const roleClass = `role-${roleLower.replace(/[^a-z0-9]+/g, "-")}`;
+            const maintenanceClass = device.maintenance_mode ? "map-maintenance" : "";
+
+            let sectionTitle = `${device.name} Interface Grid`;
+            let sectionSource = device.snmp_source || "";
+            let interfaceGrid = "";
+
+            if (isInternetService) {
+                sectionTitle = "Internet Reachability Checks";
+                sectionSource = device.service_check_summary || "External multi-target monitoring";
+                interfaceGrid = serviceChecksHtml(device);
+            } else if (isModem && !visibleInterfaces.length) {
+                sectionTitle = "Gateway Reachability";
+                sectionSource = device.snmp_source || "Ping/ARP reachability";
+                interfaceGrid = `
+                    <div class="reachability-panel">
+                        This gateway does not require SNMP interface discovery. Its device status is monitored by reachability, while physical switch links can be correlated from configured topology links or live SNMP interface descriptions.
+                    </div>
+                `;
+            } else if (interfaceSectionCollapsed) {
+                // Phase 26B.7K - Lazy Interface Rendering
+                // Do not build interface cards while the section is collapsed.
+                // This keeps the first paint fast even with multiple 24/48-port switches.
+                interfaceGrid = "";
+            } else {
+                interfaceGrid = visibleInterfaces.length
+                    ? `<div class="interface-grid">${visibleInterfaces.map((item) => interfaceCardHtml(device, item)).join("")}</div>`
+                    : `
+                        <div class="no-interface-message">
+                            ${interfaces.length && hideAdvanced
+                                ? "All discovered interfaces for this router are currently classified as advanced and hidden."
+                                : `No SNMP interfaces are currently cached for this ${escapeHtml(device.role)}. Run infrastructure discovery from the Infrastructure Registry or Provisioning Center.`}
+                        </div>
+                    `;
+            }
+
+            const renderedChildren = children
+                .map((childName) => renderInfrastructureBranch(childName, nextAncestry))
+                .filter((html) => String(html || "").trim());
+
+            const childrenHtml = renderedChildren.length
+                ? `
+                    <div class="infrastructure-children">
+                        ${renderedChildren.join("")}
+                    </div>
+                `
+                : "";
+
+            return `
+                <div class="infrastructure-branch">
+                    <article class="infrastructure-card ${device.maintenance_mode ? "map-maintenance" : escapeHtml(device.status_class || "map-unknown")} ${escapeHtml(roleClass)} ${interfaceSectionCollapsed ? "interface-collapsed" : ""}">
+                        <header class="infrastructure-header">
+                            <div class="infrastructure-icon">${escapeHtml(device.icon)}</div>
+                            <div class="infrastructure-copy">
+                                <strong>${escapeHtml(device.name)}</strong>
+                                <span>${escapeHtml(device.role)} • ${escapeHtml(device.ip || "No IP")}</span>
+                                ${device.parent ? `<span>Parent: ${escapeHtml(device.parent)}</span>` : "<span>Topology root</span>"}
+                            </div>
+                            <div class="infrastructure-meta">
+                                <div class="state-pill ${device.maintenance_mode ? "maintenance-badge" : ""}">${escapeHtml(device.maintenance_badge || device.state)}</div>
+                                ${device.maintenance_mode ? `<div class="maintenance-detail"><strong>${escapeHtml(device.maintenance_reason || "Maintenance")}</strong><br>Remaining: ${escapeHtml(device.maintenance_remaining || "Manual")}<br>Physical state: ${escapeHtml(device.physical_state || "UNKNOWN")}</div>` : ""}
+                                <div>${isInternetService
+                                    ? escapeHtml(device.service_check_summary || "Internet reachability monitoring")
+                                    : isModem
+                                        ? "Gateway reachability monitoring"
+                                        : `${escapeHtml(device.interface_count)} SNMP interfaces`}
+                                </div>
+                                <div>${isInternetService
+                                    ? "External service targets"
+                                    : isModem
+                                        ? "SNMP not required"
+                                        : escapeHtml(device.last_discovery || "Not discovered")}
+                                </div>
+                                ${canCollapseInterfaceSection ? `
+                                    <button
+                                        type="button"
+                                        class="section-collapse-button"
+                                        onclick="toggleInterfaceSection('${escapeHtml(device.name)}')"
+                                    >
+                                        ${interfaceSectionCollapsed
+                                            ? `Show ${visibleInterfaces.length} Interface${visibleInterfaces.length === 1 ? "" : "s"}`
+                                            : "Hide Interface Grid"}
+                                    </button>
+                                ` : ""}
+                                ${isRouter ? `
+                                    <label class="advanced-interface-toggle">
+                                        <input
+                                            type="checkbox"
+                                            data-device="${escapeHtml(device.name)}"
+                                            ${hideAdvanced ? "checked" : ""}
+                                            onchange="toggleAdvancedInterfaces(this.dataset.device, this.checked)"
+                                        >
+                                        <span>Hide Advanced Interfaces</span>
+                                    </label>
+                                    ${hideAdvanced && hiddenAdvancedCount > 0
+                                        ? `<div class="advanced-interface-note">${hiddenAdvancedCount} advanced interface${hiddenAdvancedCount === 1 ? "" : "s"} hidden</div>`
+                                        : ""}
+                                ` : ""}
+                            </div>
+                        </header>
+
+                        <section class="interface-section">
+                            <div class="interface-section-title">
+                                <h4>${escapeHtml(sectionTitle)}</h4>
+                                <span>${escapeHtml(sectionSource)}</span>
+                            </div>
+                            ${interfaceGrid}
+                        </section>
+                    </article>
+                    ${childrenHtml}
+                </div>
+            `;
+        }
+
+        function renderInfrastructureTree() {
+            const tree = document.getElementById("infrastructureTree");
+            macDetailRegistry = {};
+            renderedInfrastructureNodes = new Set();
+
+            if (!phase26Data || !phase26Data.roots || phase26Data.roots.length === 0) {
+                tree.innerHTML = '<div class="tree-empty">No infrastructure topology roots were found.</div>';
+                return;
+            }
+
+            const infrastructureRoots = phase26Data.roots.filter((rootName) => {
+                const rootDevice = phase26Data.devices?.[rootName];
+                return rootDevice && isInfrastructureTreeDevice(rootDevice);
+            });
+
+            const renderedTree = infrastructureRoots
+                .map((rootName) => renderInfrastructureBranch(rootName))
+                .filter((html) => String(html || "").trim())
+                .join("");
+
+            if (!renderedTree) {
+                tree.innerHTML = `
+                    <div class="tree-error">
+                        The API returned no valid infrastructure roots. Endpoint devices were intentionally
+                        excluded from the recursive tree and remain available inside their mapped switch ports.
+                    </div>
+                `;
+                return;
+            }
+
+            const validation = phase26Data.topology_validation || {};
+            const warnings = Array.isArray(validation.warnings) ? validation.warnings : [];
+            const validationHtml = warnings.length
+                ? `
+                    <div class="tree-error" style="margin-top:16px;text-align:left;">
+                        <strong>Phase 26A Topology Reconciliation</strong><br>
+                        ${warnings.map((warning) => `• ${escapeHtml(warning)}`).join("<br>")}
+                    </div>
+                `
+                : `
+                    <div class="tree-empty" style="margin-top:16px;padding:12px;">
+                        Controlled Discovery + Auto-Linking active • Provisioned infrastructure is connected automatically by role; SNMP never creates devices.
+                    </div>
+                `;
+
+            tree.innerHTML = renderedTree + validationHtml;
+        }
+
+        function openMacViewer(registryKey) {
+            const record = macDetailRegistry[registryKey];
+            if (!record) {
+                return;
+            }
+
+            const modal = document.getElementById("macViewerModal");
+            const title = document.getElementById("macViewerTitle");
+            const summary = document.getElementById("macViewerSummary");
+            const body = document.getElementById("macViewerBody");
+
+            title.textContent = `${record.deviceName} • ${record.interfaceName}`;
+            summary.textContent = `${record.detected.length} MAC address${record.detected.length === 1 ? "" : "es"} learned on this interface.`;
+            body.innerHTML = record.detected.map((entry) => {
+                const confidence = vendorConfidence(entry);
+                return `
+                    <tr>
+                        <td>${escapeHtml(entry.mac || "Unknown")}</td>
+                        <td class="vendor-cell">${escapeHtml(entry.vendor || "Unknown vendor")}</td>
+                        <td><span class="detected-confidence ${confidence.className}">${confidence.label}</span></td>
+                        <td>${escapeHtml(entry.vendor_source || "No IEEE registry match")}</td>
+                        <td>${escapeHtml(entry.vlan || "Unknown")}</td>
+                    </tr>
+                `;
+            }).join("");
+
+            modal.classList.add("open");
+            modal.setAttribute("aria-hidden", "false");
+        }
+
+        function closeMacViewer() {
+            const modal = document.getElementById("macViewerModal");
+            modal.classList.remove("open");
+            modal.setAttribute("aria-hidden", "true");
+        }
+
+        function macViewerBackdropClose(event) {
+            if (event.target.id === "macViewerModal") {
+                closeMacViewer();
+            }
+        }
+
+        function updateSummary(summary) {
+            document.getElementById("summaryInfrastructure").textContent = summary.infrastructure_devices || 0;
+            document.getElementById("summaryRouters").textContent = summary.routers || 0;
+            document.getElementById("summarySwitches").textContent = summary.switches || 0;
+            document.getElementById("summaryInterfaces").textContent = summary.interfaces || 0;
+            document.getElementById("summaryRoots").textContent = summary.roots || 0;
+            document.getElementById("summaryUnmapped").textContent = countUnmappedEndpoints();
+            document.getElementById("mapLastUpdated").textContent = summary.last_updated || "Unknown";
+            document.getElementById("mapSidebarSummary").textContent =
+                `${summary.routers || 0} Routers • ${summary.switches || 0} Switches • ${summary.interfaces || 0} Interfaces`;
+        }
+
+        async function loadInfrastructureMap(options = {}) {
+            const tree = document.getElementById("infrastructureTree");
+            const preserveView = options.preserveView !== false;
+            const silent = options.silent === true;
+            const savedScrollX = window.scrollX;
+            const savedScrollY = window.scrollY;
+
+            if (!silent && !phase26Data) {
+                tree.innerHTML = '<div class="tree-empty">Loading Phase 26A reconciled infrastructure tree...</div>';
+            }
+
+            try {
+                const response = await fetch("/api/network-map-infrastructure", {
+                    cache: "no-store"
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Unable to load infrastructure map.");
+                }
+
+                phase26Data = data;
+                updateSummary(data.summary || {});
+                populateProvisioningOptions();
+
+                if (!data.roots || data.roots.length === 0) {
+                    tree.innerHTML = `
+                        <div class="tree-empty">
+                            No infrastructure has been provisioned yet. Add Internet, gateway, router, or switch devices in the Provisioning Center.
+                        </div>
+                    `;
+                    return;
+                }
+
+                renderInfrastructureTree();
+                updateClientLastUpdate();
+
+                if (preserveView) {
+                    requestAnimationFrame(() => {
+                        window.scrollTo(savedScrollX, savedScrollY);
+                    });
+                }
+            } catch (error) {
+                if (!silent || !phase26Data) {
+                    tree.innerHTML = `<div class="tree-error">${escapeHtml(error.message)}</div>`;
+                }
+            }
+        }
+
+        function setSelectOptions(selectId, items, valueKey, labelBuilder, placeholder) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>`;
+
+            items.forEach((item) => {
+                const option = document.createElement("option");
+                option.value = item[valueKey];
+                option.textContent = labelBuilder(item);
+                select.appendChild(option);
+            });
+        }
+
+        function allAvailableSwitchPorts() {
+            const ports = [];
+
+            if (!phase26Data) {
+                return ports;
+            }
+
+            Object.values(phase26Data.devices).forEach((device) => {
+                if (device.role !== "Switch") {
+                    return;
+                }
+
+                (device.interfaces || []).forEach((item) => {
+                    if (!item.connection && !item.endpoint) {
+                        ports.push({
+                            value: `${device.name}||${item.index}`,
+                            switch_name: device.name,
+                            index: item.index,
+                            label: `${device.name} — ${item.short_name || item.name || item.index}`
+                        });
+                    }
+                });
+            });
+
+            return ports;
+        }
+
+        function populateProvisioningOptions() {
+            if (!phase26Data) {
+                return;
+            }
+
+            setSelectOptions(
+                "existingDevice",
+                phase26Data.unmapped_devices || [],
+                "name",
+                (item) => `${item.name} (${item.ip})`,
+                "Select an unmapped device"
+            );
+
+            const availablePorts = allAvailableSwitchPorts();
+            setSelectOptions(
+                "existingPort",
+                availablePorts,
+                "value",
+                (item) => item.label,
+                "Select a free switch interface"
+            );
+            setSelectOptions(
+                "physicalPort",
+                availablePorts,
+                "value",
+                (item) => item.label,
+                "Select a free switch interface"
+            );
+
+            setSelectOptions(
+                "physicalType",
+                (phase26Data.physical_device_types || []).map((value) => ({ value })),
+                "value",
+                (item) => item.value,
+                "Select device type"
+            );
+
+            setSelectOptions(
+                "infraRole",
+                (phase26Data.infrastructure_roles || []).map((label) => ({
+                    value: label === "Internet Service"
+                        ? "Internet"
+                        : label === "Modem / Gateway"
+                            ? "Modem"
+                            : label,
+                    label
+                })),
+                "value",
+                (item) => item.label,
+                "Select infrastructure role"
+            );
+
+            setSelectOptions(
+                "infraParent",
+                phase26Data.infrastructure_choices || [],
+                "name",
+                (item) => `${item.name} — ${item.role} (${item.ip})`,
+                "Select parent infrastructure device"
+            );
+
+            updateInfrastructureRoleFields();
+            refreshParentInterfaceOptions();
+        }
+
+        function normalizedInfrastructureRoleLabel(value) {
+            const role = String(value || "").toLowerCase();
+            if (role.includes("internet")) return "Internet";
+            if (role.includes("modem") || role.includes("gateway")) return "Modem";
+            return value;
+        }
+
+        function updateInfrastructureRoleFields() {
+            const role = normalizedInfrastructureRoleLabel(
+                document.getElementById("infraRole").value
+            );
+            const isInternet = role === "Internet";
+
+            ["infraParentField", "infraSourceField", "infraTargetField"].forEach((id) => {
+                const field = document.getElementById(id);
+                if (field) field.style.display = isInternet ? "none" : "";
+            });
+
+            document.getElementById("infraParent").required = !isInternet;
+            document.getElementById("infraSourceInterface").required = !isInternet;
+            document.getElementById("infraTargetInterface").required = !isInternet;
+
+            const ipLabel = document.querySelector('label[for="infraIp"]');
+            if (ipLabel) {
+                ipLabel.textContent = isInternet
+                    ? "Primary monitoring target"
+                    : "IP address";
+            }
+
+            const ipInput = document.getElementById("infraIp");
+            if (ipInput) {
+                ipInput.placeholder = isInternet ? "Example: 8.8.8.8" : "";
+            }
+
+            if (!isInternet) {
+                refreshParentInterfaceOptions();
+            }
+        }
+
+        function refreshParentInterfaceOptions() {
+            const parentName = document.getElementById("infraParent").value;
+            const interfaces = phase26Data?.parent_interfaces?.[parentName] || [];
+
+            setSelectOptions(
+                "infraSourceInterface",
+                interfaces,
+                "name",
+                (item) => item.name,
+                "Select parent SNMP interface"
+            );
+        }
+
+        function showModalMessage(message, isError = false) {
+            const box = document.getElementById("modalMessage");
+            box.textContent = message;
+            box.className = `modal-message show ${isError ? "error" : "ok"}`;
+        }
+
+        function clearModalMessage() {
+            const box = document.getElementById("modalMessage");
+            box.textContent = "";
+            box.className = "modal-message";
+        }
+
+        function openProvisionModal(tab = "physical") {
+            clearModalMessage();
+            populateProvisioningOptions();
+            showProvisionTab(tab);
+            const modal = document.getElementById("provisionModal");
+            modal.classList.add("open");
+            modal.setAttribute("aria-hidden", "false");
+        }
+
+        function openPortProvision(portValue) {
+            selectedSwitchPort = portValue;
+            openProvisionModal("existing");
+            document.getElementById("existingPort").value = portValue;
+            document.getElementById("physicalPort").value = portValue;
+        }
+
+        function closeProvisionModal() {
+            const modal = document.getElementById("provisionModal");
+            modal.classList.remove("open");
+            modal.setAttribute("aria-hidden", "true");
+            selectedSwitchPort = "";
+        }
+
+        function showProvisionTab(tab) {
+            const tabs = ["existing", "physical", "infrastructure"];
+
+            tabs.forEach((name) => {
+                const buttonId = name === "existing"
+                    ? "tabMapExisting"
+                    : name === "physical"
+                        ? "tabPhysical"
+                        : "tabInfrastructure";
+
+                document.getElementById(buttonId).classList.toggle("active", name === tab);
+                document.getElementById(`pane${name.charAt(0).toUpperCase()}${name.slice(1)}`)
+                    .classList.toggle("active", name === tab);
+            });
+        }
+
+        async function submitQuickProvision(event, action) {
+            event.preventDefault();
+            clearModalMessage();
+
+            let payload = { action };
+
+            if (action === "map_existing") {
+                const [switchDevice, switchPort] = document.getElementById("existingPort").value.split("||");
+                payload.device_name = document.getElementById("existingDevice").value;
+                payload.switch_device = switchDevice || "";
+                payload.switch_port = switchPort || "";
+            }
+
+            if (action === "new_physical") {
+                const [switchDevice, switchPort] = document.getElementById("physicalPort").value.split("||");
+                payload.device_name = document.getElementById("physicalName").value.trim();
+                payload.ip_address = document.getElementById("physicalIp").value.trim();
+                payload.physical_device_type = document.getElementById("physicalType").value;
+                payload.switch_device = switchDevice || "";
+                payload.switch_port = switchPort || "";
+            }
+
+            if (action === "new_infrastructure") {
+                payload.device_name = document.getElementById("infraName").value.trim();
+                payload.ip_address = document.getElementById("infraIp").value.trim();
+                payload.infrastructure_role = document.getElementById("infraRole").value;
+                const normalizedRole = normalizedInfrastructureRoleLabel(payload.infrastructure_role);
+                payload.parent_device = normalizedRole === "Internet"
+                    ? ""
+                    : document.getElementById("infraParent").value;
+                payload.source_interface = normalizedRole === "Internet"
+                    ? ""
+                    : document.getElementById("infraSourceInterface").value;
+                payload.target_interface = normalizedRole === "Internet"
+                    ? ""
+                    : document.getElementById("infraTargetInterface").value.trim();
+            }
+
+            try {
+                const response = await fetch("/api/network-map/quick-provision", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Provisioning failed.");
+                }
+
+                showModalMessage(data.message || "Provisioning completed.");
+                await loadInfrastructureMap();
+
+                setTimeout(() => {
+                    closeProvisionModal();
+                }, 1100);
+            } catch (error) {
+                showModalMessage(error.message, true);
+            }
+        }
+
+        document.getElementById("provisionModal").addEventListener("click", (event) => {
+            if (event.target.id === "provisionModal") {
+                closeProvisionModal();
+            }
+        });
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        document.getElementById("autoRefreshToggle").checked = autoRefreshEnabled;
+        applyInterfaceZoom();
+        loadInfrastructureMap({ preserveView: false });
+        scheduleAutoRefresh();
+    </script>
+</body>
+</html>

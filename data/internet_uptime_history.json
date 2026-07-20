@@ -1,0 +1,370 @@
+[
+    {
+        "start_time": "2026-07-19 21:10:24",
+        "end_time": "2026-07-19 21:10:42",
+        "duration": "18s",
+        "duration_seconds": 18,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-19 16:09:50",
+        "end_time": "2026-07-19 16:10:08",
+        "duration": "18s",
+        "duration_seconds": 18,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-19 13:10:49",
+        "end_time": "2026-07-19 13:11:06",
+        "duration": "17s",
+        "duration_seconds": 17,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-19 13:09:33",
+        "end_time": "2026-07-19 13:10:28",
+        "duration": "55s",
+        "duration_seconds": 55,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-19 07:08:55",
+        "end_time": "2026-07-19 07:09:11",
+        "duration": "16s",
+        "duration_seconds": 16,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-19 04:08:53",
+        "end_time": "2026-07-19 04:09:29",
+        "duration": "36s",
+        "duration_seconds": 36,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-19 01:08:28",
+        "end_time": "2026-07-19 01:09:41",
+        "duration": "1m 13s",
+        "duration_seconds": 73,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-19 00:08:49",
+        "end_time": "2026-07-19 00:09:05",
+        "duration": "16s",
+        "duration_seconds": 16,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-18 22:08:30",
+        "end_time": "2026-07-18 22:08:47",
+        "duration": "17s",
+        "duration_seconds": 17,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-18 19:07:40",
+        "end_time": "2026-07-18 19:08:34",
+        "duration": "54s",
+        "duration_seconds": 54,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-18 15:07:55",
+        "end_time": "2026-07-18 15:08:14",
+        "duration": "19s",
+        "duration_seconds": 19,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-18 15:07:22",
+        "end_time": "2026-07-18 15:07:38",
+        "duration": "16s",
+        "duration_seconds": 16,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-18 03:05:24",
+        "end_time": "2026-07-18 03:06:18",
+        "duration": "54s",
+        "duration_seconds": 54,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-18 00:05:06",
+        "end_time": "2026-07-18 00:05:58",
+        "duration": "52s",
+        "duration_seconds": 52,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-17 13:59:30",
+        "end_time": "2026-07-17 13:59:45",
+        "duration": "15s",
+        "duration_seconds": 15,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8"
+    },
+    {
+        "start_time": "2026-07-08 11:26:52",
+        "end_time": "2026-07-08 11:27:53",
+        "duration": "1m 1s",
+        "duration_seconds": 61,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-07-07 18:05:35",
+        "end_time": "2026-07-08 06:29:48",
+        "duration": "12h 24m 13s",
+        "duration_seconds": 44653,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-07-07 01:40:18",
+        "end_time": "2026-07-07 01:40:59",
+        "duration": "41s",
+        "duration_seconds": 41,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-07-06 02:53:44",
+        "end_time": "2026-07-06 02:54:12",
+        "duration": "28s",
+        "duration_seconds": 28,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-30 12:14:42",
+        "end_time": "2026-06-30 12:16:05",
+        "duration": "1m 23s",
+        "duration_seconds": 83,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-30 02:12:53",
+        "end_time": "2026-06-30 02:16:09",
+        "duration": "3m 16s",
+        "duration_seconds": 196,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-28 23:30:41",
+        "end_time": "2026-06-28 23:31:38",
+        "duration": "57s",
+        "duration_seconds": 57,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-28 14:47:18",
+        "end_time": "2026-06-28 14:48:16",
+        "duration": "58s",
+        "duration_seconds": 58,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 20:07:05",
+        "end_time": "2026-06-25 20:08:37",
+        "duration": "1m 32s",
+        "duration_seconds": 92,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 20:06:22",
+        "end_time": "2026-06-25 20:06:44",
+        "duration": "22s",
+        "duration_seconds": 22,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 20:02:31",
+        "end_time": "2026-06-25 20:05:59",
+        "duration": "3m 28s",
+        "duration_seconds": 208,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 20:01:48",
+        "end_time": "2026-06-25 20:02:09",
+        "duration": "21s",
+        "duration_seconds": 21,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 19:59:11",
+        "end_time": "2026-06-25 20:00:43",
+        "duration": "1m 32s",
+        "duration_seconds": 92,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 18:57:45",
+        "end_time": "2026-06-25 18:58:29",
+        "duration": "44s",
+        "duration_seconds": 44,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 17:56:07",
+        "end_time": "2026-06-25 17:57:13",
+        "duration": "1m 6s",
+        "duration_seconds": 66,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 16:54:50",
+        "end_time": "2026-06-25 16:55:52",
+        "duration": "1m 2s",
+        "duration_seconds": 62,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 15:53:08",
+        "end_time": "2026-06-25 15:54:14",
+        "duration": "1m 6s",
+        "duration_seconds": 66,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 14:51:10",
+        "end_time": "2026-06-25 14:52:19",
+        "duration": "1m 9s",
+        "duration_seconds": 69,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 13:49:36",
+        "end_time": "2026-06-25 13:50:41",
+        "duration": "1m 5s",
+        "duration_seconds": 65,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 12:43:35",
+        "end_time": "2026-06-25 12:43:59",
+        "duration": "24s",
+        "duration_seconds": 24,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 10:48:58",
+        "end_time": "2026-06-25 10:49:16",
+        "duration": "18s",
+        "duration_seconds": 18,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 10:47:52",
+        "end_time": "2026-06-25 10:48:35",
+        "duration": "43s",
+        "duration_seconds": 43,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 09:37:05",
+        "end_time": "2026-06-25 09:38:07",
+        "duration": "1m 2s",
+        "duration_seconds": 62,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 08:24:45",
+        "end_time": "2026-06-25 08:25:26",
+        "duration": "41s",
+        "duration_seconds": 41,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 06:50:10",
+        "end_time": "2026-06-25 06:50:55",
+        "duration": "45s",
+        "duration_seconds": 45,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 03:01:39",
+        "end_time": "2026-06-25 03:02:03",
+        "duration": "24s",
+        "duration_seconds": 24,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-25 00:02:00",
+        "end_time": "2026-06-25 00:02:20",
+        "duration": "20s",
+        "duration_seconds": 20,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-24 11:59:55",
+        "end_time": "2026-06-24 12:00:17",
+        "duration": "22s",
+        "duration_seconds": 22,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-23 23:57:44",
+        "end_time": "2026-06-23 23:58:03",
+        "duration": "19s",
+        "duration_seconds": 19,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-20 23:29:40",
+        "end_time": "2026-06-20 23:30:38",
+        "duration": "58s",
+        "duration_seconds": 58,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    },
+    {
+        "start_time": "2026-06-18 09:39:00",
+        "end_time": "2026-06-18 09:40:27",
+        "duration": "1m 27s",
+        "duration_seconds": 87,
+        "status": "RESOLVED",
+        "targets": "8.8.8.8, 1.1.1.1, 9.9.9.9"
+    }
+]

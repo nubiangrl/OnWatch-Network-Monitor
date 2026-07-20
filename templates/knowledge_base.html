@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Knowledge Base 2.0 | Home Network Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<header class="main-header">
+    <h1>KNOWLEDGE BASE 2.0</h1>
+    <div class="subtitle">
+        Search • Categories • Pinned Articles • Import / Export
+    </div>
+</header>
+
+<div class="main-layout">
+
+    <aside class="left-sidebar">
+
+        <div class="side-title">🏠 Home Network Monitor</div>
+
+        <div class="time-card">
+            <div class="time-icon">🕒</div>
+            <div>{{ last_full_scan }}</div>
+        </div>
+
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav active">📚 Knowledge Base</a>
+        <a href="/reset-center" class="side-nav">🔄 Reset Center</a>
+        <a href="/internet-history" class="side-nav">🌐 Internet History</a>
+
+    </aside>
+
+    <main class="dashboard-content">
+
+        <div style="margin-bottom:20px;">
+            <a href="/" class="action-btn router">
+               ← Back To Dashboard
+            </a>
+        </div>
+
+        <section class="stats-grid kb-summary-grid">
+
+            <div class="stat-card">
+                <div class="stat-label">Total Articles</div>
+                <div class="stat-value blue">{{ total_notes }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Search Results</div>
+                <div class="stat-value green">{{ result_count }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Pinned Articles</div>
+                <div class="stat-value orange">{{ pinned_count }}</div>
+            </div>
+
+        </section>
+
+        <section class="panel kb-tools-panel">
+            <div class="panel-header">
+                <h2>🔍 Search & Filter Knowledge Base</h2>
+            </div>
+
+            <form method="GET" action="/knowledge-base" class="kb-search-form">
+
+                <div class="kb-search-row">
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ search_query }}"
+                        placeholder="Search by title, category, command, keyword, or troubleshooting note..."
+                    >
+
+                    <button type="submit" class="save-btn">
+                        Search
+                    </button>
+
+                    <a href="/knowledge-base" class="cancel-btn kb-reset-search">
+                        Clear
+                    </a>
+                </div>
+
+                <div class="kb-category-filter-row">
+                    <a href="/knowledge-base?q={{ search_query }}" class="kb-filter-chip {% if category_filter == 'All' %}active{% endif %}">
+                        All
+                    </a>
+
+                    {% for category in categories %}
+                    <a href="/knowledge-base?category={{ category }}&q={{ search_query }}" class="kb-filter-chip {% if category_filter == category %}active{% endif %}">
+                        {{ category }}
+                    </a>
+                    {% endfor %}
+                </div>
+
+            </form>
+
+            <div class="kb-import-export-row">
+
+                <a href="/export-knowledge-base" class="kb-export-btn">
+                    ⬇ Export Knowledge Base
+                </a>
+
+                <form method="POST" action="/import-knowledge-base" enctype="multipart/form-data" class="kb-import-form"
+                      onsubmit="return confirm('Importing will replace the current Knowledge Base with the uploaded backup file. Continue?');">
+
+                    <input type="file" name="knowledge_base_file" accept=".json,application/json" required>
+
+                    <button type="submit" class="kb-import-btn">
+                        ⬆ Import Knowledge Base
+                    </button>
+
+                </form>
+
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>📚 Add New Knowledge Base Article</h2>
+            </div>
+
+            <form method="POST" action="/add-note" class="kb-form">
+
+                <label>Title</label>
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Example: Restart Dashboard Service"
+                    required
+                >
+
+                <label>Category</label>
+                <select name="category" required>
+                    {% for category in categories %}
+                    <option value="{{ category }}">
+                        {{ category }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label>Notes / Steps</label>
+                <textarea
+                    name="content"
+                    rows="8"
+                    placeholder="Enter commands, steps, reminders, or troubleshooting notes here..."
+                    required
+                ></textarea>
+
+                <label class="kb-pin-checkbox">
+                    <input type="checkbox" name="favorite">
+                    ⭐ Pin this article to the top
+                </label>
+
+                <button type="submit" class="save-btn">
+                    Save Article
+                </button>
+
+            </form>
+        </section>
+
+        {% if edit_note is not none %}
+        <section class="panel kb-edit-panel">
+            <div class="panel-header">
+                <h2>✏️ Edit Knowledge Base Article</h2>
+                <a href="/knowledge-base" class="cancel-link">Cancel Edit</a>
+            </div>
+
+            <form method="POST" action="/update-note/{{ edit_index }}" class="kb-form">
+
+                <label>Title</label>
+                <input
+                    type="text"
+                    name="title"
+                    value="{{ edit_note.title }}"
+                    required
+                >
+
+                <label>Category</label>
+                <select name="category" required>
+                    {% for category in categories %}
+                    <option value="{{ category }}" {% if edit_note.category == category %}selected{% endif %}>
+                        {{ category }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label>Notes / Steps</label>
+                <textarea
+                    name="content"
+                    rows="10"
+                    required
+                >{{ edit_note.content }}</textarea>
+
+                <label class="kb-pin-checkbox">
+                    <input type="checkbox" name="favorite" {% if edit_note.favorite %}checked{% endif %}>
+                    ⭐ Keep this article pinned
+                </label>
+
+                <button type="submit" class="save-btn">
+                    Save Changes
+                </button>
+
+                <a href="/knowledge-base" class="cancel-btn kb-cancel-edit-link">
+                    Cancel
+                </a>
+
+            </form>
+        </section>
+        {% endif %}
+
+        {% if pinned_notes %}
+        <section class="panel">
+            <div class="panel-header">
+                <h2>⭐ Pinned Articles</h2>
+            </div>
+
+            <div class="kb-grid">
+                {% for note in pinned_notes %}
+                <div class="kb-card kb-pinned-card">
+                    <div class="kb-card-header">
+                        <h3>⭐ {{ note.title }}</h3>
+                        <span class="kb-category">{{ note.category }}</span>
+                    </div>
+
+                    <div class="kb-created">
+                        Created: {{ note.created }}
+                        {% if note.updated %}
+                            • Updated: {{ note.updated }}
+                        {% endif %}
+                    </div>
+
+                    <pre class="kb-content">{{ note.content }}</pre>
+
+                    <div class="kb-card-actions">
+                        <a href="/toggle-note-pin/{{ note.index }}" class="pin-note-btn">
+                            ☆ Unpin
+                        </a>
+
+                        <a href="/knowledge-base?edit={{ note.index }}" class="edit-note-btn">
+                            ✏️ Edit
+                        </a>
+
+                        <form method="POST" action="/delete-note/{{ note.index }}"
+                              onsubmit="return confirm('Delete this Knowledge Base article? This cannot be undone.');">
+                            <button type="submit" class="delete-btn">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>📚 Knowledge Base Articles</h2>
+                <div class="kb-result-text">
+                    Showing {{ result_count }} result{% if result_count != 1 %}s{% endif %}
+                </div>
+            </div>
+
+            {% if regular_notes %}
+                <div class="kb-grid">
+                    {% for note in regular_notes %}
+                    <div class="kb-card">
+                        <div class="kb-card-header">
+                            <h3>{{ note.title }}</h3>
+                            <span class="kb-category">{{ note.category }}</span>
+                        </div>
+
+                        <div class="kb-created">
+                            Created: {{ note.created }}
+                            {% if note.updated %}
+                                • Updated: {{ note.updated }}
+                            {% endif %}
+                        </div>
+
+                        <pre class="kb-content">{{ note.content }}</pre>
+
+                        <div class="kb-card-actions">
+                            <a href="/toggle-note-pin/{{ note.index }}" class="pin-note-btn">
+                                ⭐ Pin
+                            </a>
+
+                            <a href="/knowledge-base?edit={{ note.index }}" class="edit-note-btn">
+                                ✏️ Edit
+                            </a>
+
+                            <form method="POST" action="/delete-note/{{ note.index }}"
+                                  onsubmit="return confirm('Delete this Knowledge Base article? This cannot be undone.');">
+                                <button type="submit" class="delete-btn">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% elif not pinned_notes %}
+                <p>No knowledge base articles found.</p>
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+<footer class="footer-bar">
+    Home Network Monitor • Knowledge Base 2.0 • Search • Pins • Import / Export
+</footer>
+
+</body>
+</html>

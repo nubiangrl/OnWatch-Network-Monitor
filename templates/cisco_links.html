@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cisco Links | Home Network Monitor</title>
+    <meta http-equiv="refresh" content="20">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+<style>
+/* PHASE 14 - CISCO LINK CORRELATION */
+.phase14-link-impact-panel { border:2px solid #00ff77; box-shadow:0 0 18px rgba(0,255,119,.14); }
+.phase14-link-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0; }
+.phase14-link-card { background:#081220; border:1px solid #1e6b4a; border-radius:10px; padding:12px; text-align:center; }
+.phase14-link-card span { display:block; color:#9ee7c0; font-size:11px; font-weight:900; text-transform:uppercase; }
+.phase14-link-card strong { display:block; color:#00ff77; font-size:24px; margin-top:5px; }
+.phase14-action-text { color:#d8ecff; font-size:12px; line-height:1.4; }
+@media(max-width:1000px){ .phase14-link-summary { grid-template-columns:1fr; } }
+</style>
+
+</head>
+
+<body>
+
+<header class="main-header">
+    <h1>CISCO LINKS</h1>
+    <div class="subtitle">Router Interfaces • Switch Ports • Live SNMP Status</div>
+</header>
+
+<div class="main-layout no-right-sidebar">
+
+    <aside class="left-sidebar">
+        <div class="side-title">🏠 Home Network Monitor</div>
+
+        <div class="time-card">
+            <div class="time-icon">🕒</div>
+            <div>{{ last_full_scan }}</div>
+        </div>
+
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav active">🔌 Cisco Links</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+
+        <div class="button-group">
+            <a href="/" class="action-btn router">← Back To Dashboard</a>
+            <a href="/router-monitoring" class="action-btn router">⚙ Router Monitoring</a>
+        </div>
+
+        {% if total_down == 0 %}
+        <div class="system-state good-state">
+            ✅<br>All Cisco Links Healthy
+        </div>
+        {% else %}
+        <div class="system-state bad-state">
+            ⚠<br>Cisco Link Attention Needed
+        </div>
+        {% endif %}
+    </aside>
+
+    <main class="dashboard-content">
+
+        <section class="voice-alert-panel">
+            <div class="voice-alert-left">
+                <div class="voice-alert-title">🔊 Voice Alerts</div>
+                <div class="voice-alert-text">
+                    Voice alerts are active on this page when enabled.
+                </div>
+            </div>
+
+            <div class="voice-alert-actions">
+                <button type="button" id="enableVoiceAlerts" class="voice-enable-btn">
+                    Enable Voice Alerts
+                </button>
+
+                <button type="button" id="testVoiceAlert" class="voice-test-btn">
+                    Test Voice
+                </button>
+
+                <div id="voiceAlertStatus" class="voice-status off">
+                    Voice Alerts: OFF
+                </div>
+            </div>
+        </section>
+
+
+        <section class="stats-grid cisco-link-stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Links</div>
+                <div class="stat-value blue">{{ total_links }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Links Up</div>
+                <div class="stat-value green">{{ total_up }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Links Down</div>
+                <div class="stat-value red">{{ total_down }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Router Down</div>
+                <div class="stat-value red">{{ router_down }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Switch Down</div>
+                <div class="stat-value red">{{ switch_down }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Link Health</div>
+                <div class="stat-value green">{{ link_health }}%</div>
+            </div>
+        </section>
+
+        <section class="panel phase14-link-impact-panel">
+            <div class="panel-header">
+                <h2>Phase 14 Interface Impact Analysis</h2>
+            </div>
+
+            <div class="phase14-link-summary">
+                <div class="phase14-link-card"><span>Dependency State</span><strong>{{ phase14_dependency_engine.overall_state }}</strong></div>
+                <div class="phase14-link-card"><span>Router Interface Issues</span><strong>{{ phase14_dependency_engine.router_interface_issues }}</strong></div>
+                <div class="phase14-link-card"><span>Switch Port Issues</span><strong>{{ phase14_dependency_engine.switch_port_issues }}</strong></div>
+                <div class="phase14-link-card"><span>Affected Devices</span><strong>{{ phase14_dependency_engine.affected_device_count }}</strong></div>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Port</th>
+                    <th>Connected Device</th>
+                    <th>Link State</th>
+                    <th>Device State</th>
+                    <th>Correlation</th>
+                    <th>Recommended Action</th>
+                </tr>
+                {% for item in phase14_dependency_engine.switch_port_correlations %}
+                <tr>
+                    <td>{{ item.port }}</td>
+                    <td>{{ item.device }}</td>
+                    <td class="status {{ item.link_state }}">{{ item.link_state }}</td>
+                    <td class="status {{ item.device_state }}">{{ item.device_state }}</td>
+                    <td>{{ item.correlation }}</td>
+                    <td class="phase14-action-text">{{ item.recommended_action }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </section>
+
+        <div class="split-panels">
+
+            <section class="panel">
+                <div class="panel-header">
+                    <h2>Cisco Router Interfaces</h2>
+                </div>
+
+                <table>
+                    <tr>
+                        <th>Interface</th>
+                        <th>Full Name</th>
+                        <th>Status</th>
+                        <th>Last Checked</th>
+                    </tr>
+
+                    {% if router_interfaces %}
+                        {% for idx, iface in router_interfaces.items() %}
+                        <tr>
+                            <td>{{ iface.short_name }}</td>
+                            <td>{{ iface.name }}</td>
+                            <td class="status {{ iface.state }}">{{ iface.state }}</td>
+                            <td>{{ iface.last_checked }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">No monitored router interfaces found.</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </section>
+
+            <section class="panel">
+                <div class="panel-header">
+                    <h2>Cisco Switch Active Links</h2>
+                </div>
+
+                <table>
+                    <tr>
+                        <th>Port</th>
+                        <th>Connected Device</th>
+                        <th>Status</th>
+                        <th>Last Checked</th>
+                    </tr>
+
+                    {% if switch_links %}
+                        {% for idx, link in switch_links.items() %}
+                        <tr>
+                            <td>{{ link.port }}</td>
+                            <td>{{ link.device }}</td>
+                            <td class="status {{ link.state }}">{{ link.state }}</td>
+                            <td>{{ link.last_checked }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">No monitored switch links found.</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </section>
+
+        </div>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Cisco Link Summary</h2>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Category</th>
+                    <th>Up</th>
+                    <th>Down</th>
+                    <th>Total</th>
+                </tr>
+
+                <tr>
+                    <td>Router Interfaces</td>
+                    <td class="status UP">{{ router_up }}</td>
+                    <td class="status DOWN">{{ router_down }}</td>
+                    <td>{{ router_up + router_down }}</td>
+                </tr>
+
+                <tr>
+                    <td>Switch Links</td>
+                    <td class="status UP">{{ switch_up }}</td>
+                    <td class="status DOWN">{{ switch_down }}</td>
+                    <td>{{ switch_up + switch_down }}</td>
+                </tr>
+            </table>
+        </section>
+
+    </main>
+
+</div>
+
+<footer class="footer-bar">
+    Home Network Monitor • Cisco Links • SNMP Router & Switch Monitoring
+</footer>
+
+{% include "voice_alerts.html" %}
+
+</body>
+</html>

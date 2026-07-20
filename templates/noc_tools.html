@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On Watch Network Monitor - NOC Tools Center</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #111827;
+            --panel2: #1f2937;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --green: #22c55e;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+            --border: rgba(148, 163, 184, 0.22);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: radial-gradient(circle at top, #1e293b 0, #020617 42%, #000 100%);
+            color: var(--text);
+        }
+        .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+        .left-sidebar {
+            background: rgba(15, 23, 42, 0.96);
+            border-right: 1px solid var(--border);
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .brand { font-weight: 800; font-size: 20px; line-height: 1.2; margin-bottom: 6px; }
+        .brand-sub { color: var(--muted); font-size: 12px; margin-bottom: 22px; }
+        .side-nav {
+            display: block;
+            color: var(--text);
+            text-decoration: none;
+            padding: 11px 12px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            font-size: 14px;
+            border: 1px solid transparent;
+        }
+        .side-nav:hover { background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.25); }
+        .side-nav.active { background: rgba(56, 189, 248, 0.18); border-color: rgba(56, 189, 248, 0.5); color: #e0f2fe; }
+        .content { padding: 26px; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+        h1 { margin: 0; font-size: 30px; letter-spacing: .5px; }
+        .subtitle { color: var(--muted); margin-top: 8px; }
+        .badge {
+            display: inline-block;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(34, 197, 94, 0.14);
+            color: #bbf7d0;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+        .card {
+            background: rgba(17, 24, 39, 0.88);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 18px 40px rgba(0,0,0,.22);
+        }
+        .card h2 { margin: 0 0 12px; font-size: 18px; }
+        label { display: block; color: var(--muted); font-size: 12px; margin: 12px 0 6px; text-transform: uppercase; letter-spacing: .08em; }
+        select, input {
+            width: 100%;
+            background: #020617;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 14px;
+        }
+        .button-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            color: #031018;
+            background: var(--accent);
+        }
+        button.secondary { background: #334155; color: var(--text); border: 1px solid var(--border); }
+        button.green { background: var(--green); }
+        button:disabled { opacity: .55; cursor: not-allowed; }
+        .device-card { background: rgba(15, 23, 42, .78); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-top: 12px; }
+        .device-row { display:flex; justify-content:space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid rgba(148,163,184,.12); }
+        .device-row:last-child { border-bottom:0; }
+        .muted { color: var(--muted); }
+        .command-box {
+            background: #020617;
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-radius: 12px;
+            padding: 14px;
+            font-family: Consolas, Monaco, monospace;
+            color: #bfdbfe;
+            overflow-wrap: anywhere;
+            margin-top: 10px;
+        }
+        pre {
+            min-height: 280px;
+            white-space: pre-wrap;
+            background: #020617;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            color: #dbeafe;
+            overflow: auto;
+        }
+        .summary { display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+        .metric { background: rgba(15, 23, 42, .82); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+        .metric strong { display:block; font-size: 24px; }
+        .metric span { color: var(--muted); font-size: 12px; }
+
+        .tool-table { width: 100%; border-collapse: collapse; }
+        .tool-table th, .tool-table td { padding: 8px; border-bottom: 1px solid rgba(148,163,184,.16); text-align: left; }
+        .result-filter { margin-bottom: 12px; }
+        .result-filter input { max-width: 520px; }
+
+        .infra-section { margin-top: 14px; }
+        .infra-section:first-of-type { margin-top: 12px; }
+        .infra-title { font-size: 13px; font-weight: 800; color: #e5e7eb; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .06em; }
+        .infra-table { width:100%; border-collapse:collapse; font-size: 13px; }
+        .infra-table th, .infra-table td { padding: 7px 8px; border-bottom: 1px solid rgba(148,163,184,.14); text-align:left; }
+        .infra-scroll { max-height: 190px; overflow:auto; border: 1px solid rgba(148,163,184,.18); border-radius: 12px; }
+        .status-up, .status-open { color: var(--green); font-weight: 800; }
+        .status-down, .status-closed { color: var(--red); font-weight: 800; }
+        .status-unknown { color: var(--yellow); font-weight: 800; }
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            .left-sidebar { position: relative; height: auto; }
+            .grid { grid-template-columns: 1fr; }
+            .summary { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="left-sidebar">
+        <div class="brand">ON WATCH<br>NETWORK MONITOR</div>
+        <div class="brand-sub">Phase {{ noc_tools_center.phase }} • Safe NOC Utilities</div>
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/network-map" class="side-nav">🗺 Network Map</a>
+        <a href="/enterprise-inventory" class="side-nav">📦 Enterprise Inventory</a>
+        <a href="/infrastructure-registry" class="side-nav">🏗 Infrastructure Registry</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+        <a href="/internet-history" class="side-nav">🌐 Internet History</a>
+        <a href="/operations" class="side-nav">⚙ Operations Center</a>
+        <a href="/noc-tools" class="side-nav active">🛠 NOC Tools Center</a>
+        <a href="/provisioning" class="side-nav">➕ Provisioning Center</a>
+        <a href="/analytics" class="side-nav">📈 Analytics Center</a>
+        <a href="/backup-center" class="side-nav">🗄 Backup Center</a>
+        <a href="/reset-center" class="side-nav">🔄 Reset Center</a>
+    </aside>
+
+    <main class="content">
+        <div class="page-header">
+            <div>
+                <h1>🛠 NOC Tools Center</h1>
+                <div class="subtitle">Read-only network diagnostics, discovery tools, and live network infrastructure status.</div>
+            </div>
+            <div class="badge">SAFE MODE ENABLED</div>
+        </div>
+
+        <div class="summary">
+            <div class="metric"><strong>{{ noc_tools_center.summary.total_devices }}</strong><span>Inventory Devices</span></div>
+            <div class="metric"><strong id="portCountMetric">-</strong><span>Mapped Switch Ports</span></div>
+            <div class="metric"><strong>10</strong><span>Read-Only Tools</span></div>
+        </div>
+
+        <div class="grid">
+            <section class="card">
+                <h2>Target Device</h2>
+                <label for="deviceSelect">Choose device</label>
+                <select id="deviceSelect" onchange="deviceChanged()">
+                    {% for device in noc_tools_center.devices %}
+                    <option value="{{ device.name }}" data-ip="{{ device.ip }}" data-type="{{ device.type }}" data-status="{{ device.status }}" data-latency="{{ device.latency }}" data-ssh="{{ device.ssh_command }}" data-ssh-enabled="{{ 'true' if device.ssh_enabled else 'false' }}">
+                        {{ device.name }} — {{ device.ip }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <div class="device-card">
+                    <div class="device-row"><span class="muted">IP Address</span><strong id="deviceIp">-</strong></div>
+                    <div class="device-row"><span class="muted">Device Type</span><strong id="deviceType">-</strong></div>
+                    <div class="device-row"><span class="muted">Current Status</span><strong id="deviceStatus">-</strong></div>
+                    <div class="device-row"><span class="muted">Last Latency</span><strong id="deviceLatency">-</strong></div>
+                </div>
+
+                <h2 style="margin-top:18px;">Diagnostics</h2>
+                <div class="button-row">
+                    <button onclick="runTool('ping')">Ping</button>
+                    <button onclick="runTool('traceroute')">Traceroute</button>
+                    <button onclick="runTool('dns_lookup')">DNS Lookup</button>
+                    <button onclick="runTool('reverse_dns')">Reverse DNS</button>
+                </div>
+
+                <h2 style="margin-top:18px;">Advanced Discovery Tools</h2>
+                <div class="button-row">
+                    <button class="secondary" onclick="runPortScan()">Port Scan</button>
+                    <button class="secondary" onclick="loadArpTable()">ARP Table</button>
+                    <button class="secondary" onclick="loadMacAddressTable()">MAC Address Table</button>
+                    <button class="secondary" onclick="runNetworkScan()">Network Scan</button>
+                    <button class="secondary" onclick="loadPortUtilization()">Port Utilization</button>
+                </div>
+
+                <label for="customTarget">Optional custom target</label>
+                <input id="customTarget" placeholder="Example: 192.168.0.12, google.com, or 192.168.0.0/24">
+            </section>
+
+            <section class="card">
+                <h2>Network Infrastructure Status</h2>
+                <div class="muted">Router Interface Status, Switch Port Status, and WAN Status together.</div>
+
+                <div class="button-row">
+                    <button class="green" onclick="loadInfrastructureStatus()">Refresh Infrastructure</button>
+                    <button class="secondary" onclick="showInterfaces()">Show Interfaces</button>
+                </div>
+
+                <div class="infra-section">
+                    <div class="infra-title">Router Interface Status</div>
+                    <div class="infra-scroll">
+                        <table class="infra-table">
+                            <thead>
+                                <tr>
+                                    <th>Interface</th>
+                                    <th>Name</th>
+                                    <th>IP</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="routerInterfaceBody">
+                                <tr><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="infra-section">
+                    <div class="infra-title">Switch Port Status</div>
+                    <div class="infra-scroll">
+                        <table class="infra-table">
+                            <thead>
+                                <tr>
+                                    <th>Port</th>
+                                    <th>Device</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portStatusBody">
+                                <tr><td colspan="3">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="infra-section">
+                    <div class="infra-title">WAN Status</div>
+                    <div class="infra-scroll">
+                        <table class="infra-table">
+                            <thead>
+                                <tr>
+                                    <th>Check</th>
+                                    <th>Target</th>
+                                    <th>Status</th>
+                                    <th>Latency</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wanStatusBody">
+                                <tr><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="card" style="margin-top:18px;">
+            <h2>Results</h2>
+            <pre id="toolOutput">NOC Tools Center ready. Select a device and run a diagnostic.</pre>
+        </section>
+    </main>
+</div>
+
+<script>
+function getSelectedOption() {
+    return document.getElementById('deviceSelect').selectedOptions[0];
+}
+function deviceChanged() {
+    const opt = getSelectedOption();
+    if (!opt) return;
+    document.getElementById('deviceIp').textContent = opt.dataset.ip || '-';
+    document.getElementById('deviceType').textContent = opt.dataset.type || '-';
+    document.getElementById('deviceStatus').textContent = opt.dataset.status || 'UNKNOWN';
+    document.getElementById('deviceLatency').textContent = opt.dataset.latency || 'N/A';
+}
+async function runTool(tool) {
+    const opt = getSelectedOption();
+    const custom = document.getElementById('customTarget').value.trim();
+    const target = custom || (opt ? opt.dataset.ip : '');
+    const output = document.getElementById('toolOutput');
+    output.textContent = 'Running ' + tool + ' against ' + target + '...';
+    try {
+        const res = await fetch('/api/noc-tools/run', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({tool, target})
+        });
+        const data = await res.json();
+        let text = '[' + (data.timestamp || 'now') + '] ' + (data.label || tool) + ' → ' + (data.target || target) + '\n';
+        if (data.command) text += 'Command: ' + data.command + '\n';
+        text += 'Success: ' + (data.success ? 'YES' : 'NO') + '\n';
+        if (data.error) text += 'Error: ' + data.error + '\n';
+        text += '\n' + (data.output || 'No output returned.');
+        output.textContent = text;
+    } catch (err) {
+        output.textContent = 'NOC Tools request failed: ' + err;
+    }
+}
+
+function getSelectedTarget() {
+    const opt = getSelectedOption();
+    const custom = document.getElementById('customTarget').value.trim();
+    return custom || (opt ? opt.dataset.ip : '');
+}
+
+function statusClass(value) {
+    const status = String(value || '').toUpperCase();
+    if (status === 'UP' || status === 'OPEN') return 'status-up';
+    if (status === 'DOWN' || status === 'CLOSED') return 'status-down';
+    return 'status-unknown';
+}
+
+function setOutputHtml(title, html, enableFilter = true) {
+    const output = document.getElementById('toolOutput');
+    const filterBox = enableFilter
+        ? '<div class="result-filter"><input id="resultFilter" oninput="filterResultTable()" placeholder="Search / filter results..."></div>'
+        : '';
+
+    output.innerHTML = '<strong>' + title + '</strong><br><br>' + filterBox + html;
+}
+
+function filterResultTable() {
+    const filter = document.getElementById('resultFilter');
+    if (!filter) return;
+
+    const search = filter.value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#toolOutput table.tool-table tbody tr');
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(search) ? '' : 'none';
+    });
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+async function runPortScan() {
+    const target = getSelectedTarget();
+    const output = document.getElementById('toolOutput');
+
+    if (!target) {
+        output.textContent = 'Please select a device or enter a custom target.';
+        return;
+    }
+
+    output.textContent = 'Running safe read-only port scan against ' + target + '...';
+
+    try {
+        const res = await fetch('/api/noc-tools/port-scan', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({target})
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+            output.textContent = 'Port Scan failed: ' + (data.error || 'Unknown error');
+            return;
+        }
+
+        let rows = '';
+        (data.ports || []).forEach(p => {
+            rows += `<tr>
+                <td>${escapeHtml(p.port)}</td>
+                <td>${escapeHtml(p.service)}</td>
+                <td class="${statusClass(p.status)}">${escapeHtml(p.status)}</td>
+            </tr>`;
+        });
+
+        setOutputHtml(
+            'Port Scan Results — ' + escapeHtml(data.target || target),
+            `<table class="tool-table">
+                <thead><tr><th>Port</th><th>Service</th><th>Status</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="3">No port results returned.</td></tr>'}</tbody>
+            </table>`
+        );
+
+    } catch (err) {
+        output.textContent = 'Port Scan request failed: ' + err;
+    }
+}
+
+async function loadArpTable() {
+    const output = document.getElementById('toolOutput');
+    output.textContent = 'Loading ARP table...';
+
+    try {
+        const res = await fetch('/api/noc-tools/arp-table');
+        const data = await res.json();
+
+        if (!data.success) {
+            output.textContent = 'ARP Table failed: ' + (data.error || 'Unknown error');
+            return;
+        }
+
+        let rows = '';
+        (data.rows || []).forEach(r => {
+            rows += `<tr>
+                <td>${escapeHtml(r.ip)}</td>
+                <td>${escapeHtml(r.device || '-')}</td>
+                <td>${escapeHtml(r.mac)}</td>
+                <td>${escapeHtml(r.vendor || 'Unknown')}</td>
+                <td>${escapeHtml(r.interface || '-')}</td>
+                <td>${escapeHtml(r.state || '-')}</td>
+            </tr>`;
+        });
+
+        setOutputHtml(
+            'ARP Table',
+            `<table class="tool-table">
+                <thead><tr><th>IP Address</th><th>Device</th><th>MAC Address</th><th>Vendor</th><th>Interface</th><th>State</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="6">No ARP entries found.</td></tr>'}</tbody>
+            </table>`
+        );
+
+    } catch (err) {
+        output.textContent = 'ARP Table request failed: ' + err;
+    }
+}
+
+async function loadMacAddressTable() {
+    const output = document.getElementById('toolOutput');
+    output.textContent = 'Loading switch MAC address table...';
+
+    try {
+        const res = await fetch('/api/noc-tools/mac-address-table');
+        const data = await res.json();
+
+        if (!data.success) {
+            output.textContent = 'MAC Address Table failed: ' + (data.error || 'Unknown error');
+            return;
+        }
+
+        let rows = '';
+        (data.rows || []).forEach(r => {
+            rows += `<tr>
+                <td>${escapeHtml(r.mac)}</td>
+                <td>${escapeHtml(r.vlan || 'Unknown')}</td>
+                <td>${escapeHtml(r.device || '-')}</td>
+                <td>${escapeHtml(r.vendor || 'Unknown')}</td>
+                <td>${escapeHtml(r.port)}</td>
+                <td>${escapeHtml(r.ifindex)}</td>
+                <td class="${statusClass(r.state)}">${escapeHtml(r.state || 'UNKNOWN')}</td>
+            </tr>`;
+        });
+
+        setOutputHtml(
+            'Switch MAC Address Table',
+            `<table class="tool-table">
+                <thead><tr><th>MAC Address</th><th>VLAN</th><th>Device</th><th>Vendor</th><th>Port</th><th>ifIndex</th><th>Port State</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="7">No MAC address entries returned.</td></tr>'}</tbody>
+            </table>`
+        );
+
+    } catch (err) {
+        output.textContent = 'MAC Address Table request failed: ' + err;
+    }
+}
+
+async function runNetworkScan() {
+    const custom = document.getElementById('customTarget').value.trim();
+    const cidr = custom.includes('/') ? custom : '192.168.0.0/24';
+    const output = document.getElementById('toolOutput');
+
+    output.textContent = 'Running safe read-only network scan for ' + cidr + '...';
+
+    try {
+        const res = await fetch('/api/noc-tools/network-scan', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({cidr})
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+            output.textContent = 'Network Scan failed: ' + (data.error || 'Unknown error');
+            return;
+        }
+
+        let rows = '';
+        (data.rows || []).forEach(r => {
+            rows += `<tr>
+                <td>${escapeHtml(r.ip)}</td>
+                <td>${escapeHtml(r.device || '-')}</td>
+                <td class="${statusClass(r.status)}">${escapeHtml(r.status)}</td>
+                <td>${escapeHtml(r.mac || '-')}</td>
+                <td>${escapeHtml(r.vendor || '-')}</td>
+            </tr>`;
+        });
+
+        setOutputHtml(
+            'Network Scan Results — ' + escapeHtml(data.cidr || cidr),
+            `<table class="tool-table">
+                <thead><tr><th>IP Address</th><th>Device</th><th>Status</th><th>MAC Address</th><th>Vendor</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="5">No active devices found.</td></tr>'}</tbody>
+            </table>`
+        );
+
+    } catch (err) {
+        output.textContent = 'Network Scan request failed: ' + err;
+    }
+}
+
+async function loadPortUtilization() {
+    const output = document.getElementById('toolOutput');
+    output.textContent = 'Loading switch port utilization statistics...';
+
+    try {
+        const res = await fetch('/api/noc-tools/port-utilization');
+        const data = await res.json();
+
+        if (!data.success) {
+            output.textContent = 'Port Utilization failed: ' + (data.error || 'Unknown error');
+            return;
+        }
+
+        let rows = '';
+        (data.rows || []).forEach(r => {
+            rows += `<tr>
+                <td>${escapeHtml(r.port || '-')}</td>
+                <td>${escapeHtml(r.device || '-')}</td>
+                <td class="${statusClass(r.state)}">${escapeHtml(r.state || 'UNKNOWN')}</td>
+                <td>${escapeHtml(r.speed_bps || 0)}</td>
+                <td>${escapeHtml(r.rx_mb || 0)}</td>
+                <td>${escapeHtml(r.tx_mb || 0)}</td>
+                <td>${escapeHtml(r.total_errors || 0)}</td>
+                <td>${escapeHtml(r.total_discards || 0)}</td>
+            </tr>`;
+        });
+
+        setOutputHtml(
+            'Switch Port Utilization Statistics',
+            `<table class="tool-table">
+                <thead><tr><th>Port</th><th>Device</th><th>State</th><th>Speed bps</th><th>RX MB</th><th>TX MB</th><th>Errors</th><th>Discards</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="8">No port utilization statistics returned.</td></tr>'}</tbody>
+            </table>`
+        );
+
+    } catch (err) {
+        output.textContent = 'Port Utilization request failed: ' + err;
+    }
+}
+
+async function renderInfrastructureStatus(data) {
+    const routerBody = document.getElementById('routerInterfaceBody');
+    const switchBody = document.getElementById('portStatusBody');
+    const wanBody = document.getElementById('wanStatusBody');
+    const metric = document.getElementById('portCountMetric');
+
+    if (metric && data.counts) {
+        metric.textContent = data.counts.switch_ports || 0;
+    }
+
+    if (routerBody) {
+        const rows = Array.isArray(data.router_interfaces) ? data.router_interfaces : [];
+        if (!rows.length) {
+            routerBody.innerHTML = '<tr><td colspan="4">No router interfaces returned.</td></tr>';
+        } else {
+            routerBody.innerHTML = '';
+            rows.forEach(r => {
+                const state = String(r.state || 'UNKNOWN').toUpperCase();
+                routerBody.innerHTML += `
+                    <tr>
+                        <td>${escapeHtml(r.interface || '-')}</td>
+                        <td>${escapeHtml(r.name || '-')}</td>
+                        <td>${escapeHtml(r.ip || '-')}</td>
+                        <td class="${statusClass(state)}">${escapeHtml(state)}</td>
+                    </tr>`;
+            });
+        }
+    }
+
+    if (switchBody) {
+        const rows = Array.isArray(data.switch_ports) ? data.switch_ports : [];
+        if (!rows.length) {
+            switchBody.innerHTML = '<tr><td colspan="3">No switch ports returned.</td></tr>';
+        } else {
+            switchBody.innerHTML = '';
+            rows.forEach(p => {
+                const status = String(p.status || 'UNKNOWN').toUpperCase();
+                switchBody.innerHTML += `
+                    <tr>
+                        <td>${escapeHtml(p.port || '-')}</td>
+                        <td>${escapeHtml(p.device || '-')}</td>
+                        <td class="${statusClass(status)}">${escapeHtml(status)}</td>
+                    </tr>`;
+            });
+        }
+    }
+
+    if (wanBody) {
+        const rows = Array.isArray(data.wan_status) ? data.wan_status : [];
+        if (!rows.length) {
+            wanBody.innerHTML = '<tr><td colspan="4">No WAN status checks returned.</td></tr>';
+        } else {
+            wanBody.innerHTML = '';
+            rows.forEach(w => {
+                const state = String(w.state || 'UNKNOWN').toUpperCase();
+                wanBody.innerHTML += `
+                    <tr>
+                        <td>${escapeHtml(w.name || '-')}</td>
+                        <td>${escapeHtml(w.target || '-')}</td>
+                        <td class="${statusClass(state)}">${escapeHtml(state)}</td>
+                        <td>${escapeHtml(w.latency || '-')}</td>
+                    </tr>`;
+            });
+        }
+    }
+}
+
+async function loadInfrastructureStatus() {
+    const routerBody = document.getElementById('routerInterfaceBody');
+    const switchBody = document.getElementById('portStatusBody');
+    const wanBody = document.getElementById('wanStatusBody');
+    const metric = document.getElementById('portCountMetric');
+
+    if (routerBody) routerBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+    if (switchBody) switchBody.innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+    if (wanBody) wanBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+    if (metric) metric.textContent = '-';
+
+    try {
+        const r = await fetch('/api/noc-tools/infrastructure-status');
+        const data = await r.json();
+
+        if (!data.success) {
+            if (routerBody) routerBody.innerHTML = '<tr><td colspan="4">Unable to load router interfaces.</td></tr>';
+            if (switchBody) switchBody.innerHTML = '<tr><td colspan="3">Unable to load switch ports.</td></tr>';
+            if (wanBody) wanBody.innerHTML = '<tr><td colspan="4">Unable to load WAN status.</td></tr>';
+            return;
+        }
+
+        renderInfrastructureStatus(data);
+
+    } catch (err) {
+        if (routerBody) routerBody.innerHTML = '<tr><td colspan="4">Infrastructure request failed.</td></tr>';
+        if (switchBody) switchBody.innerHTML = '<tr><td colspan="3">Infrastructure request failed.</td></tr>';
+        if (wanBody) wanBody.innerHTML = '<tr><td colspan="4">Infrastructure request failed.</td></tr>';
+    }
+}
+
+async function loadPortStatus() {
+    return loadInfrastructureStatus();
+}
+
+async function showInterfaces() {
+    const output = document.getElementById('toolOutput');
+
+    output.textContent = 'Loading switch interfaces...';
+
+    try {
+        const r = await fetch('/api/noc-tools/interfaces');
+        const data = await r.json();
+
+        if (!data.success) {
+            output.textContent = 'Unable to load interface list.\n\n' + (data.error || 'No error details returned.');
+            return;
+        }
+
+        output.textContent = JSON.stringify(data.interfaces || [], null, 2);
+
+    } catch (err) {
+        output.textContent = 'Unable to load interface list.';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    deviceChanged();
+    loadInfrastructureStatus();
+});
+</script>
+</body>
+</html>

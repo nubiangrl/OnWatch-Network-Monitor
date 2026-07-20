@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alerts | Home Network Monitor</title>
+    <meta http-equiv="refresh" content="20">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<header class="main-header">
+    <h1>ACTIVE ALERTS</h1>
+    <div class="subtitle">
+        Critical • Warning • Information • Network Health Monitoring
+    </div>
+</header>
+
+<div class="main-layout no-right-sidebar">
+
+    <aside class="left-sidebar">
+
+        <div class="side-title">🏠 Home Network Monitor</div>
+
+        <div class="time-card">
+            <div class="time-icon">🕒</div>
+            <div>{{ last_full_scan }}</div>
+        </div>
+
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav active">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+
+        <div class="button-group">
+            <a href="/" class="action-btn router">
+                ← Back To Dashboard
+            </a>
+        </div>
+
+        {% if alerts|length == 0 %}
+        <div class="system-state good-state">
+            ✅<br>No Active Alerts
+        </div>
+        {% else %}
+        <div class="system-state bad-state">
+            ⚠<br>{{ alerts|length }} Active Alerts
+        </div>
+        {% endif %}
+
+    </aside>
+
+    <main class="dashboard-content">
+
+        <section class="voice-alert-panel">
+            <div class="voice-alert-left">
+                <div class="voice-alert-title">🔊 Voice Alerts</div>
+                <div class="voice-alert-text">
+                    Voice alerts will speak the device and problem when a new unacknowledged critical alert appears.
+                </div>
+            </div>
+
+            <div class="voice-alert-actions">
+                <button type="button" id="enableVoiceAlerts" class="voice-enable-btn">
+                    Enable Voice Alerts
+                </button>
+
+                <button type="button" id="testVoiceAlert" class="voice-test-btn">
+                    Test Voice
+                </button>
+
+                <div id="voiceAlertStatus" class="voice-status off">
+                    Voice Alerts: OFF
+                </div>
+            </div>
+        </section>
+
+
+        {% if alerts|length == 0 %}
+
+        <div class="status-banner banner-good">
+            NO ACTIVE ALERTS ✅
+        </div>
+
+        {% else %}
+
+        <div class="status-banner banner-bad critical-flash">
+            {{ alerts|length }} ACTIVE ALERTS ⚠
+        </div>
+
+        {% endif %}
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-label">Total Alerts</div>
+                <div class="stat-value red">
+                    {{ alerts|length }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Critical</div>
+                <div class="stat-value red">
+                    {{ critical_count }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Warning</div>
+                <div class="stat-value orange">
+                    {{ warning_count }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Info</div>
+                <div class="stat-value blue">
+                    {{ info_count }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Unacknowledged</div>
+                <div class="stat-value orange">
+                    {{ unacknowledged_count }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Acknowledged</div>
+                <div class="stat-value green">
+                    {{ acknowledged_count }}
+                </div>
+            </div>
+
+        </section>
+
+        <section class="panel">
+
+            <div class="panel-header">
+                <h2>Current Active Alerts</h2>
+            </div>
+
+            {% for alert in alerts %}
+            {% if alert.root_cause %}
+
+            <div class="alert-clear-box" style="border-left:6px solid #ff4444; margin-bottom:20px;">
+
+                <h2>🚨 Executive Impact Summary</h2>
+
+                <p>
+                    <strong>Root Cause:</strong>
+                    {{ alert.device }}
+                </p>
+
+                <p>
+                    <strong>Problem:</strong>
+                    {{ alert.problem }}
+                </p>
+
+                <p>
+                    <strong>Impacted Devices:</strong>
+                    {{ alert.impacted_devices|length }}
+                </p>
+
+                <p>
+                    <strong>Suppressed Alerts:</strong>
+                    {{ alert.suppressed_count }}
+                </p>
+
+                {% if alert.impacted_devices %}
+                <hr>
+
+                <strong>Affected Systems</strong>
+
+                <ul>
+                    {% for device in alert.impacted_devices %}
+                    <li>{{ device }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+            {% endfor %}
+
+            {% if alerts %}
+
+            <table>
+
+                <tr>
+                    <th>Severity</th>
+                    <th>Device / Link</th>
+                    <th>Problem</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for alert in alerts %}
+
+                <tr class="alert-row {{ alert.severity|lower }} {% if alert.acknowledged %}acknowledged{% endif %}">
+
+                    <td>
+
+                        {% if alert.severity == "CRITICAL" %}
+                            <span class="severity-badge critical">🔴 Critical</span>
+                        {% elif alert.severity == "WARNING" %}
+                            <span class="severity-badge warning">🟡 Warning</span>
+                        {% else %}
+                            <span class="severity-badge info">🔵 Info</span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {{ alert.device }}
+
+                        {% if alert.root_cause %}
+                            <br>
+                            <span class="severity-badge critical">
+                                ROOT CAUSE
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ alert.problem }}
+                    </td>
+
+                    <td>
+                        {{ alert.time }}
+                    </td>
+
+                    <td>
+
+                        {% if alert.acknowledged %}
+                            <span class="status WARNING">ACKNOWLEDGED</span>
+                        {% elif alert.severity == "CRITICAL" %}
+                            <span class="status DOWN">ACTIVE</span>
+                        {% elif alert.severity == "WARNING" %}
+                            <span class="status WARNING">ACTIVE</span>
+                        {% else %}
+                            <span class="status UP">INFO</span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {% if not alert.acknowledged %}
+                        <form method="POST" action="/acknowledge-alert/{{ alert.id }}">
+                            <button type="submit" class="save-btn">
+                                Acknowledge
+                            </button>
+                        </form>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            {% else %}
+
+            <div class="alert-clear-box">
+                <h2>🟢 Network Healthy</h2>
+
+                <p>
+                    There are currently no active alerts in the environment.
+                </p>
+
+                <p>
+                    All monitored devices, interfaces, and switch links are reporting normally.
+                </p>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <section class="panel">
+
+            <div class="panel-header">
+                <h2>Resolved Alert History</h2>
+
+                <form method="POST" action="/clear-resolved-alerts">
+                    <button type="submit" class="small-clear-btn">
+                        Clear Resolved
+                    </button>
+                </form>
+            </div>
+
+            {% if resolved_history %}
+
+            <table>
+                <tr>
+                    <th>Severity</th>
+                    <th>Device / Link</th>
+                    <th>Problem</th>
+                    <th>Alert Time</th>
+                    <th>Resolved Time</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                </tr>
+
+                {% for item in resolved_history %}
+                <tr>
+                    <td>
+                        {% if item.severity == "CRITICAL" %}
+                            <span class="severity-badge critical">🔴 Critical</span>
+                        {% elif item.severity == "WARNING" %}
+                            <span class="severity-badge warning">🟡 Warning</span>
+                        {% else %}
+                            <span class="severity-badge info">🔵 Info</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.device }}</td>
+                    <td>{{ item.problem }}</td>
+                    <td>{{ item.alert_time }}</td>
+                    <td>{{ item.resolved_time }}</td>
+                    <td>{{ item.duration }}</td>
+                    <td><span class="status UP">RESOLVED</span></td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {% else %}
+
+            <p>No resolved alerts yet.</p>
+
+            {% endif %}
+
+        </section>
+
+        <section class="panel">
+
+            <div class="panel-header">
+                <h2>Alert Severity Guide</h2>
+            </div>
+
+            <table>
+
+                <tr>
+                    <th>Level</th>
+                    <th>Description</th>
+                </tr>
+
+                <tr>
+                    <td><span class="severity-badge critical">🔴 Critical</span></td>
+                    <td>
+                        Device Down, Router Down, Switch Port Down,
+                        Internet Connectivity Loss
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><span class="severity-badge warning">🟡 Warning</span></td>
+                    <td>
+                        High Latency, Unknown State,
+                        Response Issues
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><span class="severity-badge info">🔵 Info</span></td>
+                    <td>
+                        Config Changes, Logins,
+                        Syslog Events
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><span class="severity-badge normal">🟢 Normal</span></td>
+                    <td>
+                        Everything Operational
+                    </td>
+                </tr>
+
+            </table>
+
+        </section>
+
+    </main>
+
+</div>
+
+<footer class="footer-bar">
+    Home Network Monitor • Active Alerts • Network Health Monitoring
+</footer>
+
+{% include "voice_alerts.html" %}
+
+</body>
+</html>
+

@@ -1,0 +1,12 @@
+{
+    "monitor_started": "2026-06-16 19:03:09",
+    "total_outages": 46,
+    "total_recoveries": 46,
+    "today_date": "2026-07-19",
+    "today_outages": 8,
+    "longest_outage_seconds": 44653,
+    "last_outage_time": "2026-07-19 21:10:24",
+    "last_recovery_time": "2026-07-19 21:10:42",
+    "accumulated_downtime_seconds": 46923,
+    "active_outages": {}
+}

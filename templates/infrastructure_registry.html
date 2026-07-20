@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Infrastructure Registry | On Watch Network Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+<style>
+.infrastructure-interface-viewer {
+    margin-top: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.35);
+    overflow: hidden;
+}
+
+.infrastructure-interface-viewer summary {
+    cursor: pointer;
+    padding: 13px 15px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.infrastructure-interface-viewer summary span {
+    font-size: 12px;
+    opacity: 0.75;
+    font-weight: 700;
+}
+
+.infrastructure-interface-table-wrap {
+    overflow-x: auto;
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.infrastructure-interface-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 620px;
+    font-size: 13px;
+}
+
+.infrastructure-interface-table th,
+.infrastructure-interface-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.infrastructure-interface-table th {
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    opacity: 0.72;
+}
+
+.interface-state {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 11px;
+}
+
+.interface-state-up {
+    background: rgba(34, 197, 94, 0.18);
+    color: #22c55e;
+}
+
+.interface-state-down {
+    background: rgba(239, 68, 68, 0.18);
+    color: #ef4444;
+}
+
+.interface-state-unknown,
+.interface-state-testing {
+    background: rgba(234, 179, 8, 0.18);
+    color: #eab308;
+}
+
+.registry-empty-interface-state {
+    padding: 14px 15px;
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    opacity: 0.72;
+    font-size: 13px;
+}
+
+
+.infrastructure-view-controls {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(14, 165, 233, 0.32);
+    border-radius: 16px;
+    background: rgba(2, 6, 23, 0.42);
+}
+
+.infrastructure-view-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 900;
+    color: #dbeafe;
+    cursor: pointer;
+}
+
+.infrastructure-view-toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: #38bdf8;
+}
+
+.infrastructure-view-help {
+    font-size: 12px;
+    color: #93c5fd;
+    font-weight: 700;
+}
+
+.advanced-interface-row {
+    display: none;
+}
+
+body.show-advanced-interfaces .advanced-interface-row {
+    display: table-row;
+}
+
+.interface-view-badge,
+.ownership-badge {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.interface-view-user {
+    background: rgba(34, 197, 94, 0.18);
+    color: #22c55e;
+}
+
+.interface-view-advanced {
+    background: rgba(234, 179, 8, 0.18);
+    color: #facc15;
+}
+
+.ownership-assigned {
+    background: rgba(14, 165, 233, 0.18);
+    color: #38bdf8;
+}
+
+.ownership-unassigned {
+    background: rgba(148, 163, 184, 0.16);
+    color: #94a3b8;
+}
+
+.port-owner-main {
+    font-weight: 900;
+    color: #e5f2ff;
+}
+
+.port-owner-sub {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #93c5fd;
+    opacity: 0.9;
+}
+
+.owner-category-badge {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.owner-category-infrastructure {
+    background: rgba(34, 197, 94, 0.18);
+    color: #22c55e;
+}
+
+.owner-category-server {
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+}
+
+.owner-category-virtual-machine {
+    background: rgba(168, 85, 247, 0.18);
+    color: #c084fc;
+}
+
+.owner-category-workstation {
+    background: rgba(234, 179, 8, 0.18);
+    color: #facc15;
+}
+
+.owner-category-endpoint,
+.owner-category-printer {
+    background: rgba(14, 165, 233, 0.18);
+    color: #38bdf8;
+}
+
+.owner-category-unassigned {
+    background: rgba(148, 163, 184, 0.16);
+    color: #94a3b8;
+}
+
+
+/* PHASE 16A.3B - PORT DETAIL & OWNERSHIP DASHBOARD */
+.port-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+    .port-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.port-dashboard-panel {
+    border: 1px solid rgba(14, 165, 233, 0.24);
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.34);
+    overflow: hidden;
+}
+
+.port-dashboard-panel h4 {
+    margin: 0;
+    padding: 12px 14px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    color: #bfdbfe;
+}
+
+.port-chip-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    max-height: 230px;
+    overflow: auto;
+}
+
+.port-chip {
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    padding: 9px 10px;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.58);
+}
+
+.port-chip-port {
+    font-weight: 900;
+    color: #e0f2fe;
+}
+
+.port-chip-owner {
+    min-width: 0;
+}
+
+.port-chip-owner strong {
+    display: block;
+    color: #f8fafc;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.port-chip-owner span {
+    display: block;
+    font-size: 11px;
+    color: #93c5fd;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.port-chip-empty {
+    padding: 12px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.port-detail-btn {
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    background: rgba(14, 165, 233, 0.16);
+    color: #7dd3fc;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 11px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.port-detail-btn:hover {
+    background: rgba(14, 165, 233, 0.28);
+}
+
+.port-owner-compact strong {
+    display: block;
+    color: #f8fafc;
+}
+
+.port-owner-compact span {
+    display: block;
+    color: #93c5fd;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.port-detail-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.62);
+    display: none;
+    z-index: 9990;
+}
+
+.port-detail-drawer {
+    position: fixed;
+    top: 0;
+    right: -460px;
+    width: min(430px, 92vw);
+    height: 100vh;
+    background: linear-gradient(180deg, #071827, #020617);
+    border-left: 1px solid rgba(56, 189, 248, 0.38);
+    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.45);
+    z-index: 9991;
+    transition: right 0.22s ease;
+    overflow-y: auto;
+}
+
+body.port-detail-open .port-detail-drawer-backdrop {
+    display: block;
+}
+
+body.port-detail-open .port-detail-drawer {
+    right: 0;
+}
+
+.port-detail-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.port-detail-header h3 {
+    margin: 0;
+    font-size: 21px;
+}
+
+.port-detail-header p {
+    margin: 6px 0 0;
+    color: #93c5fd;
+    font-weight: 800;
+}
+
+.port-detail-close {
+    background: rgba(239, 68, 68, 0.14);
+    color: #fecaca;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 999px;
+    height: 34px;
+    width: 34px;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.port-detail-body {
+    padding: 18px 20px 28px;
+}
+
+.port-detail-kv {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.port-detail-kv span {
+    color: #93c5fd;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 900;
+}
+
+.port-detail-kv strong {
+    color: #f8fafc;
+    overflow-wrap: anywhere;
+}
+
+
+
+/* PHASE 16A.3C - INFRASTRUCTURE RELATIONSHIP ENGINE */
+.relationship-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: 16px;
+    margin-top: 18px;
+}
+
+@media (max-width: 1100px) {
+    .relationship-overview-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.relationship-tree-panel,
+.relationship-readiness-panel,
+.device-relationship-panel {
+    border: 1px solid rgba(14, 165, 233, 0.24);
+    border-radius: 16px;
+    background: rgba(2, 6, 23, 0.36);
+    overflow: hidden;
+}
+
+.relationship-tree-panel h3,
+.relationship-readiness-panel h3,
+.device-relationship-panel h4 {
+    margin: 0;
+    padding: 13px 15px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    color: #bfdbfe;
+}
+
+.relationship-tree-list {
+    padding: 12px 14px;
+    max-height: 360px;
+    overflow: auto;
+}
+
+.relationship-tree-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 9px 10px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.relationship-tree-row:last-child {
+    border-bottom: 0;
+}
+
+.relationship-node-name {
+    font-weight: 900;
+    color: #f8fafc;
+}
+
+.relationship-node-sub {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #93c5fd;
+}
+
+.relationship-kpi-list {
+    padding: 12px 14px;
+}
+
+.relationship-kpi-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.relationship-kpi-row:last-child {
+    border-bottom: 0;
+}
+
+.relationship-kpi-row span {
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.relationship-kpi-row strong {
+    color: #f8fafc;
+}
+
+.device-relationship-panel {
+    margin-top: 14px;
+}
+
+.device-relationship-body {
+    padding: 12px 14px;
+}
+
+.relationship-path-line {
+    color: #e0f2fe;
+    font-weight: 800;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.relationship-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.relationship-mini-card {
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 12px;
+    padding: 10px;
+    background: rgba(15, 23, 42, 0.52);
+}
+
+.relationship-mini-card span {
+    display: block;
+    color: #93c5fd;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.relationship-mini-card strong {
+    display: block;
+    color: #f8fafc;
+    margin-top: 4px;
+}
+
+.relationship-child-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.relationship-child-pill {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: rgba(14, 165, 233, 0.16);
+    color: #7dd3fc;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.relationship-empty {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.criticality-badge {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: rgba(14, 165, 233, 0.18);
+    color: #7dd3fc;
+}
+
+.criticality-critical {
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171;
+}
+
+.criticality-high {
+    background: rgba(234, 179, 8, 0.18);
+    color: #facc15;
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+<header class="map-page-header">
+    <div class="map-brand">
+        <div class="map-shield">🛡️</div>
+        <div>
+            <div class="map-brand-title">ON WATCH</div>
+            <div class="map-brand-subtitle">NETWORK MONITOR</div>
+        </div>
+    </div>
+
+    <div class="map-title-block">
+        <h1>ON WATCH NETWORK MONITOR</h1>
+        <div>INFRASTRUCTURE REGISTRY</div>
+    </div>
+
+    <div class="map-header-status">
+        <div class="map-status-pill map-up">Registry Online</div>
+        <div class="map-last-updated">
+            Last Updated: {{ registry.summary.last_updated }}
+            <span class="map-refresh-icon">↻</span>
+        </div>
+    </div>
+</header>
+
+<div class="network-map-layout">
+
+    <aside class="network-map-left-sidebar">
+        <div class="map-time-card">
+            <div class="map-time-icon">🕒</div>
+            <div id="mapClock">Loading...</div>
+            <div id="mapDate">Loading...</div>
+        </div>
+
+        <a href="/" class="map-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="map-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="map-nav">🔌 Cisco Links</a>
+        <a href="/network-map" class="map-nav">🗺 Network Map</a>
+        <a href="/enterprise-inventory" class="map-nav">📦 Enterprise Inventory</a>
+        <a href="/infrastructure-registry" class="map-nav active">🏗 Infrastructure Registry</a>
+        <a href="/event-log" class="map-nav">📜 Event Log</a>
+        <a href="/alerts" class="map-nav">
+            ⚠ Alerts
+            {% if active_alert_count > 0 %}
+            <span class="map-alert-badge">{{ active_alert_count }}</span>
+            {% endif %}
+        </a>
+
+        <div class="map-action-group">
+            <a href="/provisioning" class="map-action-btn green">➕ Add Device</a>
+            <a href="/enterprise-inventory#device-management" class="map-action-btn red">🗑 Remove Device</a>
+            <a href="/router-monitoring" class="map-action-btn blue">⚙ Router Monitoring</a>
+        </div>
+    </aside>
+
+    <main class="network-map-main">
+
+        <section class="network-map-panel infrastructure-registry-panel">
+            <div class="registry-header-row">
+                <div>
+                    <h2>🏗 Phase 16A.3C Infrastructure Relationship Engine</h2>
+                    <p class="registry-subtitle">
+                        Default view shows compact user-facing ports, ownership panels, dependency paths, and parent/child infrastructure relationships. Use Show Advanced Interfaces to reveal Cisco internal interfaces.
+                    </p>
+                </div>
+                <div class="registry-phase-pill">{{ registry.phase }}</div>
+            </div>
+
+            <div class="infrastructure-summary-grid">
+                <div class="infrastructure-summary-card">
+                    <span>Total Infrastructure</span>
+                    <strong>{{ registry.summary.total }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Routers</span>
+                    <strong>{{ registry.summary.routers }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Switches</span>
+                    <strong>{{ registry.summary.switches }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Firewalls</span>
+                    <strong>{{ registry.summary.firewalls }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Access Points</span>
+                    <strong>{{ registry.summary.access_points }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>SNMP Enabled</span>
+                    <strong>{{ registry.summary.snmp_enabled }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>User Interfaces</span>
+                    <strong>{{ registry.summary.user_interfaces }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Advanced Hidden</span>
+                    <strong>{{ registry.summary.advanced_interfaces }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Mapped Ports</span>
+                    <strong>{{ registry.summary.mapped_interfaces }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Owned Interfaces</span>
+                    <strong>{{ registry.summary.owned_interfaces }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Unassigned Interfaces</span>
+                    <strong>{{ registry.summary.unassigned_interfaces }}</strong>
+                </div>
+
+                <div class="infrastructure-summary-card">
+                    <span>Relationships</span>
+                    <strong>{{ registry.summary.total_relationships }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Dependency Chains</span>
+                    <strong>{{ registry.summary.dependency_chains }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Max Depth</span>
+                    <strong>{{ registry.summary.max_dependency_depth }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Interfaces Up</span>
+                    <strong>{{ registry.summary.interfaces_up }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Interfaces Down</span>
+                    <strong>{{ registry.summary.interfaces_down }}</strong>
+                </div>
+                <div class="infrastructure-summary-card">
+                    <span>Devices Discovered</span>
+                    <strong>{{ registry.summary.devices_discovered }}</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="network-map-panel infrastructure-registry-panel">
+            <div class="infrastructure-view-controls">
+                <label class="infrastructure-view-toggle">
+                    <input type="checkbox" id="showAdvancedInterfaces">
+                    Show Advanced Interfaces
+                </label>
+                <div class="infrastructure-view-help">
+                    Default view hides Cisco internal interfaces like Embedded-Service-Engine, Backplane, StackSub, StackPort, VLAN, Loopback, and Null.
+                </div>
+            </div>
+        </section>
+
+
+
+        <section class="network-map-panel infrastructure-registry-panel">
+            <div class="registry-header-row">
+                <div>
+                    <h2>Infrastructure Relationship Engine</h2>
+                    <p class="registry-subtitle">
+                        Parent/child dependency mapping is now active. This prepares the monitor for Root Cause Analysis and Impact Reporting.
+                    </p>
+                </div>
+                <div class="registry-phase-pill">{{ registry.relationships.phase }}</div>
+            </div>
+
+            <div class="relationship-overview-grid">
+                <div class="relationship-tree-panel">
+                    <h3>Dependency Tree</h3>
+                    <div class="relationship-tree-list">
+                        {% for node in registry.relationships.flat_tree %}
+                        <div class="relationship-tree-row" style="padding-left: {{ 10 + (node.depth * 22) }}px;">
+                            <div>
+                                <div class="relationship-node-name">
+                                    {% if node.depth > 0 %}└─ {% endif %}{{ node.name }}
+                                </div>
+                                <div class="relationship-node-sub">
+                                    {{ node.type }}{% if node.ip %} • {{ node.ip }}{% endif %} • {{ node.relationship }}
+                                </div>
+                            </div>
+                            <span class="criticality-badge criticality-{{ node.criticality|lower }}">{{ node.criticality }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="relationship-readiness-panel">
+                    <h3>Relationship Summary</h3>
+                    <div class="relationship-kpi-list">
+                        <div class="relationship-kpi-row"><span>Total Relationships</span><strong>{{ registry.relationships.total_relationships }}</strong></div>
+                        <div class="relationship-kpi-row"><span>Infrastructure Links</span><strong>{{ registry.relationships.infrastructure_links }}</strong></div>
+                        <div class="relationship-kpi-row"><span>Endpoint Links</span><strong>{{ registry.relationships.endpoint_links }}</strong></div>
+                        <div class="relationship-kpi-row"><span>Root Devices</span><strong>{{ registry.relationships.root_devices }}</strong></div>
+                        <div class="relationship-kpi-row"><span>Dependency Chains</span><strong>{{ registry.relationships.dependency_chains }}</strong></div>
+                        <div class="relationship-kpi-row"><span>Max Depth</span><strong>{{ registry.relationships.max_depth }}</strong></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="network-map-panel infrastructure-registry-panel">
+            <h2>Registered Infrastructure Devices</h2>
+
+            {% if registry.devices %}
+            <div class="infrastructure-registry-grid">
+                {% for device in registry.devices %}
+                <div class="infrastructure-registry-card">
+                    <div class="infrastructure-card-topline">
+                        <div>
+                            <div class="infrastructure-device-name">{{ device.name }}</div>
+                            <div class="infrastructure-device-ip">{{ device.ip }}</div>
+                        </div>
+                        <span class="infrastructure-role-badge role-{{ device.role|lower|replace(' ', '-') }}">
+                            {{ device.role }}
+                        </span>
+                    </div>
+
+                    <div class="infrastructure-detail-grid">
+                        <div>
+                            <span>SNMP</span>
+                            {% if device.snmp_enabled %}
+                            <strong class="registry-good">Enabled</strong>
+                            {% else %}
+                            <strong class="registry-muted">Disabled</strong>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span>Device Status</span>
+                            <strong class="status-{{ device.status|lower }}">{{ device.status }}</strong>
+                        </div>
+                        <div>
+                            <span>Discovery Status</span>
+                            {% if device.discovery_status == "SUCCESS" %}
+                            <strong class="registry-good">SUCCESS</strong>
+                            {% elif device.discovery_status == "SKIPPED" %}
+                            <strong class="registry-muted">SKIPPED</strong>
+                            {% else %}
+                            <strong class="registry-warning">{{ device.discovery_status }}</strong>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span>User Interfaces</span>
+                            <strong>{{ device.user_interfaces_found }}</strong>
+                        </div>
+                        <div>
+                            <span>Last Discovery</span>
+                            <strong>{{ device.last_discovery }}</strong>
+                        </div>
+                        <div>
+                            <span>Advanced Hidden</span>
+                            <strong>{{ device.advanced_interfaces_found }}</strong>
+                        </div>
+                        <div>
+                            <span>Mapped Ports</span>
+                            <strong>{{ device.mapped_interfaces_found }}</strong>
+                        </div>
+                        <div>
+                            <span>Owned User Ports</span>
+                            <strong>{{ device.owned_user_interfaces_found }}</strong>
+                        </div>
+                        <div>
+                            <span>Unassigned User Ports</span>
+                            <strong>{{ device.unassigned_user_interfaces_found }}</strong>
+                        </div>
+                    </div>
+
+
+
+                    <div class="device-relationship-panel">
+                        <h4>Relationship Path</h4>
+                        <div class="device-relationship-body">
+                            <div class="relationship-path-line">{{ device.dependency_path_text }}</div>
+                            <div class="relationship-mini-grid">
+                                <div class="relationship-mini-card"><span>Parent</span><strong>{{ device.relationship_parent }}</strong></div>
+                                <div class="relationship-mini-card"><span>Relationship</span><strong>{{ device.relationship_type }}</strong></div>
+                                <div class="relationship-mini-card"><span>Children</span><strong>{{ device.relationship_children_count }}</strong></div>
+                                <div class="relationship-mini-card"><span>Downstream</span><strong>{{ device.downstream_dependents }}</strong></div>
+                            </div>
+                            {% if device.relationship_children %}
+                            <div class="relationship-child-list">
+                                {% for child in device.relationship_children %}
+                                <span class="relationship-child-pill">{{ child }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="relationship-empty">No downstream child devices registered.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <details class="infrastructure-interface-viewer" open>
+                        <summary>
+                            Interface Inventory
+                            <span>{{ device.user_interfaces_found }} user / {{ device.advanced_interfaces_found }} advanced</span>
+                        </summary>
+
+                        {% if device.has_interfaces %}
+                        <div class="infrastructure-interface-table-wrap">
+                            <table class="infrastructure-interface-table">
+                                <thead>
+                                    <tr>
+                                        <th>Port</th>
+                                        <th>Status</th>
+                                        <th>Owner</th>
+                                        <th>View</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for interface in device.interfaces %}
+                                    <tr class="{% if interface.is_advanced %}advanced-interface-row{% else %}user-interface-row{% endif %}">
+                                        <td>
+                                            <strong>{{ interface.port_label }}</strong>
+                                            <div class="port-owner-sub">{{ interface.name }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="interface-state interface-state-{{ interface.state|lower }}">
+                                                {{ interface.state }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if interface.has_owner %}
+                                            <div class="port-owner-compact">
+                                                <strong>{{ interface.owner_device }}</strong>
+                                                <span>{{ interface.owner_ip }} • {{ interface.owner_type }}</span>
+                                            </div>
+                                            {% else %}
+                                            <span class="ownership-badge ownership-unassigned">Unassigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if interface.is_advanced %}
+                                            <span class="interface-view-badge interface-view-advanced">Advanced</span>
+                                            {% else %}
+                                            <span class="interface-view-badge interface-view-user">User</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="port-detail-btn"
+                                                onclick="openPortDetail(this)"
+                                                data-device="{{ device.name }}"
+                                                data-device-ip="{{ device.ip }}"
+                                                data-device-role="{{ device.role }}"
+                                                data-port="{{ interface.port_label }}"
+                                                data-index="{{ interface.index }}"
+                                                data-interface="{{ interface.name }}"
+                                                data-short-name="{{ interface.short_name }}"
+                                                data-state="{{ interface.state }}"
+                                                data-view-group="{{ interface.view_group }}"
+                                                data-owner="{{ interface.owner_device }}"
+                                                data-owner-ip="{{ interface.owner_ip }}"
+                                                data-owner-status="{{ interface.owner_status }}"
+                                                data-owner-type="{{ interface.owner_type }}"
+                                                data-owner-category="{{ interface.owner_category }}"
+                                                data-owner-role="{{ interface.owner_role }}"
+                                                data-mapping-key="{{ interface.owner_mapping_key }}"
+                                                data-mapping-source="{{ interface.owner_source }}"
+                                                data-last-checked="{{ interface.last_checked }}"
+                                            >View</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="port-dashboard-grid">
+                            <div class="port-dashboard-panel">
+                                <h4>Owned User Ports</h4>
+                                {% if device.has_owned_ports %}
+                                <div class="port-chip-list">
+                                    {% for interface in device.owned_ports %}
+                                    <div class="port-chip">
+                                        <div class="port-chip-port">{{ interface.port_label }}</div>
+                                        <div class="port-chip-owner">
+                                            <strong>{{ interface.owner_device }}</strong>
+                                            <span>{{ interface.owner_ip }} • {{ interface.owner_type }}</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            class="port-detail-btn"
+                                            onclick="openPortDetail(this)"
+                                            data-device="{{ device.name }}"
+                                            data-device-ip="{{ device.ip }}"
+                                            data-device-role="{{ device.role }}"
+                                            data-port="{{ interface.port_label }}"
+                                            data-index="{{ interface.index }}"
+                                            data-interface="{{ interface.name }}"
+                                            data-short-name="{{ interface.short_name }}"
+                                            data-state="{{ interface.state }}"
+                                            data-view-group="{{ interface.view_group }}"
+                                            data-owner="{{ interface.owner_device }}"
+                                            data-owner-ip="{{ interface.owner_ip }}"
+                                            data-owner-status="{{ interface.owner_status }}"
+                                            data-owner-type="{{ interface.owner_type }}"
+                                            data-owner-category="{{ interface.owner_category }}"
+                                            data-owner-role="{{ interface.owner_role }}"
+                                            data-mapping-key="{{ interface.owner_mapping_key }}"
+                                            data-mapping-source="{{ interface.owner_source }}"
+                                            data-relationship-parent="{{ interface.relationship_parent }}"
+                                            data-relationship-type="{{ interface.relationship_type }}"
+                                            data-relationship-criticality="{{ interface.relationship_criticality }}"
+                                            data-dependency-path="{{ interface.owner_dependency_path_text }}"
+                                            data-infrastructure-path="{{ interface.infrastructure_dependency_path_text }}"
+                                            data-last-checked="{{ interface.last_checked }}"
+                                        >View</button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="port-chip-empty">No owned user ports are mapped for this device.</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="port-dashboard-panel">
+                                <h4>Unassigned User Ports</h4>
+                                {% if device.has_unassigned_ports %}
+                                <div class="port-chip-list">
+                                    {% for interface in device.unassigned_ports %}
+                                    <div class="port-chip">
+                                        <div class="port-chip-port">{{ interface.port_label }}</div>
+                                        <div class="port-chip-owner">
+                                            <strong>Unassigned</strong>
+                                            <span>{{ interface.state }} • {{ interface.name }}</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            class="port-detail-btn"
+                                            onclick="openPortDetail(this)"
+                                            data-device="{{ device.name }}"
+                                            data-device-ip="{{ device.ip }}"
+                                            data-device-role="{{ device.role }}"
+                                            data-port="{{ interface.port_label }}"
+                                            data-index="{{ interface.index }}"
+                                            data-interface="{{ interface.name }}"
+                                            data-short-name="{{ interface.short_name }}"
+                                            data-state="{{ interface.state }}"
+                                            data-view-group="{{ interface.view_group }}"
+                                            data-owner="{{ interface.owner_device }}"
+                                            data-owner-ip="{{ interface.owner_ip }}"
+                                            data-owner-status="{{ interface.owner_status }}"
+                                            data-owner-type="{{ interface.owner_type }}"
+                                            data-owner-category="{{ interface.owner_category }}"
+                                            data-owner-role="{{ interface.owner_role }}"
+                                            data-mapping-key="{{ interface.owner_mapping_key }}"
+                                            data-mapping-source="{{ interface.owner_source }}"
+                                            data-relationship-parent="{{ interface.relationship_parent }}"
+                                            data-relationship-type="{{ interface.relationship_type }}"
+                                            data-relationship-criticality="{{ interface.relationship_criticality }}"
+                                            data-dependency-path="{{ interface.owner_dependency_path_text }}"
+                                            data-infrastructure-path="{{ interface.infrastructure_dependency_path_text }}"
+                                            data-last-checked="{{ interface.last_checked }}"
+                                        >View</button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="port-chip-empty">No unassigned user ports for this device.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% else %}
+                        <div class="registry-empty-interface-state">
+                            No discovered interfaces are available for this device yet.
+                        </div>
+                        {% endif %}
+                    </details>
+
+                    <div class="infrastructure-registry-footer">
+                        <span>Source: {{ device.source }}</span>
+                        <span>Updated: {{ device.updated_at }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="registry-empty-state">
+                No infrastructure devices are registered yet.
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="network-map-panel infrastructure-registry-note">
+            <h2>Phase 16A.3C Active</h2>
+            <p>
+                Infrastructure Relationship Engine is online. The system now builds parent/child dependency paths that prepare the dashboard for Root Cause Analysis and Impact Reporting.
+            </p>
+        </section>
+
+    </main>
+
+    <aside class="network-map-right-sidebar">
+        <section class="map-summary-panel">
+            <h3>Registry Summary</h3>
+            <div class="map-summary-row"><span>Total</span><strong>{{ registry.summary.total }}</strong></div>
+            <div class="map-summary-row"><span>SNMP Enabled</span><strong>{{ registry.summary.snmp_enabled }}</strong></div>
+            <div class="map-summary-row"><span>SNMP Disabled</span><strong>{{ registry.summary.snmp_disabled }}</strong></div>
+            <div class="map-summary-row"><span>User Interfaces</span><strong>{{ registry.summary.user_interfaces }}</strong></div>
+            <div class="map-summary-row"><span>Advanced Hidden</span><strong>{{ registry.summary.advanced_interfaces }}</strong></div>
+            <div class="map-summary-row"><span>Mapped Ports</span><strong>{{ registry.summary.mapped_interfaces }}</strong></div>
+            <div class="map-summary-row"><span>Owned Interfaces</span><strong>{{ registry.summary.owned_interfaces }}</strong></div>
+            <div class="map-summary-row"><span>Unassigned Interfaces</span><strong>{{ registry.summary.unassigned_interfaces }}</strong></div>
+            <div class="map-summary-row"><span>Relationships</span><strong>{{ registry.summary.total_relationships }}</strong></div>
+            <div class="map-summary-row"><span>Dependency Chains</span><strong>{{ registry.summary.dependency_chains }}</strong></div>
+            <div class="map-summary-row"><span>Interfaces Up</span><strong>{{ registry.summary.interfaces_up }}</strong></div>
+            <div class="map-summary-row"><span>Interfaces Down</span><strong>{{ registry.summary.interfaces_down }}</strong></div>
+            <div class="map-summary-row"><span>Devices Discovered</span><strong>{{ registry.summary.devices_discovered }}</strong></div>
+            <div class="map-summary-row"><span>Last Discovery</span><strong>{{ registry.summary.last_discovery }}</strong></div>
+            <div class="map-summary-row"><span>Last Scan</span><strong>{{ last_full_scan }}</strong></div>
+        </section>
+
+        <section class="map-summary-panel">
+            <h3>Roles</h3>
+            {% for role, count in registry.role_counts.items() %}
+                {% if count > 0 %}
+                <div class="map-summary-row"><span>{{ role }}</span><strong>{{ count }}</strong></div>
+                {% endif %}
+            {% endfor %}
+        </section>
+    </aside>
+
+</div>
+
+<div class="port-detail-drawer-backdrop" onclick="closePortDetail()"></div>
+<aside class="port-detail-drawer" aria-label="Port detail drawer">
+    <div class="port-detail-header">
+        <div>
+            <h3 id="portDetailTitle">Port Detail</h3>
+            <p id="portDetailSubtitle">Select a port to view details</p>
+        </div>
+        <button type="button" class="port-detail-close" onclick="closePortDetail()">×</button>
+    </div>
+
+    <div class="port-detail-body">
+        <div class="port-detail-kv"><span>Switch/Device</span><strong id="detailDevice">-</strong></div>
+        <div class="port-detail-kv"><span>Device IP</span><strong id="detailDeviceIp">-</strong></div>
+        <div class="port-detail-kv"><span>Role</span><strong id="detailDeviceRole">-</strong></div>
+        <div class="port-detail-kv"><span>Port</span><strong id="detailPort">-</strong></div>
+        <div class="port-detail-kv"><span>Index</span><strong id="detailIndex">-</strong></div>
+        <div class="port-detail-kv"><span>Interface</span><strong id="detailInterface">-</strong></div>
+        <div class="port-detail-kv"><span>State</span><strong id="detailState">-</strong></div>
+        <div class="port-detail-kv"><span>View Group</span><strong id="detailViewGroup">-</strong></div>
+        <div class="port-detail-kv"><span>Connected</span><strong id="detailOwner">-</strong></div>
+        <div class="port-detail-kv"><span>Owner IP</span><strong id="detailOwnerIp">-</strong></div>
+        <div class="port-detail-kv"><span>Owner Status</span><strong id="detailOwnerStatus">-</strong></div>
+        <div class="port-detail-kv"><span>Device Type</span><strong id="detailOwnerType">-</strong></div>
+        <div class="port-detail-kv"><span>Category</span><strong id="detailOwnerCategory">-</strong></div>
+        <div class="port-detail-kv"><span>Port Role</span><strong id="detailOwnerRole">-</strong></div>
+        <div class="port-detail-kv"><span>Parent Device</span><strong id="detailRelationshipParent">-</strong></div>
+        <div class="port-detail-kv"><span>Relationship</span><strong id="detailRelationshipType">-</strong></div>
+        <div class="port-detail-kv"><span>Criticality</span><strong id="detailRelationshipCriticality">-</strong></div>
+        <div class="port-detail-kv"><span>Dependency Path</span><strong id="detailDependencyPath">-</strong></div>
+        <div class="port-detail-kv"><span>Infrastructure Path</span><strong id="detailInfrastructurePath">-</strong></div>
+        <div class="port-detail-kv"><span>Mapping Key</span><strong id="detailMappingKey">-</strong></div>
+        <div class="port-detail-kv"><span>Source</span><strong id="detailMappingSource">-</strong></div>
+        <div class="port-detail-kv"><span>Last Checked</span><strong id="detailLastChecked">-</strong></div>
+    </div>
+</aside>
+
+<script>
+function updateClock(){
+    const now = new Date();
+    const clock = document.getElementById("mapClock");
+    const date = document.getElementById("mapDate");
+    if(clock){ clock.textContent = now.toLocaleTimeString(); }
+    if(date){ date.textContent = now.toLocaleDateString(); }
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+const advancedToggle = document.getElementById("showAdvancedInterfaces");
+if (advancedToggle) {
+    const savedAdvancedPreference = localStorage.getItem("onwatch_show_advanced_interfaces") === "true";
+    advancedToggle.checked = savedAdvancedPreference;
+    document.body.classList.toggle("show-advanced-interfaces", savedAdvancedPreference);
+
+    advancedToggle.addEventListener("change", function(){
+        document.body.classList.toggle("show-advanced-interfaces", this.checked);
+        localStorage.setItem("onwatch_show_advanced_interfaces", this.checked ? "true" : "false");
+    });
+}
+
+function setDetailText(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.textContent = value && value.trim ? (value.trim() || "-") : (value || "-");
+    }
+}
+
+function openPortDetail(button) {
+    const d = button.dataset || {};
+
+    setDetailText("portDetailTitle", d.port || "Port Detail");
+    setDetailText("portDetailSubtitle", (d.owner && d.owner !== "Unassigned") ? d.owner : "Unassigned Port");
+
+    setDetailText("detailDevice", d.device);
+    setDetailText("detailDeviceIp", d.deviceIp);
+    setDetailText("detailDeviceRole", d.deviceRole);
+    setDetailText("detailPort", d.port);
+    setDetailText("detailIndex", d.index);
+    setDetailText("detailInterface", d.interface);
+    setDetailText("detailState", d.state);
+    setDetailText("detailViewGroup", d.viewGroup);
+    setDetailText("detailOwner", d.owner);
+    setDetailText("detailOwnerIp", d.ownerIp);
+    setDetailText("detailOwnerStatus", d.ownerStatus);
+    setDetailText("detailOwnerType", d.ownerType);
+    setDetailText("detailOwnerCategory", d.ownerCategory);
+    setDetailText("detailOwnerRole", d.ownerRole);
+    setDetailText("detailRelationshipParent", d.relationshipParent);
+    setDetailText("detailRelationshipType", d.relationshipType);
+    setDetailText("detailRelationshipCriticality", d.relationshipCriticality);
+    setDetailText("detailDependencyPath", d.dependencyPath);
+    setDetailText("detailInfrastructurePath", d.infrastructurePath);
+    setDetailText("detailMappingKey", d.mappingKey);
+    setDetailText("detailMappingSource", d.mappingSource);
+    setDetailText("detailLastChecked", d.lastChecked);
+
+    document.body.classList.add("port-detail-open");
+}
+
+function closePortDetail() {
+    document.body.classList.remove("port-detail-open");
+}
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        closePortDetail();
+    }
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Router Monitoring Settings</title>
+
+<style>
+body{
+    margin:0;
+    background:#0d1117;
+    color:white;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.header{
+    background:#001b44;
+    padding:20px;
+    text-align:center;
+    border-bottom:3px solid #0a84ff;
+}
+
+.header h1{
+    margin:0;
+    font-size:36px;
+    color:white;
+}
+
+.container{
+    width:90%;
+    max-width:1200px;
+    margin:30px auto;
+}
+
+.card{
+    background:#161b22;
+    border:1px solid #30363d;
+    border-radius:10px;
+    padding:25px;
+    margin-bottom:20px;
+}
+
+.info{
+    background:#102947;
+    border-left:5px solid #0a84ff;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:5px;
+    line-height:1.4;
+}
+
+.router-card-header{
+    background:linear-gradient(135deg, #09244c, #0f172a);
+    border:1px solid rgba(10,132,255,.45);
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.router-title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap;
+}
+
+.router-name{
+    font-size:26px;
+    font-weight:900;
+    margin-bottom:6px;
+}
+
+.router-meta{
+    color:#9ccfff;
+    font-size:14px;
+    font-weight:700;
+}
+
+.router-state-pill{
+    border-radius:999px;
+    padding:7px 14px;
+    font-size:13px;
+    font-weight:900;
+    text-transform:uppercase;
+}
+
+.router-state-up{ background:#153f22; color:#32d74b; }
+.router-state-down{ background:#451616; color:#ff453a; }
+.router-state-unknown{ background:#423712; color:#ffd60a; }
+
+.router-summary-grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:10px;
+    margin-top:16px;
+}
+
+.router-summary-card{
+    background:#0d1117;
+    border:1px solid #30363d;
+    border-radius:10px;
+    padding:12px;
+    text-align:center;
+}
+
+.router-summary-card span{
+    display:block;
+    color:#9ccfff;
+    font-size:12px;
+    font-weight:900;
+    text-transform:uppercase;
+    margin-bottom:5px;
+}
+
+.router-summary-card strong{
+    color:#ffffff;
+    font-size:24px;
+}
+
+.interface-section-title{
+    color:#58a6ff;
+    font-size:18px;
+    font-weight:900;
+    margin:20px 0 10px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+}
+
+.interface-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px;
+    margin-bottom:8px;
+    background:#21262d;
+    border-radius:6px;
+    border:1px solid transparent;
+}
+
+.interface-row:hover{
+    border-color:rgba(10,132,255,.6);
+}
+
+.interface-left{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+}
+
+.interface-left input{
+    margin-top:4px;
+    transform:scale(1.15);
+}
+
+.interface-name{
+    font-weight:bold;
+}
+
+.interface-full-name{
+    color:#c9d1d9;
+}
+
+.mapped-pill{
+    display:inline-block;
+    margin-left:8px;
+    background:#0a84ff;
+    color:#ffffff;
+    border-radius:999px;
+    padding:3px 8px;
+    font-size:11px;
+    font-weight:900;
+}
+
+.status-up{
+    color:#32d74b;
+    font-weight:bold;
+}
+
+.status-down{
+    color:#ff453a;
+    font-weight:bold;
+}
+
+.status-unknown{
+    color:#ffd60a;
+    font-weight:bold;
+}
+
+.buttons{
+    margin-top:25px;
+}
+
+.save-btn{
+    background:#32d74b;
+    color:black;
+    border:none;
+    padding:12px 25px;
+    border-radius:6px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.save-btn:hover{
+    background:#28b840;
+}
+
+.back-btn{
+    display:inline-block;
+    background:#0a84ff;
+    color:white;
+    text-decoration:none;
+    padding:12px 25px;
+    border-radius:6px;
+    margin-left:10px;
+}
+
+.back-btn:hover{
+    background:#0066cc;
+}
+
+.empty-state{
+    background:#21262d;
+    border:1px dashed #555;
+    border-radius:8px;
+    padding:18px;
+    color:#ffd60a;
+    font-weight:800;
+}
+
+.footer{
+    text-align:center;
+    padding:20px;
+    color:#999;
+}
+
+@media(max-width:900px){
+    .header h1{ font-size:28px; }
+    .router-summary-grid{ grid-template-columns:1fr; }
+    .interface-row{ align-items:flex-start; gap:10px; }
+    .back-btn{ margin-left:0; margin-top:10px; }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+    <h1>⚙ Router Monitoring Settings</h1>
+</div>
+
+<div class="container">
+
+    <div class="card">
+
+        <div class="info">
+            <strong>Phase 15B.1 Router Monitoring UI:</strong><br>
+            Select which discovered router interfaces should be monitored. Checked interfaces generate alerts.
+            Unchecked interfaces are ignored and will not create router interface alerts.
+        </div>
+
+        <form method="POST" action="/update-router-monitoring">
+
+            <div class="router-card-header">
+                <div class="router-title-row">
+                    <div>
+                        <div class="router-name">{{ router_summary.name }}</div>
+                        <div class="router-meta">
+                            {{ router_summary.type }} • {{ router_summary.ip }}
+                        </div>
+                    </div>
+
+                    {% if router_summary.state == "UP" %}
+                        <div class="router-state-pill router-state-up">Router {{ router_summary.state }}</div>
+                    {% elif router_summary.state == "DOWN" or router_summary.state == "ERROR" %}
+                        <div class="router-state-pill router-state-down">Router {{ router_summary.state }}</div>
+                    {% else %}
+                        <div class="router-state-pill router-state-unknown">Router {{ router_summary.state }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="router-summary-grid">
+                    <div class="router-summary-card">
+                        <span>Discovered</span>
+                        <strong>{{ router_summary.discovered_count }}</strong>
+                    </div>
+                    <div class="router-summary-card">
+                        <span>Monitored</span>
+                        <strong>{{ router_summary.monitored_count }}</strong>
+                    </div>
+                    <div class="router-summary-card">
+                        <span>Mapped</span>
+                        <strong>{{ router_summary.mapped_count }}</strong>
+                    </div>
+                    <div class="router-summary-card">
+                        <span>Up</span>
+                        <strong>{{ router_summary.up_count }}</strong>
+                    </div>
+                    <div class="router-summary-card">
+                        <span>Down</span>
+                        <strong>{{ router_summary.down_count }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interface-section-title">
+                Discovered Interfaces For {{ router_summary.name }}
+            </div>
+
+            {% if all_router_interfaces %}
+                {% for index, iface in all_router_interfaces.items() %}
+
+                <div class="interface-row">
+
+                    <div class="interface-left">
+                        <input
+                            type="checkbox"
+                            name="router_interfaces"
+                            value="{{ index }}"
+                            {% if index in router_monitored_interfaces %}checked{% endif %}
+                        >
+
+                        <div>
+                            <span class="interface-name">
+                                {{ iface.short_name }}
+                            </span>
+
+                            {% if index in router_mapped_interfaces %}
+                                <span class="mapped-pill">MAPPED</span>
+                            {% endif %}
+
+                            <br>
+
+                            <small class="interface-full-name">
+                                {{ iface.name }} • SNMP Index {{ index }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <div>
+                        {% if iface.state == "UP" %}
+                            <span class="status-up">UP</span>
+                        {% elif iface.state == "DOWN" %}
+                            <span class="status-down">DOWN</span>
+                        {% else %}
+                            <span class="status-unknown">{{ iface.state }}</span>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    No router interfaces were discovered. Check SNMP settings and router reachability.
+                </div>
+            {% endif %}
+
+            <div class="buttons">
+                <button type="submit" class="save-btn">
+                    Save Router Monitoring
+                </button>
+
+                <a href="/cisco-links" class="back-btn">
+                    Return To Cisco Links
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="footer">
+    Last Scan: {{ last_full_scan }}
+</div>
+
+</body>
+</html>

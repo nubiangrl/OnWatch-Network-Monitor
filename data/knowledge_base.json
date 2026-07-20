@@ -1,0 +1,98 @@
+[
+    {
+        "title": "Restart Home Network Monitor Service",
+        "category": "Dashboard",
+        "content": "SSH into monitoring-server\r\n\r\nCheck status:\r\n\r\nsudo systemctl status home-network-monitor\r\n\r\nRestart service:\r\n\r\nsudo systemctl restart home-network-monitor\r\n\r\nVerify:\r\n\r\nsudo systemctl status home-network-monitor\r\n\r\nView logs:\r\n\r\nsudo journalctl -u home-network-monitor -f",
+        "created": "2026-06-14 20:13:06",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Internet Outage Troubleshooting Procedure",
+        "category": "Network",
+        "content": "1. Verify dashboard reports Internet outage.\r\n\r\n2. Verify all 3 targets fail:\r\n\r\n8.8.8.8\r\n1.1.1.1\r\n9.9.9.9\r\n\r\n3. Verify router reachable.\r\n\r\n4. Verify modem online.\r\n\r\n5. Check Cox service status.\r\n\r\n6. Wait for automatic recovery.",
+        "created": "2026-06-14 20:14:05",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Cisco Router Interface Troubleshooting",
+        "category": "Cisco",
+        "content": "SSH into Cisco Router\r\n\r\nshow ip interface brief\r\n\r\nshow interfaces\r\n\r\nshow running-config\r\n\r\nshow logging\r\n\r\nshow version\r\n\r\nshow users",
+        "created": "2026-06-14 20:14:35",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Cisco Switch Port Troubleshooting",
+        "category": "Cisco",
+        "content": "show interface status\r\n\r\nshow interfaces\r\n\r\nshow logging\r\n\r\nshow mac address-table\r\n\r\nshow spanning-tree\r\n\r\nshow power inline",
+        "created": "2026-06-14 20:15:13",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "How To Add A New Device To The Dashboard",
+        "category": "Dashboard",
+        "content": "Dashboard\r\n\r\nAdd Device\r\n\r\nEnter:\r\n\r\nDevice Name\r\n\r\nIP Address\r\n\r\nSwitch Port\r\n\r\nSave\r\n\r\nVerify device appears online.",
+        "created": "2026-06-14 20:15:43",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "OpenMediaVault Shared Drive Troubleshooting",
+        "category": "OpenMediaVault",
+        "content": "Verify filesystem mounted\r\n\r\nVerify Shared Folder\r\n\r\nVerify SMB enabled\r\n\r\nVerify permissions\r\n\r\nRestart SMB:\r\n\r\nsudo systemctl restart smbd\r\n\r\nVerify access from Mac",
+        "created": "2026-06-14 20:16:24",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Ubuntu Server Health Check Commands",
+        "category": "Linux",
+        "content": "Hostname\r\n\r\nhostname\r\n\r\nIP address\r\n\r\nip a\r\n\r\nDisk space\r\n\r\ndf -h\r\n\r\nMemory\r\n\r\nfree -h\r\n\r\nCPU\r\n\r\ntop\r\n\r\nServices\r\n\r\nsystemctl status",
+        "created": "2026-06-14 20:16:49",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Home Network Monitor Backup Procedure",
+        "category": "Dashboard",
+        "content": "Backup:\r\n\r\nconfig.json\r\n\r\napp.py\r\n\r\ntemplates/\r\n\r\nstatic/\r\n\r\nlogs/\r\n\r\ndata/\r\n\r\nCompress:\r\n\r\ntar -czvf home-network-monitor-backup.tar.gz home-network-monitor/",
+        "created": "2026-06-14 20:17:15",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Emergency Network Recovery Procedure",
+        "category": "Network",
+        "content": "Internet Down\r\n\r\n1. Verify modem\r\n2. Verify router\r\n3. Verify switch\r\n4. Verify uplink\r\n5. Verify endpoints\r\n6. Verify Internet targets\r\n7. Check Cox outage",
+        "created": "2026-06-14 20:17:49",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Home Network Monitor File Locations",
+        "category": "Dashboard",
+        "content": "Application\r\n\r\n~/home-network-monitor\r\n\r\nLogs\r\n\r\nlogs/events.log\r\n\r\nCisco Logs\r\n\r\n/var/log/cisco/cisco.log\r\n\r\nKnowledge Base\r\n\r\ndata/knowledge_base.json\r\n\r\nAlerts\r\n\r\ndata/alerts.json\r\n\r\nInternet Stats\r\n\r\ndata/uptime_stats.json\r\n\r\nInternet History\r\n\r\ndata/internet_uptime_history.json\r\n\r\nConfig\r\n\r\nconfig.json",
+        "created": "2026-06-14 20:18:34",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Home Network Monitor - System Upgrade Changelog",
+        "category": "Dashboard",
+        "content": "Phase 1 - Core Dashboard Foundation\r\nFeatures Added\r\n\r\n\u2705 Home Network Monitor Dashboard\r\n\r\n\u2705 Network Topology Header\r\n\r\n\u2705 Device Monitoring Engine\r\n\r\n\u2705 Device Status Cards\r\n\r\n\u2705 Event Logging\r\n\r\n\u2705 Network Diagnosis Engine\r\n\r\nPurpose\r\n\r\nEstablished the core monitoring system.\r\n\r\nPhase 2 - Cisco Monitoring Integration\r\nFeatures Added\r\n\r\n\u2705 Cisco Router Monitoring\r\n\r\n\u2705 Cisco Switch Monitoring\r\n\r\n\u2705 SNMP Integration\r\n\r\n\u2705 Router Interface Monitoring\r\n\r\n\u2705 Switch Port Monitoring\r\n\r\n\u2705 Cisco Event Logging\r\n\r\nPurpose\r\n\r\nAdded enterprise network device monitoring.\r\n\r\nPhase 3 - Alert Center\r\nFeatures Added\r\n\r\n\u2705 Alert Detection Engine\r\n\r\n\u2705 Critical Alerts\r\n\r\n\u2705 Warning Alerts\r\n\r\n\u2705 Alert History\r\n\r\n\u2705 Alert Acknowledgement\r\n\r\nPurpose\r\n\r\nAdded fault detection.\r\n\r\nPhase 4 - Notification Center\r\nFeatures Added\r\n\r\n\u2705 Voice Alerts\r\n\r\n\u2705 Browser Notifications\r\n\r\n\u2705 SMS Notifications\r\n\r\n\u2705 Alert Recovery Notifications\r\n\r\nPurpose\r\n\r\nAdded notification automation.\r\n\r\nPhase 5 - Visual Alert System\r\nFeatures Added\r\nPhase 5A\r\n\r\n\u2705 Visual Alert Center\r\n\r\n\u2705 Critical Alert Dashboard Banner\r\n\r\n\u2705 Dashboard Alert Highlighting\r\n\r\nPhase 5B\r\n\r\n\u2705 Full Screen Critical Alert Popup\r\n\r\nPurpose\r\n\r\nImproved visibility of critical issues.\r\n\r\nPhase 6 - Network Operations Expansion\r\nFeatures Added\r\n\r\n\u2705 Device Add\r\n\r\n\u2705 Device Edit\r\n\r\n\u2705 Device Remove\r\n\r\n\u2705 Router Monitoring Configuration\r\n\r\n\u2705 Cisco Link Management\r\n\r\nPurpose\r\n\r\nAdded administration capabilities.\r\n\r\nPhase 7A - Internet Uptime Tracking Engine\r\nFeatures Added\r\n\r\n\u2705 Internet Outage Detection\r\n\r\n\u2705 Multi-target Internet Monitoring\r\n\r\n8.8.8.8\r\n1.1.1.1\r\n9.9.9.9\r\n\r\nInternet outage rule:\r\n\r\nInternet outage ONLY if:\r\n\r\n8.8.8.8 = DOWN\r\n1.1.1.1 = DOWN\r\n9.9.9.9 = DOWN\r\n\r\nDashboard Statistics:\r\n\r\n\u2705 Internet Uptime\r\n\r\n\u2705 Today's Internet Outages\r\n\r\n\u2705 Longest Internet Outage\r\n\r\n\u2705 Last Internet Outage\r\n\r\nPurpose\r\n\r\nAdded ISP availability monitoring.\r\n\r\nPhase 7A.2 - Reset Center\r\nFeatures Added\r\n\r\n\u2705 Reset Center Page\r\n\r\nReset Buttons:\r\n\r\nReset Internet Uptime Stats\r\n\r\nClear Event Log\r\n\r\nClear Cisco Event Log\r\n\r\nReset Alert History\r\nPurpose\r\n\r\nAdded maintenance tools.\r\n\r\nPhase 7A.3 - Reset Center Add-ons\r\nFeatures Added\r\n\r\nAdditional Reset Buttons\r\n\r\nSystem cleanup capabilities\r\n\r\nConfirmation dialogs\r\n\r\nPurpose\r\n\r\nImproved administration.\r\n\r\nPhase 7B - Internet Uptime History Log\r\nFeatures Added\r\n\r\n\u2705 Internet History Page\r\n\r\n\u2705 Recent Internet Outages Dashboard Panel\r\n\r\n\u2705 Internet History Storage\r\n\r\nTracks:\r\n\r\nOutage Start\r\n\r\nRecovery Time\r\n\r\nDuration\r\n\r\nStatus\r\n\r\nTargets Failed\r\nPurpose\r\n\r\nCreated historical Internet tracking.\r\n\r\nPhase 7D - Knowledge Base Edit Articles\r\nFeatures Added\r\n\r\n\u2705 Create Article\r\n\r\n\u2705 Edit Article\r\n\r\n\u2705 Delete Article\r\n\r\nPurpose\r\n\r\nBuilt a self-documenting system.\r\n\r\nPhase 7E - Knowledge Base 2.0\r\nFeatures Added\r\n\r\n\u2705 Search Knowledge Base\r\n\r\n\u2705 Category Filters\r\n\r\nCisco\r\n\r\nLinux\r\n\r\nOpenMediaVault\r\n\r\nMac\r\n\r\nWindows\r\n\r\nNetwork\r\n\r\nDashboard\r\n\r\nGeneral\r\n\r\n\u2705 Pinned Articles\r\n\r\n\u2705 Export Knowledge Base\r\n\r\n\u2705 Import Knowledge Base\r\n\r\nPurpose\r\n\r\nTurned the Knowledge Base into an operational manual.\r\n\r\nCurrent System Inventory\r\nMonitoring\r\nDashboard\r\nDevice Monitoring\r\nCisco Router Monitoring\r\nCisco Switch Monitoring\r\nInternet Monitoring\r\nAlerting\r\nAlert Center\r\nVoice Alerts\r\nBrowser Notifications\r\nSMS Alerts\r\nCritical Popups\r\nManagement\r\nDevice Add\r\nDevice Edit\r\nDevice Remove\r\nRouter Configuration\r\nReset Center\r\nDocumentation\r\nKnowledge Base\r\nSearch\r\nCategories\r\nPinned Articles\r\nImport\r\nExport\r\nUpcoming Phases (Not Built Yet)\r\nPhase 7C - Internet Availability Reporting\r\n\r\nPhase 8 - Network Tools Center\r\n\r\nPhase 9 - Installer Package\r\n\r\nPhase 10 - Enterprise Dashboard",
+        "created": "2026-06-14 20:37:20",
+        "updated": "",
+        "favorite": false
+    },
+    {
+        "title": "Backup & Restore Procedure",
+        "category": "Dashboard",
+        "content": "azero@monitoring-server:~$ tar -czvf ~/backups/network-monitor-$(date +%Y%m%d)-phase7e.tar.gz home-network-monitor",
+        "created": "2026-06-15 06:42:24",
+        "updated": "",
+        "favorite": false
+    }
+]

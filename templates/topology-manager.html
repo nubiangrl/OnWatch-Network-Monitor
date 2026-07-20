@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>On Watch Topology Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="main-header dashboard-cleanup-header identity-modern-header">
+    <div class="identity-center">
+        <div class="identity-brand-name">ON WATCH</div>
+        <h1>TOPOLOGY MANAGER</h1>
+        <div class="identity-subtitle">Phase 14A.1 Device-Driven Network Topology Foundation</div>
+        <div class="subtitle identity-path">Cox Modem → Cisco Main Switch → Cisco Edge Router → Endpoints</div>
+    </div>
+</header>
+
+<div class="settings-page topology-manager-page">
+    <a href="/" class="back-link">← Back to Dashboard</a>
+
+    <section class="panel topology-manager-hero">
+        <div class="panel-header">
+            <h2>🧭 Network Topology Source of Truth</h2>
+            <span class="network-intelligence-badge">{{ topology.phase }}</span>
+        </div>
+
+        <p>
+            This page shows the new user-entered topology database. Phase 14A saves devices into
+            <strong>topology_devices</strong> and connections into <strong>topology_links</strong> while keeping the old monitoring engine untouched.
+        </p>
+
+        <div class="topology-manager-stats">
+            <div class="stat-card">
+                <div class="stat-label">Topology Devices</div>
+                <div class="stat-value blue">{{ topology.device_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Topology Links</div>
+                <div class="stat-value green">{{ topology.link_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Last Updated</div>
+                <div class="stat-value topology-time-value">{{ topology.last_updated }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="form-panel topology-link-form-panel">
+        <div class="panel-header">
+            <h2>➕ Add / Update Connection</h2>
+        </div>
+
+        <form method="POST" action="/topology-link/add">
+            <label>Device A</label>
+            <select name="device_a" required>
+                <option value="">Select first device</option>
+                {% for name, ip in all_devices.items() %}
+                <option value="{{ name }}">{{ name }} - {{ ip }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Port On Device A</label>
+            <input type="text" name="port_a" placeholder="Example: Gi1/0/21, LAN1, eth0">
+
+            <label>Device B</label>
+            <select name="device_b" required>
+                <option value="">Select connected device</option>
+                {% for name, ip in all_devices.items() %}
+                <option value="{{ name }}">{{ name }} - {{ ip }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Port On Device B</label>
+            <input type="text" name="port_b" placeholder="Example: Gi0/0, Ethernet, WAN">
+
+            <label>Link Type</label>
+            <input type="text" name="link_type" value="Physical Link" placeholder="Example: Physical Link, Router Uplink, ISP Handoff">
+
+            <label>Label / Notes</label>
+            <input type="text" name="label" placeholder="Example: Main switch to edge router">
+
+            <button type="submit" class="save-btn">Save Topology Link</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>🔗 Saved Topology Links</h2>
+        </div>
+
+        {% if topology.links %}
+        <table class="topology-manager-table">
+            <thead>
+                <tr>
+                    <th>Device A</th>
+                    <th>Port A</th>
+                    <th>Device B</th>
+                    <th>Port B</th>
+                    <th>Type</th>
+                    <th>Label</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for link in topology.links %}
+                <tr>
+                    <td>{{ link.device_a }}</td>
+                    <td>{{ link.port_a or "—" }}</td>
+                    <td>{{ link.device_b }}</td>
+                    <td>{{ link.port_b or "—" }}</td>
+                    <td>{{ link.link_type }}</td>
+                    <td>{{ link.label or "—" }}</td>
+                    <td>
+                        <form method="POST" action="/topology-link/delete" onsubmit="return confirm('Delete this topology link?');">
+                            <input type="hidden" name="link_id" value="{{ link.id }}">
+                            <button type="submit" class="small-clear-btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="warning-text">No topology links have been saved yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>🖥 Topology Devices</h2>
+        </div>
+
+        <table class="topology-manager-table">
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>IP Address</th>
+                    <th>Type</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for device in topology.devices %}
+                <tr>
+                    <td>{{ device.name }}</td>
+                    <td>{{ device.ip }}</td>
+                    <td>{{ device.type }}</td>
+                    <td>{{ device.source }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<footer class="footer-bar">
+    On Watch Network Monitor • Phase 14A.1 Topology Foundation
+</footer>
+
+</body>
+</html>

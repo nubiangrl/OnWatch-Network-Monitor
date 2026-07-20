@@ -1,0 +1,1713 @@
+                <div class="stat-value red"><span id="switchLinksDownValue">{{ switch_down }}</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Alerts</div>
+                <div class="stat-value orange"><span id="totalAlertsValue">{{ total_alerts }}</span></div>
+            </div>
+
+            <div class="stat-card alert-stat-card">
+                <div class="stat-label">Active Critical</div>
+                <div class="stat-value red">
+                    <span id="activeCriticalValue">{{ alerts | selectattr("severity", "equalto", "CRITICAL") | list | length }}</span>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-label">Internet Uptime</div>
+                <div class="stat-value green"><span id="internetUptimeValue">{{ uptime_stats.network_uptime }}</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Today's Internet Outages</div>
+                <div class="stat-value orange"><span id="todayInternetOutagesValue">{{ uptime_stats.today_outages }}</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Longest Internet Outage</div>
+                <div class="stat-value orange"><span id="longestInternetOutageValue">{{ uptime_stats.longest_outage }}</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Last Internet Outage</div>
+                <div class="stat-value blue"><span id="lastInternetOutageValue">{{ uptime_stats.last_outage }}</span></div>
+            </div>
+
+        </section>
+
+
+
+        <section class="panel network-intelligence-panel">
+            <div class="panel-header">
+                <h2>🧠 Network Intelligence</h2>
+                <span class="network-intelligence-badge">Phase 10D.1 Sleep Engine</span>
+            </div>
+
+            <section class="network-intelligence-executive-grid">
+                <div class="intelligence-score-card">
+                    <div class="intelligence-label">Network Intelligence Score</div>
+                    <div class="intelligence-score-value green" id="niScoreValue">{{ network_intelligence.intelligence_score }}%</div>
+                    <div class="intelligence-score-label" id="niScoreLabel">{{ network_intelligence.score_label }}</div>
+                </div>
+
+                <div class="intelligence-grade-card">
+                    <div class="intelligence-label">Infrastructure Grade</div>
+                    <div class="intelligence-grade-value green" id="niGradeValue">{{ network_intelligence.network_grade }}</div>
+                    <div class="intelligence-subtext">Enterprise health grade</div>
+                </div>
+
+                <div class="intelligence-executive-card">
+                    <div class="intelligence-label">Weakest Link</div>
+                    <div class="intelligence-executive-value orange" id="niWeakestLinkValue">{{ network_intelligence.weakest_link }}</div>
+                    <div class="intelligence-subtext">Highest concern right now</div>
+                </div>
+
+                <div class="intelligence-executive-card">
+                    <div class="intelligence-label">Smart Recommendation</div>
+                    <div class="intelligence-recommendation" id="niRecommendationValue">{{ network_intelligence.recommendation }}</div>
+                </div>
+            </section>
+
+            <section class="network-intelligence-summary-panel">
+                <div class="summary-icon">🧠</div>
+                <div>
+                    <div class="summary-title">Executive Network Summary</div>
+                    <div class="summary-text" id="niSummaryValue">{{ network_intelligence.summary }}</div>
+                </div>
+            </section>
+
+            <section class="lan-internet-health-split">
+                <div class="health-split-card lan-health-card">
+                    <div class="health-split-header">
+                        <h3>🖧 LAN Health</h3>
+                        <span class="health-pill {{ lan_internet_health.lan.health_class }}" id="lanHealthLabel">{{ lan_internet_health.lan.health_label }}</span>
+                    </div>
+
+                    <div class="health-split-grid">
+                        <div><span>Weakest LAN Device</span><strong id="lanWeakestValue">{{ lan_internet_health.lan.weakest_lan }}</strong></div>
+                        <div><span>LAN Average Latency</span><strong id="lanAverageLatencyValue">{{ lan_internet_health.lan.average_latency }}</strong></div>
+                        <div><span>LAN Devices Online</span><strong id="lanOnlineValue">{{ lan_internet_health.lan.online_devices }}/{{ lan_internet_health.lan.total_devices }}</strong></div>
+                        <div><span>Switch Port Health</span><strong id="lanSwitchHealthValue">{{ lan_internet_health.lan.switch_health }}</strong></div>
+                    </div>
+                </div>
+
+                <div class="health-split-card internet-health-card">
+                    <div class="health-split-header">
+                        <h3>🌐 Internet Health</h3>
+                        <span class="health-pill {{ lan_internet_health.internet.health_class }}" id="internetHealthLabel">{{ lan_internet_health.internet.health_label }}</span>
+                    </div>
+
+                    <div class="health-split-grid">
+                        <div><span>Internet Status</span><strong id="internetStateValue">{{ lan_internet_health.internet.state }}</strong></div>
+                        <div><span>Internet Latency</span><strong id="internetLatencyValue">{{ lan_internet_health.internet.average_latency }}</strong></div>
+                        <div><span>Today Availability</span><strong id="internetAvailabilityTodayValue">{{ lan_internet_health.internet.availability_today }}</strong></div>
+                        <div><span>Outages Today</span><strong id="internetOutagesTodaySplitValue">{{ lan_internet_health.internet.outages_today }}</strong></div>
+                    </div>
+
+                    <div class="internet-target-table">
+                        <table>
+                            <tr><th>Target</th><th>Status</th><th>Latency</th></tr>
+                            <tbody id="internetTargetRows">{{ lan_internet_health.internet.target_rows | safe }}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="device-classification-panel">
+                <div class="device-classification-header">
+                    <div>
+                        <h3>🧩 Device Classification Engine</h3>
+                        <div class="device-classification-summary" id="deviceClassificationSummary">
+                            {{ device_classification.overall_text }}
+                        </div>
+                    </div>
+                    <span class="classification-badge">Virtual Systems Aware</span>
+                </div>
+
+                <div class="device-classification-cards" id="deviceClassificationCards">
+                    {{ device_classification_html.class_cards | safe }}
+                </div>
+
+                <div class="device-classification-table">
+                    <table>
+                        <tr>
+                            <th>Device</th>
+                            <th>Class</th>
+                            <th>Priority</th>
+                            <th>Sleep Allowed</th>
+                            <th>Status</th>
+                            <th>Latency</th>
+                        </tr>
+                        <tbody id="deviceClassificationRows">
+                            {{ device_classification_html.device_rows | safe }}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <section class="sleep-detection-panel">
+                <div class="sleep-detection-header">
+                    <div>
+                        <h3>😴 Sleep Detection Engine</h3>
+                        <div class="sleep-detection-summary">Workstations that enter sleep mode are tracked separately and are not treated as network failures during the grace window.</div>
+                    </div>
+                    <span class="sleep-detection-badge {{ sleep_detection.engine_class }}" id="sleepDetectionState">{{ sleep_detection.engine_state }}</span>
+                </div>
+
+                <div class="sleep-detection-grid">
+                    <div><span>Sleep-Aware Devices</span><strong id="sleepAllowedCount">{{ sleep_detection.sleep_allowed_count }}</strong></div>
+                    <div><span>Currently Sleeping</span><strong id="sleepingDeviceCount">{{ sleep_detection.sleeping_count }}</strong></div>
+                    <div><span>Awake</span><strong id="awakeDeviceCount">{{ sleep_detection.awake_count }}</strong></div>
+                    <div><span>Grace Window</span><strong id="sleepGraceMinutes">{{ sleep_detection.grace_minutes }} min</strong></div>
+                </div>
+
+                <div class="sleep-detection-table">
+                    <table>
+                        <tr><th>Device</th><th>IP</th><th>Status</th><th>Sleep Note</th><th>Last Change</th></tr>
+                        <tbody id="sleepDetectionRows">{{ sleep_detection_html.rows | safe }}</tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="phase10c-forecast-panel">
+                <div class="phase10c-forecast-left">
+                    <div class="phase10c-title">🔮 Network Forecast</div>
+                    <div class="phase10c-risk-label">Risk Level</div>
+                    <div class="phase10c-risk-value" id="phase10cRiskLevel">{{ phase10c.forecast.risk_level }}</div>
+                    <div class="phase10c-risk-points">
+                        Predictive Risk Points:
+                        <span id="phase10cRiskPoints">{{ phase10c.forecast.risk_points }}</span>
+                    </div>
+                </div>
+
+                <div class="phase10c-forecast-right">
+                    <div class="phase10c-title">7-Day Projection</div>
+                    <div class="phase10c-forecast-text" id="phase10cForecastText">
+                        {{ phase10c.forecast.forecast_text }}
+                    </div>
+                    <div class="phase10c-mini-grid">
+                        <div>
+                            <span>Average Stability</span>
+                            <strong id="phase10cAverageStability">{{ phase10c.forecast.average_stability }}%</strong>
+                        </div>
+                        <div>
+                            <span>Internet Trend Events</span>
+                            <strong id="phase10cInternetTrendEvents">{{ phase10c.forecast.internet_trend_events }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="network-intelligence-split">
+                <div class="intelligence-subpanel phase10c-stability-panel">
+                    <h3>Device Stability Scores</h3>
+                    <table>
+                        <tr>
+                            <th>Device</th>
+                            <th>Stability</th>
+                            <th>Rating</th>
+                            <th>Status</th>
+                            <th>Alerts</th>
+                            <th>Latency</th>
+                        </tr>
+                        <tbody id="phase10cStabilityRows">
+                            {{ phase10c_html.stability_rows | safe }}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="intelligence-subpanel phase10c-reliability-panel">
+                    <h3>Reliability Rankings</h3>
+                    <table>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Device</th>
+                            <th>Score</th>
+                            <th>Rating</th>
+                        </tr>
+                        <tbody id="phase10cReliableRows">
+                            {{ phase10c_html.reliable_rows | safe }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="intelligence-subpanel intelligence-full-width phase10c-predictive-alert-panel">
+                <h3>Predictive Alerts & Recommendations</h3>
+                <table>
+                    <tr>
+                        <th>Device</th>
+                        <th>Predictive Issue</th>
+                        <th>Recommendation</th>
+                    </tr>
+                    <tbody id="phase10cPredictiveRows">
+                        {{ phase10c_html.predictive_rows | safe }}
+                    </tbody>
+                </table>
+            </div>
+
+            <section class="network-intelligence-grid">
+                <div class="intelligence-card">
+                    <div class="intelligence-label">Infrastructure</div>
+                    <div class="intelligence-value blue" id="niInfrastructureValue">{{ network_intelligence.category_counts.infrastructure }}</div>
+                    <div class="intelligence-subtext">Core monitored devices</div>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="intelligence-label">Physical Devices</div>
+                    <div class="intelligence-value green" id="niPhysicalValue">{{ network_intelligence.category_counts.physical }}</div>
+                    <div class="intelligence-subtext">Switch-port endpoints</div>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="intelligence-label">Virtual Devices</div>
+                    <div class="intelligence-value orange" id="niVirtualValue">{{ network_intelligence.category_counts.virtual }}</div>
+                    <div class="intelligence-subtext">Hosted / child systems</div>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="intelligence-label">Average Response</div>
+                    <div class="intelligence-value blue" id="niAverageLatencyValue">{{ network_intelligence.average_latency }}</div>
+                    <div class="intelligence-subtext">Ping latency average</div>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="intelligence-label">Switch Health</div>
+                    <div class="intelligence-value green" id="niSwitchHealthValue">{{ network_intelligence.switch_link_health }}</div>
+                    <div class="intelligence-subtext">Managed port status</div>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="intelligence-label">Active Alerts</div>
+                    <div class="intelligence-value red" id="niActiveAlertsValue">{{ network_intelligence.active_alert_count }}</div>
+                    <div class="intelligence-subtext">Critical + warning</div>
+                </div>
+            </section>
+
+            <div class="network-intelligence-split">
+                <div class="intelligence-subpanel">
+                    <h3>Device Response Time</h3>
+                    <table>
+                        <tr>
+                            <th>Device</th>
+                            <th>IP Address</th>
+                            <th>Status</th>
+                            <th>Latency</th>
+                            <th>Last Checked</th>
+                        </tr>
+                        <tbody id="networkIntelligenceLatencyRows">
+                            {{ network_intelligence_html.latency_rows | safe }}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="intelligence-subpanel">
+                    <h3>Device History Snapshot</h3>
+                    <table>
+                        <tr>
+                            <th>Device</th>
+                            <th>Status</th>
+                            <th>Last Seen</th>
+                            <th>Last Change</th>
+                        </tr>
+                        <tbody id="networkIntelligenceHistoryRows">
+                            {{ network_intelligence_html.history_rows | safe }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="intelligence-subpanel intelligence-full-width">
+                <h3>Cisco Managed Link Intelligence</h3>
+                <table>
+                    <tr>
+                        <th>Port</th>
+                        <th>Mapped Device</th>
+                        <th>Status</th>
+                        <th>Last Checked</th>
+                    </tr>
+                    <tbody id="networkIntelligenceLinkRows">
+                        {{ network_intelligence_html.link_rows | safe }}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="intelligence-subpanel intelligence-full-width phase10b-risk-panel">
+                <h3>Device Risk Ranking</h3>
+                <table>
+                    <tr>
+                        <th>Device</th>
+                        <th>Risk Score</th>
+                        <th>Status</th>
+                        <th>Latency</th>
+                        <th>Reason</th>
+                    </tr>
+                    <tbody id="networkIntelligenceRiskRows">
+                        {{ network_intelligence_html.risk_rows | safe }}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel availability-dashboard-panel">
+            <div class="panel-header">
+                <h2>Internet Availability Reporting</h2>
+                <a href="/internet-history" class="small-view-alerts-btn">View Internet Report</a>
+            </div>
+
+            <section class="stats-grid availability-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Today Availability</div>
+                    <div class="stat-value green"><span id="todayAvailabilityValue">{{ availability_report.today.availability }}</span></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">This Week</div>
+                    <div class="stat-value blue"><span id="weekAvailabilityValue">{{ availability_report.week.availability }}</span></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-value blue"><span id="monthAvailabilityValue">{{ availability_report.month.availability }}</span></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Last 30 Days</div>
+                    <div class="stat-value orange"><span id="last30AvailabilityValue">{{ availability_report.last_30_days.availability }}</span></div>
+                </div>
+            </section>
+
+            <table>
+                <tr>
+                    <th>Period</th>
+                    <th>Availability</th>
+                    <th>Outages</th>
+                    <th>Downtime</th>
+                    <th>Average Outage</th>
+                </tr>
+
+                <tr>
+                    <td>Today</td>
+                    <td>{{ availability_report.today.availability }}</td>
+                    <td>{{ availability_report.today.outages }}</td>
+                    <td>{{ availability_report.today.downtime }}</td>
+                    <td>{{ availability_report.today.average_outage }}</td>
+                </tr>
+
+                <tr>
+                    <td>This Week</td>
+                    <td>{{ availability_report.week.availability }}</td>
+                    <td>{{ availability_report.week.outages }}</td>
+                    <td>{{ availability_report.week.downtime }}</td>
+                    <td>{{ availability_report.week.average_outage }}</td>
+                </tr>
+
+                <tr>
+                    <td>This Month</td>
+                    <td>{{ availability_report.month.availability }}</td>
+                    <td>{{ availability_report.month.outages }}</td>
+                    <td>{{ availability_report.month.downtime }}</td>
+                    <td>{{ availability_report.month.average_outage }}</td>
+                </tr>
+
+                <tr>
+                    <td>Last 30 Days</td>
+                    <td>{{ availability_report.last_30_days.availability }}</td>
+                    <td>{{ availability_report.last_30_days.outages }}</td>
+                    <td>{{ availability_report.last_30_days.downtime }}</td>
+                    <td>{{ availability_report.last_30_days.average_outage }}</td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="panel internet-history-panel">
+            <div class="panel-header">
+                <h2>Recent Internet Outages</h2>
+                <a href="/internet-history" class="small-view-alerts-btn">View Full History</a>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Start Time</th>
+                    <th>Recovery Time</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Targets</th>
+                </tr>
+
+                {% if recent_internet_history %}
+                    {% for item in recent_internet_history %}
+                    <tr>
+                        <td>{{ item.start_time }}</td>
+                        <td>{{ item.end_time }}</td>
+                        <td>{{ item.duration }}</td>
+                        <td>
+                            {% if item.status == "ACTIVE" %}
+                                <span class="severity-badge critical">Active</span>
+                            {% else %}
+                                <span class="severity-badge normal">Resolved</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.targets }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5">No Internet outages recorded yet.</td>
+                    </tr>
+                {% endif %}
+            </table>
+        </section>
+
+
+        {% if alerts|length > 0 %}
+        <section class="panel dashboard-active-alerts-panel">
+            <div class="panel-header">
+                <h2>Active Alert Summary</h2>
+                <a href="/alerts" class="small-view-alerts-btn">Open Alert Center</a>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Severity</th>
+                    <th>Device / Link</th>
+                    <th>Problem</th>
+                    <th>Time</th>
+                </tr>
+
+                {% for alert in alerts[:6] %}
+                <tr class="dashboard-alert-row {{ alert.severity|lower }}">
+                    <td>
+                        {% if alert.severity == "CRITICAL" %}
+                            <span class="severity-badge critical">🔴 Critical</span>
+                        {% elif alert.severity == "WARNING" %}
+                            <span class="severity-badge warning">🟡 Warning</span>
+                        {% else %}
+                            <span class="severity-badge info">🔵 Info</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ alert.device }}</td>
+                    <td>{{ alert.problem }}</td>
+                    <td>{{ alert.time }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </section>
+        {% endif %}
+
+        <section class="diagnosis-panel">
+            <h2>Network Diagnosis</h2>
+            <p id="diagnosisText">{{ diagnosis }}</p>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Cisco Events</h2>
+                <form method="POST" action="/clear-cisco-logs">
+                    <button type="submit" class="small-clear-btn">Clear</button>
+                </form>
+            </div>
+
+            <div class="cisco-events-scroll">
+            <table>
+                <tr>
+                    <th>Time</th>
+                    <th>Device</th>
+                    <th>Event</th>
+                    <th>Interface</th>
+                    <th>User</th>
+                </tr>
+
+                <tbody id="ciscoEventRows">
+                {% if cisco_events %}
+                    {% for event in cisco_events %}
+                    <tr>
+                        <td>{{ event.time }}</td>
+                        <td>{{ event.device }}</td>
+                        <td>{{ event.event }}</td>
+                        <td>{{ event.interface }}</td>
+                        <td>{{ event.user }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5">No Cisco events found yet.</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Device / Link Status</h2>
+
+            <table>
+                <tr>
+                    <th>Device / Link</th>
+                    <th>IP Address</th>
+                    <th>Status</th>
+                    <th>Latency</th>
+                    <th>Last Checked</th>
+                </tr>
+
+                <tbody id="deviceStatusRows">
+                {% for name, info in status.items() %}
+                <tr>
+                    <td>{{ name }}</td>
+                    <td>{{ info.ip }}</td>
+                    <td class="status {{ info.state }}">
+                        {{ info.state }}
+                    </td>
+                    <td>{{ info.latency }}</td>
+                    <td>{{ info.last_checked }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <div class="split-panels">
+
+            <section class="panel">
+                <h2>Cisco Router Interfaces</h2>
+
+                <table>
+                    <tr>
+                        <th>Interface</th>
+                        <th>Status</th>
+                    </tr>
+
+                    <tbody id="routerInterfaceRows">
+                    {% for idx, iface in router_interfaces.items() %}
+                    <tr>
+                        <td>{{ iface.short_name }}</td>
+                        <td class="status {{ iface.state }}">
+                            {{ iface.state }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="panel">
+                <h2>Cisco Switch Active Links</h2>
+
+                <table>
+                    <tr>
+                        <th>Port</th>
+                        <th>Connected Device</th>
+                        <th>Status</th>
+                    </tr>
+
+                    <tbody id="switchLinkRows">
+                    {% for idx, link in switch_links.items() %}
+                    <tr>
+                        <td>{{ link.port }}</td>
+                        <td>{{ link.device }}</td>
+                        <td class="status {{ link.state }}">
+                            {{ link.state }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+        </div>
+
+    </main>
+
+    <aside class="right-sidebar">
+
+        <section class="event-card">
+            <div class="panel-header">
+                <h2>Recent Event Log</h2>
+                <form method="POST" action="/clear-event-log">
+                    <button type="submit" class="small-clear-btn">Clear</button>
+                </form>
+            </div>
+
+            <div id="recentEventItems">
+            {% if recent_events %}
+            <ul>
+                {% for event in recent_events %}
+                <li>{{ event }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No events recorded yet.</p>
+            {% endif %}
+            </div>
+        </section>
+
+    </aside>
+
+</div>
+
+<footer class="footer-bar">
+    Real-time Monitoring • Cisco SNMP Links • Event Logging • Home Network Health
+</footer>
+
+<script>
+function setTextIfPresent(elementId, value) {
+    var element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+function setHTMLIfPresent(elementId, value) {
+    var element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = value;
+    }
+}
+
+function showPanel(panelId) {
+    hidePanels();
+    document.getElementById(panelId).classList.remove("hidden");
+}
+
+function hidePanels() {
+    document.getElementById("addPanel").classList.add("hidden");
+    document.getElementById("maintenancePanel").classList.add("hidden");
+    document.getElementById("editPanel").classList.add("hidden");
+    document.getElementById("removePanel").classList.add("hidden");
+}
+</script>
+
+
+<script>
+window.dismissCriticalPopup = function () {
+    var popup = document.getElementById("criticalAlertPopup");
+
+    if (!popup) {
+        return false;
+    }
+
+    var alertId = popup.getAttribute("data-alert-id") || "";
+    var dismissedAlerts = [];
+
+    try {
+        dismissedAlerts = JSON.parse(
+            localStorage.getItem("dismissedCriticalPopupAlerts") || "[]"
+        );
+    } catch (e) {
+        dismissedAlerts = [];
+    }
+
+    if (alertId && dismissedAlerts.indexOf(alertId) === -1) {
+        dismissedAlerts.push(alertId);
+    }
+
+    localStorage.setItem(
+        "dismissedCriticalPopupAlerts",
+        JSON.stringify(dismissedAlerts)
+    );
+
+    popup.style.display = "none";
+
+    return false;
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+    var popup = document.getElementById("criticalAlertPopup");
+
+    if (!popup) {
+        return;
+    }
+
+    var alertId = popup.getAttribute("data-alert-id") || "";
+    var dismissedAlerts = [];
+
+    try {
+        dismissedAlerts = JSON.parse(
+            localStorage.getItem("dismissedCriticalPopupAlerts") || "[]"
+        );
+    } catch (e) {
+        dismissedAlerts = [];
+    }
+
+    if (alertId && dismissedAlerts.indexOf(alertId) !== -1) {
+        popup.style.display = "none";
+    }
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const alerts = [
+        {% for alert in alerts %}
+        {
+            id: "{{ alert.id }}",
+            severity: "{{ alert.severity }}",
+            device: "{{ alert.device }}",
+            problem: "{{ alert.problem }}",
+            time: "{{ alert.time }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const voiceActions = document.querySelector(".voice-alert-actions");
+
+    if (voiceActions && !document.getElementById("enableBrowserNotifications")) {
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = "enableBrowserNotifications";
+        btn.className = "voice-test-btn";
+        btn.textContent = "Enable Browser Notifications";
+
+        voiceActions.appendChild(btn);
+
+        if (!document.getElementById("browserNotificationSecureNote")) {
+            const secureNote = document.createElement("div");
+            secureNote.id = "browserNotificationSecureNote";
+            secureNote.textContent = "* Browser notifications require a secure (HTTPS) site.";
+            secureNote.style.width = "100%";
+            secureNote.style.fontSize = "11px";
+            secureNote.style.color = "#9fb3c8";
+            secureNote.style.marginTop = "6px";
+            secureNote.style.textAlign = "right";
+            secureNote.style.lineHeight = "1.1";
+
+            voiceActions.appendChild(secureNote);
+        }
+
+        btn.addEventListener("click", async function () {
+
+            if (!("Notification" in window)) {
+                alert("Browser notifications are not supported.");
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+
+            if (permission === "granted") {
+                new Notification("Home Network Monitor", {
+                    body: "Browser notifications enabled successfully."
+                });
+            }
+        });
+    }
+
+    if (!("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+
+    let sentAlerts = [];
+
+    try {
+        sentAlerts = JSON.parse(
+            localStorage.getItem("browserNotificationAlerts") || "[]"
+        );
+    } catch(e) {
+        sentAlerts = [];
+    }
+
+    alerts.forEach(function(alert) {
+
+        if (alert.severity !== "CRITICAL") return;
+
+        if (!sentAlerts.includes(alert.id)) {
+
+            new Notification("🚨 Critical Alert", {
+                body:
+                    alert.device + " - " +
+                    alert.problem
+            });
+
+            sentAlerts.push(alert.id);
+        }
+    });
+
+    localStorage.setItem(
+        "browserNotificationAlerts",
+        JSON.stringify(sentAlerts)
+    );
+});
+</script>
+
+{% include "voice_alerts.html" %}
+
+
+<script>
+/* PHASE 8A - SMART BACKGROUND REFRESH */
+(function () {
+    const REFRESH_SECONDS = 20;
+    let refreshPaused = false;
+
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+
+    function setHTML(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = value;
+    }
+
+    function formsAreOpenOrFocused() {
+        const active = document.activeElement;
+        const typing = active && ["INPUT", "SELECT", "TEXTAREA"].includes(active.tagName);
+
+        // Phase 11D refresh-state fix:
+        // Do not keep Smart Refresh paused just because a panel is open after a form submit.
+        // Only pause while the user is actively typing/selecting OR while refreshPaused is explicitly true.
+        return refreshPaused || typing;
+    }
+
+    function updateSmartRefreshStatus(message, paused) {
+        const el = document.getElementById("smartRefreshStatus");
+        if (!el) return;
+        el.textContent = message;
+        el.classList.toggle("paused", !!paused);
+    }
+
+    function updateSystemState(isGood) {
+        const stateBox = document.getElementById("systemStateBox");
+        const banner = document.getElementById("statusBanner");
+
+        if (stateBox) {
+            stateBox.className = isGood ? "system-state good-state" : "system-state bad-state";
+            stateBox.innerHTML = isGood ? "✅<br>All Systems Operational" : "⚠<br>Attention Required";
+        }
+
+        if (banner) {
+            banner.className = isGood ? "status-banner banner-good" : "status-banner banner-bad dashboard-critical-flash";
+            banner.innerHTML = isGood ? "EVERYTHING IS UP & RUNNING ✅" : "SOMETHING IS DOWN ⚠";
+        }
+    }
+
+    async function refreshDashboardData() {
+        if (formsAreOpenOrFocused()) {
+            updateSmartRefreshStatus("Smart Refresh: Paused while editing", true);
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/dashboard-data", { cache: "no-store" });
+            if (!response.ok) throw new Error("API request failed");
+
+            const data = await response.json();
+
+            setText("lastFullScanValue", data.last_full_scan);
+            setText("networkHealthValue", data.health + "%");
+            setText("devicesOnlineValue", data.up);
+            setText("devicesOfflineValue", data.down);
+            setText("switchLinksUpValue", data.switch_up);
+            setText("switchLinksDownValue", data.switch_down);
+            setText("totalAlertsValue", data.total_alerts);
+            setText("activeCriticalValue", data.critical_count);
+
+            if (data.lifecycle_summary && data.lifecycle_summary.counts) {
+                setText("lifecycleUpValue", data.lifecycle_summary.counts.UP ?? 0);
+                setText("lifecycleSleepingValue", data.lifecycle_summary.counts.SLEEPING ?? 0);
+                setText("lifecycleProvisioningValue", data.lifecycle_summary.counts.PROVISIONING ?? 0);
+                setText("lifecycleMaintenanceValue", data.lifecycle_summary.counts.MAINTENANCE ?? 0);
+                setText("lifecycleDownValue", data.lifecycle_summary.counts.DOWN ?? 0);
+                setText("lifecycleOfflineValue", data.lifecycle_summary.counts.OFFLINE ?? 0);
+                setText("nocSleepingValue", data.lifecycle_summary.counts.SLEEPING ?? 0);
+            }
+
+            setText("internetUptimeValue", data.uptime_stats.network_uptime);
+            setText("todayInternetOutagesValue", data.uptime_stats.today_outages);
+            setText("longestInternetOutageValue", data.uptime_stats.longest_outage);
+            setText("lastInternetOutageValue", data.uptime_stats.last_outage);
+
+            setText("todayAvailabilityValue", data.availability_report.today.availability);
+            setText("weekAvailabilityValue", data.availability_report.week.availability);
+            setText("monthAvailabilityValue", data.availability_report.month.availability);
+            setText("last30AvailabilityValue", data.availability_report.last_30_days.availability);
+
+            if (data.network_intelligence) {
+                setText("niInfrastructureValue", data.network_intelligence.category_counts.infrastructure);
+                setText("niPhysicalValue", data.network_intelligence.category_counts.physical);
+                setText("niVirtualValue", data.network_intelligence.category_counts.virtual);
+                setText("niAverageLatencyValue", data.network_intelligence.average_latency);
+                setText("niSwitchHealthValue", data.network_intelligence.switch_link_health);
+                setText("niActiveAlertsValue", data.network_intelligence.active_alert_count);
+            }
+
+            if (data.network_intelligence_html) {
+                setHTML("networkIntelligenceLatencyRows", data.network_intelligence_html.latency_rows);
+                setHTML("networkIntelligenceHistoryRows", data.network_intelligence_html.history_rows);
+                setHTML("networkIntelligenceLinkRows", data.network_intelligence_html.link_rows);
+            }
+
+            setText("diagnosisText", data.diagnosis);
+
+            setHTML("deviceStatusRows", data.device_rows);
+            setHTML("routerInterfaceRows", data.router_rows);
+            setHTML("switchLinkRows", data.switch_rows);
+            setHTML("ciscoEventRows", data.cisco_event_rows);
+            setHTML("recentEventItems", data.recent_event_items);
+
+            updateSystemState(data.system_good);
+
+            if (typeof window.updateNocCommandCenter === "function") {
+                window.updateNocCommandCenter(data);
+            }
+
+            if (typeof window.updateNocHistoricalIntelligence === "function") {
+                window.updateNocHistoricalIntelligence(data);
+            }
+
+            updateSmartRefreshStatus("Smart Refresh: Active • Last update " + new Date().toLocaleTimeString(), false);
+
+        } catch (error) {
+            updateSmartRefreshStatus("Smart Refresh: API error - check logs", true);
+            console.error("Smart Refresh failed:", error);
+        }
+    }
+
+    window.pauseSmartRefresh = function () {
+        refreshPaused = true;
+        updateSmartRefreshStatus("Smart Refresh: Paused while editing", true);
+    };
+
+    window.resumeSmartRefresh = function () {
+        refreshPaused = false;
+        refreshDashboardData();
+    };
+
+    const originalShowPanel = window.showPanel;
+    window.showPanel = function (panelId) {
+        if (typeof originalShowPanel === "function") originalShowPanel(panelId);
+        window.pauseSmartRefresh();
+    };
+
+    const originalHidePanels = window.hidePanels;
+    window.hidePanels = function () {
+        if (typeof originalHidePanels === "function") originalHidePanels();
+        window.resumeSmartRefresh();
+    };
+
+    // Phase 11D refresh-state fix:
+    // Any form submit means editing is complete. Clear the pause state before the browser posts.
+    document.addEventListener("submit", function () {
+        refreshPaused = false;
+        sessionStorage.setItem("onWatchRefreshResume", "1");
+        updateSmartRefreshStatus("Smart Refresh: Resuming...", false);
+    });
+
+    // If the page reloads after a successful POST, force Smart Refresh back to active.
+    if (sessionStorage.getItem("onWatchRefreshResume") === "1") {
+        sessionStorage.removeItem("onWatchRefreshResume");
+        refreshPaused = false;
+        setTimeout(function () {
+            updateSmartRefreshStatus("Smart Refresh: Active • Last update " + new Date().toLocaleTimeString(), false);
+            refreshDashboardData();
+        }, 500);
+    }
+
+    document.addEventListener("focusin", function (event) {
+        if (event.target && ["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName)) {
+            window.pauseSmartRefresh();
+        }
+    });
+
+    document.addEventListener("focusout", function () {
+        setTimeout(function () {
+            if (!formsAreOpenOrFocused()) window.resumeSmartRefresh();
+        }, 500);
+    });
+
+    setInterval(refreshDashboardData, REFRESH_SECONDS * 1000);
+    setTimeout(refreshDashboardData, 3000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function refreshPhase10BIntelligence() {
+        fetch("/api/dashboard-data")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.network_intelligence) {
+                    return;
+                }
+
+                var ni = data.network_intelligence;
+                var niHtml = data.network_intelligence_html || {};
+
+                setTextIfPresent("niScoreValue", (ni.intelligence_score ?? "N/A") + "%");
+                setTextIfPresent("niScoreLabel", ni.score_label || "N/A");
+                setTextIfPresent("niGradeValue", ni.network_grade || "N/A");
+                setTextIfPresent("niWeakestLinkValue", ni.weakest_link || "N/A");
+                setTextIfPresent("niRecommendationValue", ni.recommendation || "N/A");
+                setTextIfPresent("niSummaryValue", ni.summary || "N/A");
+
+                setHTMLIfPresent("networkIntelligenceRiskRows", niHtml.risk_rows || "");
+
+                var scoreElement = document.getElementById("niScoreValue");
+                var gradeElement = document.getElementById("niGradeValue");
+
+                if (scoreElement) {
+                    scoreElement.classList.remove("green", "blue", "orange", "red");
+
+                    var score = parseInt(ni.intelligence_score || 0, 10);
+
+                    if (score >= 90) {
+                        scoreElement.classList.add("green");
+                    } else if (score >= 80) {
+                        scoreElement.classList.add("blue");
+                    } else if (score >= 70) {
+                        scoreElement.classList.add("orange");
+                    } else {
+                        scoreElement.classList.add("red");
+                    }
+                }
+
+                if (gradeElement) {
+                    gradeElement.classList.remove("green", "blue", "orange", "red");
+
+                    var grade = ni.network_grade || "";
+
+                    if (grade === "A+" || grade === "A") {
+                        gradeElement.classList.add("green");
+                    } else if (grade === "B") {
+                        gradeElement.classList.add("blue");
+                    } else if (grade === "C" || grade === "D") {
+                        gradeElement.classList.add("orange");
+                    } else {
+                        gradeElement.classList.add("red");
+                    }
+                }
+            })
+            .catch(function () {
+            });
+    }
+
+    refreshPhase10BIntelligence();
+    setInterval(refreshPhase10BIntelligence, 20000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function refreshPhase10CPredictiveIntelligence() {
+        fetch("/api/dashboard-data")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.phase10c) {
+                    return;
+                }
+
+                var p10c = data.phase10c;
+                var p10cHtml = data.phase10c_html || {};
+                var forecast = p10c.forecast || {};
+
+                setTextIfPresent("phase10cRiskLevel", forecast.risk_level || "N/A");
+                setTextIfPresent("phase10cRiskPoints", forecast.risk_points ?? "N/A");
+                setTextIfPresent("phase10cForecastText", forecast.forecast_text || "N/A");
+                setTextIfPresent("phase10cAverageStability", (forecast.average_stability ?? "N/A") + "%");
+                setTextIfPresent("phase10cInternetTrendEvents", forecast.internet_trend_events ?? "N/A");
+
+                setHTMLIfPresent("phase10cStabilityRows", p10cHtml.stability_rows || "");
+                setHTMLIfPresent("phase10cReliableRows", p10cHtml.reliable_rows || "");
+                setHTMLIfPresent("phase10cPredictiveRows", p10cHtml.predictive_rows || "");
+
+                var riskElement = document.getElementById("phase10cRiskLevel");
+
+                if (riskElement) {
+                    riskElement.classList.remove("phase10c-low", "phase10c-moderate", "phase10c-elevated", "phase10c-high");
+
+                    var riskLevel = forecast.risk_level || "";
+
+                    if (riskLevel === "LOW") {
+                        riskElement.classList.add("phase10c-low");
+                    } else if (riskLevel === "MODERATE") {
+                        riskElement.classList.add("phase10c-moderate");
+                    } else if (riskLevel === "ELEVATED") {
+                        riskElement.classList.add("phase10c-elevated");
+                    } else if (riskLevel === "HIGH") {
+                        riskElement.classList.add("phase10c-high");
+                    }
+                }
+            })
+            .catch(function () {
+            });
+    }
+
+    refreshPhase10CPredictiveIntelligence();
+    setInterval(refreshPhase10CPredictiveIntelligence, 30000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function setHealthPillClass(elementId, healthClass) {
+        var element = document.getElementById(elementId);
+        if (!element) {
+            return;
+        }
+
+        element.classList.remove("green", "blue", "orange", "red");
+        element.classList.add(healthClass || "orange");
+    }
+
+    function refreshLanInternetHealthSplit() {
+        fetch("/api/dashboard-data")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.lan_internet_health) {
+                    return;
+                }
+
+                var split = data.lan_internet_health;
+                var lan = split.lan || {};
+                var internet = split.internet || {};
+
+                setTextIfPresent("lanHealthLabel", lan.health_label || "N/A");
+                setTextIfPresent("lanWeakestValue", lan.weakest_lan || "N/A");
+                setTextIfPresent("lanAverageLatencyValue", lan.average_latency || "N/A");
+                setTextIfPresent("lanOnlineValue", (lan.online_devices ?? "0") + "/" + (lan.total_devices ?? "0"));
+                setTextIfPresent("lanSwitchHealthValue", lan.switch_health || "N/A");
+
+                setTextIfPresent("internetHealthLabel", internet.health_label || "N/A");
+                setTextIfPresent("internetStateValue", internet.state || "N/A");
+                setTextIfPresent("internetLatencyValue", internet.average_latency || "N/A");
+                setTextIfPresent("internetAvailabilityTodayValue", internet.availability_today || "N/A");
+                setTextIfPresent("internetOutagesTodaySplitValue", internet.outages_today ?? "0");
+                setHTMLIfPresent("internetTargetRows", internet.target_rows || "");
+
+                setHealthPillClass("lanHealthLabel", lan.health_class);
+                setHealthPillClass("internetHealthLabel", internet.health_class);
+            })
+            .catch(function () {});
+    }
+
+    refreshLanInternetHealthSplit();
+    setInterval(refreshLanInternetHealthSplit, 30000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function refreshDeviceClassificationEngine() {
+        fetch("/api/dashboard-data")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.device_classification) {
+                    return;
+                }
+
+                var classification = data.device_classification;
+                var classificationHtml = data.device_classification_html || {};
+
+                setTextIfPresent("deviceClassificationSummary", classification.overall_text || "N/A");
+                setHTMLIfPresent("deviceClassificationCards", classificationHtml.class_cards || "");
+                setHTMLIfPresent("deviceClassificationRows", classificationHtml.device_rows || "");
+            })
+            .catch(function () {});
+    }
+
+    refreshDeviceClassificationEngine();
+    setInterval(refreshDeviceClassificationEngine, 30000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function refreshSleepDetectionEngine() {
+        fetch("/api/dashboard-data")
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (!data || !data.sleep_detection) { return; }
+                var sleep = data.sleep_detection || {};
+                var sleepHtml = data.sleep_detection_html || {};
+                setTextIfPresent("sleepDetectionState", sleep.engine_state || "N/A");
+                setTextIfPresent("sleepAllowedCount", sleep.sleep_allowed_count ?? "0");
+                setTextIfPresent("sleepingDeviceCount", sleep.sleeping_count ?? "0");
+                setTextIfPresent("awakeDeviceCount", sleep.awake_count ?? "0");
+                setTextIfPresent("sleepGraceMinutes", (sleep.grace_minutes ?? "30") + " min");
+                setHTMLIfPresent("sleepDetectionRows", sleepHtml.rows || "");
+                var pill = document.getElementById("sleepDetectionState");
+                if (pill) {
+                    pill.classList.remove("green", "blue", "orange", "red");
+                    pill.classList.add(sleep.engine_class || "blue");
+                }
+            })
+            .catch(function () {});
+    }
+    refreshSleepDetectionEngine();
+    setInterval(refreshSleepDetectionEngine, 30000);
+})();
+</script>
+
+
+<script>
+const ONWATCH_EXISTING_DEVICES = {{ all_devices | tojson }};
+const ONWATCH_DEVICE_TYPES = {{ device_types | tojson }};
+const ONWATCH_SWITCH_PORTS = {{ all_switch_ports | tojson }};
+const ONWATCH_MANAGED_PORTS = {{ managed_ports | tojson }};
+
+function getSelectedProvisioningType() {
+    var selected = document.querySelector('input[name="provisioning_type"]:checked');
+    return selected ? selected.value : "physical";
+}
+
+function selectProvisioningType(typeValue) {
+    var input = document.querySelector('input[name="provisioning_type"][value="' + typeValue + '"]');
+    if (input && !input.checked) {
+        input.checked = true;
+    }
+}
+
+function setRequired(selector, enabled) {
+    var item = document.querySelector(selector);
+    if (item) {
+        item.required = enabled;
+    }
+}
+
+function findExistingIpOwner(ipAddress) {
+    if (!ipAddress) {
+        return "";
+    }
+
+    for (var deviceName in ONWATCH_EXISTING_DEVICES) {
+        if (ONWATCH_EXISTING_DEVICES[deviceName] === ipAddress) {
+            return deviceName;
+        }
+    }
+
+    return "";
+}
+
+function suggestProvisioningTypeFromName(deviceName) {
+    var text = (deviceName || "").toLowerCase();
+
+    if (!text) {
+        return null;
+    }
+
+    if (text.includes("vm") || text.includes("virtual") || text.includes("home assistant") || text.includes("docker") || text.includes("ubuntu vm")) {
+        return {
+            type: "virtual",
+            message: "🧩 Suggestion: This looks like a Virtual Machine."
+        };
+    }
+
+    if (text.includes("firewall") || text.includes("router") || text.includes("switch") || text.includes("modem") || text.includes("gateway") || text.includes("access point") || text.includes("ap ") || text.includes("ups") || text.includes("dns") || text.includes("dhcp") || text.includes("vpn") || text.includes("cisco asa")) {
+        return {
+            type: "infrastructure",
+            message: "🛡 Suggestion: This looks like an Infrastructure device."
+        };
+    }
+
+    if (text.includes("printer") || text.includes("camera") || text.includes("mac") || text.includes("laptop") || text.includes("desktop") || text.includes("pc") || text.includes("server") || text.includes("nas")) {
+        return {
+            type: "physical",
+            message: "🖥 Suggestion: This looks like a Physical device."
+        };
+    }
+
+    return null;
+}
+
+function applyInfrastructureRoleSuggestion(deviceName) {
+    var roleSelect = document.getElementById("provisionInfrastructureRole");
+    if (!roleSelect) {
+        return;
+    }
+
+    var text = (deviceName || "").toLowerCase();
+
+    var role = "";
+    if (text.includes("firewall") || text.includes("asa")) role = "firewall";
+    else if (text.includes("router")) role = "router";
+    else if (text.includes("switch")) role = "switch";
+    else if (text.includes("modem") || text.includes("gateway")) role = "modem";
+    else if (text.includes("access point") || text.includes(" ap")) role = "access_point";
+    else if (text.includes("ups") || text.includes("battery")) role = "ups";
+    else if (text.includes("dns")) role = "dns";
+    else if (text.includes("dhcp")) role = "dhcp";
+    else if (text.includes("vpn")) role = "vpn";
+
+    if (role && !roleSelect.value) {
+        roleSelect.value = role;
+    }
+}
+
+function applyPhysicalTypeSuggestion(deviceName) {
+    var physicalType = document.getElementById("physicalDeviceType");
+    if (!physicalType) {
+        return;
+    }
+
+    var text = (deviceName || "").toLowerCase();
+
+    if (text.includes("chromebook") || text.includes("chrome book")) physicalType.value = "Chromebook";
+    else if (text.includes("printer")) physicalType.value = "Printer";
+    else if (text.includes("camera")) physicalType.value = "Camera";
+    else if (text.includes("mac")) physicalType.value = "Mac";
+    else if (text.includes("laptop")) physicalType.value = "Laptop";
+    else if (text.includes("desktop")) physicalType.value = "Desktop PC";
+    else if (text.includes("windows") || text.includes("pc")) physicalType.value = "Desktop PC";
+    else if (text.includes("server") || text.includes("nas") || text.includes("omv")) physicalType.value = "Server / NAS";
+    else if (text.includes("tv")) physicalType.value = "TV";
+    else if (text.includes("xbox") || text.includes("playstation") || text.includes("gaming")) physicalType.value = "Gaming Console";
+    else if (text.includes("phone") || text.includes("iphone") || text.includes("android") || text.includes("mobile")) physicalType.value = "Mobile Device";
+    else physicalType.value = "Other Endpoint";
+}
+
+function updateProvisioningFields(skipSuggestion) {
+    var deviceNameInput = document.getElementById("provisionDeviceName");
+    var ipInput = document.getElementById("provisionIpAddress");
+    var deviceName = deviceNameInput ? deviceNameInput.value.trim() : "";
+    var ipAddress = ipInput ? ipInput.value.trim() : "";
+
+    if (!skipSuggestion && deviceName) {
+        var suggestion = suggestProvisioningTypeFromName(deviceName);
+        var suggestionBox = document.getElementById("provisionSuggestionBox");
+
+        if (suggestion) {
+            selectProvisioningType(suggestion.type);
+
+            if (suggestion.type === "infrastructure") {
+                applyInfrastructureRoleSuggestion(deviceName);
+            }
+
+            if (suggestion.type === "physical") {
+                applyPhysicalTypeSuggestion(deviceName);
+            }
+
+            if (suggestionBox) {
+                suggestionBox.textContent = suggestion.message;
+                suggestionBox.classList.remove("hidden");
+            }
+        } else if (suggestionBox) {
+            suggestionBox.classList.add("hidden");
+            suggestionBox.textContent = "";
+        }
+    }
+
+    var selectedType = getSelectedProvisioningType();
+
+    var physicalFields = document.getElementById("physicalProvisionFields");
+    var virtualFields = document.getElementById("virtualProvisionFields");
+    var infrastructureFields = document.getElementById("infrastructureProvisionFields");
+
+    if (physicalFields) {
+        physicalFields.classList.toggle("hidden", selectedType !== "physical");
+    }
+
+    if (virtualFields) {
+        virtualFields.classList.toggle("hidden", selectedType !== "virtual");
+    }
+
+    if (infrastructureFields) {
+        infrastructureFields.classList.toggle("hidden", selectedType !== "infrastructure");
+    }
+
+    setRequired('select[name="switch_port"]', selectedType === "physical");
+    setRequired('select[name="hosted_by"]', selectedType === "virtual");
+    setRequired('select[name="infrastructure_role"]', selectedType === "infrastructure");
+
+    var switchPortSelect = document.getElementById("provisionSwitchPort");
+    var hostedBySelect = document.getElementById("provisionHostedBy");
+    var infrastructureRoleSelect = document.getElementById("provisionInfrastructureRole");
+    var physicalTypeSelect = document.getElementById("physicalDeviceType");
+    var submitButton = document.getElementById("provisionSubmitButton");
+    var warningBox = document.getElementById("provisionLiveWarning");
+
+    if (deviceNameInput) {
+        if (selectedType === "physical") {
+            deviceNameInput.placeholder = "Example: Security Camera 01";
+        } else if (selectedType === "virtual") {
+            deviceNameInput.placeholder = "Example: Home Assistant VM";
+        } else {
+            deviceNameInput.placeholder = "Example: UPS Battery Backup";
+        }
+    }
+
+    if (ipInput) {
+        if (selectedType === "physical") {
+            ipInput.placeholder = "Example: 192.168.0.55";
+        } else if (selectedType === "virtual") {
+            ipInput.placeholder = "Example: 192.168.0.41";
+        } else {
+            ipInput.placeholder = "Example: 192.168.0.50";
+        }
+    }
+
+    var warningText = "";
+
+    if (deviceName && ONWATCH_EXISTING_DEVICES[deviceName]) {
+        warningText = "Device name already exists: " + deviceName;
+    }
+
+    var ipOwner = findExistingIpOwner(ipAddress);
+    if (!warningText && ipOwner) {
+        warningText = ipAddress + " already belongs to " + ipOwner;
+    }
+
+    if (!warningText && selectedType === "virtual" && hostedBySelect && hostedBySelect.value) {
+        var hostName = hostedBySelect.value;
+        var hostType = (ONWATCH_DEVICE_TYPES[hostName] || "").toLowerCase();
+
+        if (hostName === deviceName) {
+            warningText = "A virtual machine cannot host itself.";
+        } else if (hostType.indexOf("virtual") !== -1 || hostType.indexOf("vm") !== -1) {
+            warningText = "A virtual machine cannot be hosted by another virtual machine.";
+        }
+    }
+
+    if (warningBox) {
+        warningBox.textContent = warningText;
+        warningBox.classList.toggle("hidden", warningText === "");
+    }
+
+    if (submitButton) {
+        submitButton.disabled = warningText !== "";
+        submitButton.classList.toggle("disabled", warningText !== "");
+    }
+
+    updateProvisioningPreview(selectedType, deviceName, ipAddress, switchPortSelect, hostedBySelect, infrastructureRoleSelect, physicalTypeSelect);
+}
+
+function updateProvisioningPreview(selectedType, deviceName, ipAddress, switchPortSelect, hostedBySelect, infrastructureRoleSelect, physicalTypeSelect) {
+    var previewDeviceName = document.getElementById("previewDeviceName");
+    var previewIpAddress = document.getElementById("previewIpAddress");
+    var previewClassification = document.getElementById("previewClassification");
+    var previewConnection = document.getElementById("previewConnection");
+    var previewPath = document.getElementById("previewPath");
+
+    if (previewDeviceName) {
+        previewDeviceName.textContent = deviceName || "Waiting for name";
+    }
+
+    if (previewIpAddress) {
+        previewIpAddress.textContent = ipAddress || "Waiting for IP";
+    }
+
+    var classificationText = "Physical Device";
+    var connectionText = "Select switch port";
+    var pathText = "Network Path: Internet → Cox Modem Gateway → Cisco Edge Router → Cisco Main Switch → " + (deviceName || "New Physical Device");
+
+    if (selectedType === "physical") {
+        var physicalType = physicalTypeSelect && physicalTypeSelect.value ? physicalTypeSelect.value : "Endpoint";
+        classificationText = physicalType;
+        var portText = switchPortSelect && switchPortSelect.selectedIndex > 0
+            ? switchPortSelect.options[switchPortSelect.selectedIndex].text
+            : "Select switch port";
+        connectionText = portText;
+    } else if (selectedType === "virtual") {
+        classificationText = "Virtual Machine";
+        var hostText = hostedBySelect && hostedBySelect.value ? hostedBySelect.value : "Select VM host";
+        var inheritedPort = "Inherited port will appear after host selection";
+
+        if (hostedBySelect && hostedBySelect.selectedIndex > 0) {
+            var option = hostedBySelect.options[hostedBySelect.selectedIndex];
+            inheritedPort = option.getAttribute("data-switch-port") || inheritedPort;
+        }
+
+        connectionText = "Hosted By: " + hostText + " | Inherited Port: " + inheritedPort;
+        pathText = "Network Path: Internet → Cox Modem Gateway → Cisco Edge Router → Cisco Main Switch → " + hostText + " → " + (deviceName || "New VM");
+    } else {
+        var roleText = infrastructureRoleSelect && infrastructureRoleSelect.selectedIndex > 0
+            ? infrastructureRoleSelect.options[infrastructureRoleSelect.selectedIndex].text
+            : "Select infrastructure role";
+        classificationText = "Infrastructure";
+        connectionText = roleText;
+        pathText = "Network Path: Internet → Cox Modem Gateway → Cisco Edge Router → Cisco Main Switch → " + (deviceName || "New Infrastructure Device");
+    }
+
+    if (previewClassification) {
+        previewClassification.textContent = classificationText;
+    }
+
+    if (previewConnection) {
+        previewConnection.textContent = connectionText;
+    }
+
+    if (previewPath) {
+        previewPath.textContent = pathText;
+    }
+}
+
+function closeProvisionSuccessModal() {
+    var modal = document.getElementById("provisionSuccessModal");
+    if (modal) {
+        modal.classList.add("hidden");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    updateProvisioningFields(true);
+
+    var modal = document.getElementById("provisionSuccessModal");
+    if (modal) {
+        setTimeout(function () {
+            closeProvisionSuccessModal();
+        }, 7000);
+    }
+});
+</script>
+
+
+<script>
+(function () {
+    function refreshNocCorrelationEngine() {
+        fetch("/api/dashboard-data")
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (!data || !data.noc_correlation) { return; }
+
+                var noc = data.noc_correlation || {};
+                var html = data.noc_correlation_html || {};
+
+                setTextIfPresent("nocRootCauseValue", noc.root_cause_count ?? "0");
+                setTextIfPresent("nocEndpointIssueValue", noc.endpoint_issue_count ?? "0");
+                setTextIfPresent("nocOperationalStateValue", noc.operational_state_count ?? "0");
+                setTextIfPresent("nocHealthScoreValue", (noc.health_score ?? "0") + "%");
+                setTextIfPresent("nocStateLabel", noc.state_label || "N/A");
+                setTextIfPresent("nocRecommendationValue", noc.recommendation || "N/A");
+                setHTMLIfPresent("nocCorrelationRows", html.rows || "");
+            })
+            .catch(function () {});
+    }
+
+    refreshNocCorrelationEngine();
+    setInterval(refreshNocCorrelationEngine, 30000);
+})();
+</script>
+
+
+<!-- PHASE 11D.1 - SMART REFRESH STATE FIX INSTALLED -->
+
+<script>
+/* PHASE 11D.1 - SCHEDULED DEVICE BINDING FIX */
+document.addEventListener("DOMContentLoaded", function () {
+    var scheduledForm = document.querySelector('form[action="/scheduled-maintenance/add"]');
+    if (!scheduledForm) {
+        return;
+    }
+
+    scheduledForm.addEventListener("submit", function (event) {
+        var deviceSelect = document.getElementById("scheduledDeviceName");
+
+        if (!deviceSelect || !deviceSelect.value) {
+            event.preventDefault();
+            alert("Please select the device you want to schedule for maintenance.");
+            return false;
+        }
+
+        sessionStorage.setItem("onWatchRefreshResume", "1");
+        return true;
+    });
+});
+</script>
+
+
+<script>
+/* PHASE 11E - NOC COMMAND CENTER LIVE REFRESH */
+(function () {
+    function updateNocCommandCenter(data) {
+        if (!data || !data.noc_command_center) {
+            return;
+        }
+
+        var cmd = data.noc_command_center;
+
+        if (typeof setTextIfPresent === "function") {
+            setTextIfPresent("nocCommandNetworkState", cmd.network_state || "Unknown");
+            setTextIfPresent("nocCommandHealth", (cmd.health_percent ?? 0) + "%");
+            setTextIfPresent("nocCommandDevicesUp", cmd.devices_up ?? 0);
+            setTextIfPresent("nocCommandCritical", cmd.critical_alerts ?? 0);
+            setTextIfPresent("nocCommandMaintenance", cmd.active_maintenance ?? 0);
+            setTextIfPresent("nocCommandScheduled", cmd.scheduled_total ?? 0);
+            setTextIfPresent("nocCommandCorrelation", (cmd.correlation_score ?? 100) + "%");
+            setTextIfPresent("nocCommandCorrelationState", cmd.correlation_state || "Normal");
+            setTextIfPresent("nocCommandRecommendation", cmd.top_recommendation || "No action required.");
+            setTextIfPresent("nocCommandCorrelationRecommendation", cmd.correlation_recommendation || "");
+        }
+
+
+        var recBox = document.getElementById("nocCommandRecommendations");
+        if (recBox && Array.isArray(cmd.recommendations)) {
+            recBox.innerHTML = cmd.recommendations.map(function (rec) {
+                var priority = (rec.priority || "OK").toLowerCase();
+                return "<div class='noc-integrated-item priority-" + priority + "'>" +
+                    "<div class='noc-integrated-badge'><span>" + (rec.icon || "🧠") + "</span><strong>" + (rec.badge || rec.priority || "INFO") + "</strong></div>" +
+                    "<div><strong>" + (rec.title || "Recommendation") + "</strong><p>" + (rec.message || "No details available.") + "</p></div>" +
+                    "</div>";
+            }).join("");
+        }
+
+        var stateBox = document.querySelector(".noc-command-state");
+        if (stateBox) {
+            stateBox.className = "noc-command-state " + (cmd.state_class || "good");
+        }
+    }
+
+    window.updateNocCommandCenter = updateNocCommandCenter;
+})();
+</script>
+
+
+<script>
+/* PHASE 11G - HISTORICAL INTELLIGENCE LIVE REFRESH */
+(function () {
+    function updateNocHistoricalIntelligence(data) {
+        var hist = null;
+
+        if (data && data.noc_command_center && data.noc_command_center.historical) {
+            hist = data.noc_command_center.historical;
+        } else if (data && data.noc_historical) {
+            hist = data.noc_historical;
+        }
+
+        if (!hist) {
+            return;
+        }
+
+        if (typeof setTextIfPresent === "function") {
+            setTextIfPresent("nocHistorySummary", hist.summary || "No historical events recorded yet.");
+            setTextIfPresent("nocHistoryTotalEvents", hist.total_events ?? 0);
+            setTextIfPresent("nocHistoryTrendCount", hist.trend_count ?? 0);
+            setTextIfPresent("nocHistoryTopDevice", hist.top_device || "N/A");
+            setTextIfPresent("nocHistoryTopDeviceEvents", (hist.top_device_events ?? 0) + " events");
+        }
+
+        if (typeof setHTMLIfPresent === "function") {
+            setHTMLIfPresent("nocHistoryTrendList", hist.trend_html || "<div class='noc-history-empty'>No recurring trend detected.</div>");
+        }
+    }
+
+    window.updateNocHistoricalIntelligence = updateNocHistoricalIntelligence;
+})();
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+

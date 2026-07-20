@@ -1,0 +1,2726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>On Watch Operations Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+<style>
+/* PHASE 11C - NOC CORRELATION STYLE */
+.noc-correlation-panel {
+    border: 2px solid #7c3aed;
+    box-shadow: 0 0 18px rgba(124, 58, 237, 0.18);
+}
+
+.noc-correlation-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 12px 0 16px;
+}
+
+.noc-correlation-card {
+    background: #081220;
+    border: 1px solid #5b4bdc;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+}
+
+.noc-correlation-card span {
+    display: block;
+    color: #c7d2fe;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.noc-correlation-card strong {
+    color: #a78bfa;
+    font-size: 26px;
+    font-weight: 900;
+}
+
+.noc-correlation-summary {
+    background: rgba(124, 58, 237, 0.12);
+    border-left: 5px solid #7c3aed;
+    color: #e9d5ff;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 12px 0 16px;
+}
+
+.noc-correlation-summary strong {
+    display: block;
+    color: #ffffff;
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.noc-severity {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.noc-severity.critical {
+    color: #fff;
+    background: #dc2626;
+}
+
+.noc-severity.warning {
+    color: #111827;
+    background: #facc15;
+}
+
+.noc-severity.info {
+    color: #fff;
+    background: #2563eb;
+}
+
+.noc-severity.ok {
+    color: #fff;
+    background: #16a34a;
+}
+
+.noc-correlation-table small {
+    color: #9fb3c8;
+    font-weight: 700;
+}
+
+@media (max-width: 1000px) {
+    .noc-correlation-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+
+<style>
+/* PHASE 11D - SCHEDULED MAINTENANCE ENGINE */
+.scheduled-maintenance-panel {
+    border: 1px solid #32a5ff;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 18px;
+    background: rgba(50, 165, 255, 0.06);
+}
+
+.scheduled-maintenance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.scheduled-maintenance-header h3 {
+    color: #32a5ff;
+    margin: 0;
+}
+
+.scheduled-maintenance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.scheduled-maintenance-card {
+    background: #081220;
+    border: 1px solid #244569;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+}
+
+.scheduled-maintenance-card span {
+    display: block;
+    color: #badcff;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.scheduled-maintenance-card strong {
+    color: #32a5ff;
+    font-size: 24px;
+}
+
+.scheduled-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin: 8px 0 12px;
+}
+
+.scheduled-days label {
+    background: #081220;
+    border: 1px solid #244569;
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.scheduled-maintenance-item {
+    background: #081220;
+    border: 1px solid #244569;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+}
+
+.scheduled-maintenance-item strong {
+    display: block;
+    color: #ffffff;
+}
+
+.scheduled-maintenance-item span,
+.scheduled-maintenance-item small {
+    display: block;
+    color: #badcff;
+    margin-top: 3px;
+}
+
+.scheduled-active-pill {
+    display: inline-block;
+    color: #ffffff;
+    background: #2563eb;
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 900;
+    margin-top: 6px;
+}
+
+.scheduled-empty {
+    color: #badcff;
+    font-weight: 800;
+}
+
+@media (max-width: 1000px) {
+    .scheduled-maintenance-grid,
+    .scheduled-days {
+        grid-template-columns: 1fr;
+    }
+
+    .scheduled-maintenance-item {
+        display: block;
+    }
+}
+</style>
+
+
+<style>
+/* PHASE 11G - NOC HISTORICAL INTELLIGENCE ENGINE */
+.noc-command-historical-intelligence {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(125, 211, 252, 0.35);
+}
+
+.noc-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.noc-history-header h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.noc-history-header span {
+    color: #7dd3fc;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.noc-history-summary {
+    background: rgba(15, 23, 42, 0.85);
+    border-left: 5px solid #38bdf8;
+    border-radius: 10px;
+    padding: 11px;
+    color: #dbeafe;
+    margin-bottom: 10px;
+}
+
+.noc-history-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.noc-history-grid div,
+.noc-history-trend-item {
+    background: rgba(5, 14, 26, 0.92);
+    border: 1px solid rgba(56, 189, 248, 0.55);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.noc-history-grid span,
+.noc-history-trend-item span {
+    display: block;
+    color: #9ccfff;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.noc-history-grid strong,
+.noc-history-trend-item strong {
+    display: block;
+    color: #ffffff;
+    font-size: 18px;
+    margin-top: 4px;
+}
+
+.noc-history-grid em,
+.noc-history-trend-item small {
+    display: block;
+    color: #9fb3c8;
+    font-style: normal;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.noc-history-trend-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.noc-history-empty {
+    color: #9fb3c8;
+    font-weight: 800;
+    padding: 10px;
+    border: 1px dashed rgba(125, 211, 252, 0.35);
+    border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+    .noc-history-grid,
+    .noc-history-trend-list {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+
+<style>
+/* PHASE 11G.1 - HISTORICAL INTELLIGENCE REFINEMENT */
+.noc-history-high { border-color: rgba(239,68,68,.85) !important; }
+.noc-history-medium { border-color: rgba(250,204,21,.85) !important; }
+.noc-history-low { border-color: rgba(59,130,246,.85) !important; }
+.noc-history-info { border-color: rgba(34,197,94,.85) !important; }
+.noc-history-trend-item em {
+    display:block;
+    color:#7dd3fc;
+    font-style:normal;
+    font-weight:900;
+    margin-top:4px;
+}
+</style>
+
+
+<style>
+/* PHASE 11G.2 - HISTORICAL CONTEXT SUPPRESSION ENGINE */
+.noc-history-info {
+    border-color: rgba(34, 197, 94, .85) !important;
+}
+.noc-history-trend-item.noc-history-info {
+    background: rgba(6, 30, 22, .74);
+}
+</style>
+
+
+<style>
+/* PHASE 11H.1A - SIDEBAR QUICK ACTION NAVIGATION FIX */
+.quick-action-active {
+    outline: 2px solid #38bdf8 !important;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.65) !important;
+    transform: translateX(3px);
+}
+
+.form-panel[data-quick-action-open="true"] {
+    scroll-margin-top: 18px;
+}
+</style>
+
+
+<style>
+/* PHASE 12A - EXECUTIVE DASHBOARD MODERNIZATION */
+.dashboard-cleanup-header{
+    padding-top:20px;
+    padding-bottom:10px;
+}
+.header-center-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+.dashboard-cleanup-header h1{
+    margin-bottom:12px;
+}
+.dashboard-cleanup-header .subtitle{
+    margin:0;
+}
+.dashboard-cleanup-header .smart-refresh-status{
+    margin:0;
+}
+@media(max-width:900px){
+    .header-center-row{
+        flex-direction:column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="main-header dashboard-cleanup-header identity-modern-header">
+    <div class="identity-center">
+        <div class="identity-brand-name">ON WATCH</div>
+        <h1>NETWORK OPERATIONS CENTER</h1>
+        <div class="identity-subtitle">Enterprise Home Network Intelligence Platform</div>
+        <div class="subtitle identity-path">Cox Modem → Cisco Router → Cisco Switch → Endpoints</div>
+        <div id="smartRefreshStatus" class="smart-refresh-status header-smart-refresh">Smart Refresh: Active</div>
+    </div>
+</header>
+
+<div class="main-layout">
+
+    <aside class="left-sidebar">
+
+        <div class="side-title">🏠 Home Network Monitor</div>
+
+        <div class="time-card">
+            <div class="time-icon">🕒</div>
+            <div id="lastFullScanValue">{{ last_full_scan }}</div>
+        </div>
+
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/network-map" class="side-nav">🗺 Network Map</a>
+        <a href="/port-mapper" class="side-nav">🔗 Port Mapper</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+        <a href="/internet-history" class="side-nav">🌐 Internet History</a>
+        <a href="/operations" class="side-nav active">⚙ Operations</a>
+        <a href="/provisioning" class="side-nav">🏗 Provisioning</a>
+        <a href="/analytics" class="side-nav">📊 Analytics</a>
+        <a href="/backup-center" class="side-nav">🗄 Backup Center</a>
+        <a href="/reset-center" class="side-nav">🔄 Reset Center</a>
+
+        <div class="button-group">
+            <button type="button" class="action-btn add" onclick="return openQuickActionPanel('addPanel')">
+                ➕ Add Device
+            </button>
+
+            <button type="button" class="action-btn maintenance" onclick="return openQuickActionPanel('maintenancePanel')">
+                🛠 Maintenance
+            </button>
+
+            <button type="button" class="action-btn edit" onclick="return openQuickActionPanel('editPanel')">
+                ✏️ Edit Device
+            </button>
+
+            <button type="button" class="action-btn remove" onclick="return openQuickActionPanel('removePanel')">
+                🗑 Remove Device
+            </button>
+
+            <a href="/router-monitoring" class="action-btn router">
+                ⚙ Router Monitoring
+            </a>
+        </div>
+
+        {% if down == 0 and error == 0 and switch_down == 0 and router_down == 0 %}
+        <div id="systemStateBox" class="system-state good-state">
+            ✅<br>All Systems Operational
+        </div>
+        {% else %}
+        <div id="systemStateBox" class="system-state bad-state">
+            ⚠<br>Attention Required
+        </div>
+        {% endif %}
+
+    </aside>
+
+    <main class="dashboard-content">
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>⚙ Operations Center</h2>
+            <p>Maintenance, scheduled work, guided diagnostics, and root-cause tools moved off the main dashboard.</p>
+        </div>
+        <span class="network-intelligence-badge">Phase 13D.1</span>
+    </div>
+</section>
+
+<section class="panel guided-diagnostic-panel guided-live-alert-panel">
+    <div class="panel-header guided-live-header">
+        <div>
+            <h2>🩺 Guided Diagnostic Engine</h2>
+            <p id="guidedLiveStatus" class="guided-live-status">{{ guided_diagnostic_engine.live_status }}</p>
+        </div>
+        <span class="network-intelligence-badge">Phase 12B.3 Live Alert Integration</span>
+    </div>
+
+    <div class="guided-card">
+        <div class="guided-alert-meta">
+            <span id="guidedSeverityBadge" class="guided-severity-badge {{ guided_diagnostic_engine.severity|lower }}">
+                {{ guided_diagnostic_engine.severity }}
+            </span>
+            <span>Active Alerts: <strong id="guidedActiveAlertCount">{{ guided_diagnostic_engine.active_alert_count }}</strong></span>
+            <span>Selected Alert: <strong id="guidedSelectedAlertId">{{ guided_diagnostic_engine.selected_alert_id or 'None' }}</strong></span>
+            <span>Updated: <strong id="guidedLastUpdated">{{ guided_diagnostic_engine.last_updated }}</strong></span>
+        </div>
+
+        <div class="guided-grid guided-grid-12b2 guided-grid-live">
+            <div>
+                <span>Scenario</span>
+                <strong id="guidedScenario">{{ unified_incident.incident_type }}</strong>
+            </div>
+            <div>
+                <span>Issue</span>
+                <strong id="guidedIssue">{{ unified_incident.primary_title }}</strong>
+            </div>
+            <div>
+                <span>Likely Cause</span>
+                <strong id="guidedLikelyCause">{{ unified_incident.likely_cause }}</strong>
+            </div>
+            <div>
+                <span>Confidence</span>
+                <strong id="guidedConfidence">{{ unified_incident.confidence }}</strong>
+            </div>
+        </div>
+
+        <div class="guided-steps">
+            <span>Simple Instructions</span>
+            <ol id="guidedInstructionsList">
+                {% for step in unified_incident.instructions %}
+                <li>{{ step }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+</section>
+
+
+<section class="panel root-cause-correlation-panel">
+    <div class="panel-header root-cause-header">
+        <div>
+            <h2>🧭 Root Cause Correlation Engine</h2>
+            <p id="rootCauseState" class="root-cause-state">{{ root_cause_correlation.state }}</p>
+        </div>
+        <span class="network-intelligence-badge">Phase 12B.4 Root Cause Correlation</span>
+    </div>
+
+    <div class="root-cause-card">
+        <div class="root-cause-grid">
+            <div>
+                <span>Root Cause</span>
+                <strong id="rootCauseValue">{{ root_cause_correlation.root_cause }}</strong>
+                <em id="rootTypeValue">{{ root_cause_correlation.root_type }}</em>
+            </div>
+
+            <div>
+                <span>Affected Device</span>
+                <strong id="affectedDeviceValue">{{ root_cause_correlation.affected_device }}</strong>
+                <em>Device or service impacted</em>
+            </div>
+
+            <div>
+                <span>Affected Port</span>
+                <strong id="affectedPortValue">{{ root_cause_correlation.affected_port }}</strong>
+                <em>Physical or logical path</em>
+            </div>
+
+            <div>
+                <span>Confidence</span>
+                <strong id="rootConfidenceValue">{{ root_cause_correlation.confidence }}</strong>
+                <em>Correlation confidence</em>
+            </div>
+        </div>
+
+        <div class="root-cause-action">
+            <span>Operator Action</span>
+            <strong id="rootOperatorAction">{{ root_cause_correlation.operator_action }}</strong>
+        </div>
+
+        <div class="root-cause-meta">
+            <span>Affected Devices: <strong id="rootAffectedCount">{{ root_cause_correlation.affected_devices_count }}</strong></span>
+            <span>Suppressed Downstream Alerts: <strong id="rootSuppressedCount">{{ root_cause_correlation.suppressed_alerts_count }}</strong></span>
+            <span>Updated: <strong id="rootLastUpdated">{{ root_cause_correlation.last_updated }}</strong></span>
+        </div>
+    </div>
+</section>
+
+
+
+
+<section id="maintenancePanel" class="form-panel maintenance-mode-panel">
+            <div class="panel-header">
+                <h2>🛠 Maintenance Mode</h2>
+                <span class="network-intelligence-badge">Phase 11A</span>
+            </div>
+
+            <div class="maintenance-note">
+                Maintenance Mode tells On Watch a device is intentionally offline. Alerts, switch-link warnings, and critical popups are suppressed while maintenance is active.
+            </div>
+
+            <div class="maintenance-summary-grid">
+                <div class="maintenance-summary-card">
+                    <span>Active Maintenance</span>
+                    <strong>{{ maintenance_summary.active_count }}</strong>
+                </div>
+
+                <div class="maintenance-summary-card">
+                    <span>Mode</span>
+                    <strong>{{ maintenance_summary.state_label }}</strong>
+                </div>
+            </div>
+
+            <form method="POST" action="/maintenance/start">
+                <label>Select Device</label>
+                <select name="device_name" required>
+                    {% for name, ip in all_devices.items() %}
+                    <option value="{{ name }}">{{ name }} - {{ ip }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Maintenance Duration</label>
+                <select name="duration_minutes" required>
+                    <option value="30">30 Minutes</option>
+                    <option value="60">1 Hour</option>
+                    <option value="120">2 Hours</option>
+                    <option value="240">4 Hours</option>
+                    <option value="manual">Until Manually Disabled</option>
+                </select>
+
+                <label>Reason</label>
+                <input type="text" name="reason" placeholder="Example: testing port, replacing cable, device upgrade">
+
+                <button type="submit" class="save-btn">
+                    Enable Maintenance Mode
+                </button>
+
+                <button type="button" class="cancel-btn" onclick="hidePanels()">
+                    Cancel
+                </button>
+            </form>
+
+            <div class="active-maintenance-list">
+                <h3>Active Maintenance Windows</h3>
+
+                {% if maintenance_summary.active %}
+                    {% for item in maintenance_summary.active %}
+                    <div class="maintenance-active-item">
+                        <div>
+                            <strong>{{ item.device }}</strong>
+                            <span>{{ item.ip }}</span>
+                            <small>{{ item.reason }} • Remaining: {{ item.remaining }}</small>
+                        </div>
+
+                        <form method="POST" action="/maintenance/end">
+                            <input type="hidden" name="device_name" value="{{ item.device }}">
+                            <button type="submit" class="small-clear-btn">End</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="maintenance-empty">No devices are currently in maintenance mode.</p>
+                {% endif %}
+            </div>
+        
+            <div class="scheduled-maintenance-panel">
+                <div class="scheduled-maintenance-header">
+                    <h3>📅 Scheduled Maintenance</h3>
+                    <span class="network-intelligence-badge">Phase 11D</span>
+                </div>
+
+                <div class="scheduled-maintenance-grid">
+                    <div class="scheduled-maintenance-card">
+                        <span>Total Schedules</span>
+                        <strong>{{ scheduled_maintenance.total }}</strong>
+                    </div>
+
+                    <div class="scheduled-maintenance-card">
+                        <span>Enabled</span>
+                        <strong>{{ scheduled_maintenance.enabled_count }}</strong>
+                    </div>
+
+                    <div class="scheduled-maintenance-card">
+                        <span>Active Now</span>
+                        <strong>{{ scheduled_maintenance.active_count }}</strong>
+                    </div>
+                </div>
+
+                <form method="POST" action="/scheduled-maintenance/add">
+                    <label>Device</label>
+                    <select name="scheduled_device_name" id="scheduledDeviceName" required>
+                        <option value="">Select device for scheduled maintenance</option>
+                        {% for name, ip in all_devices.items() %}
+                        <option value="{{ name }}">{{ name }} - {{ ip }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label>Days</label>
+                    <div class="scheduled-days">
+                        <label><input type="checkbox" name="days" value="Monday"> Mon</label>
+                        <label><input type="checkbox" name="days" value="Tuesday"> Tue</label>
+                        <label><input type="checkbox" name="days" value="Wednesday"> Wed</label>
+                        <label><input type="checkbox" name="days" value="Thursday"> Thu</label>
+                        <label><input type="checkbox" name="days" value="Friday"> Fri</label>
+                        <label><input type="checkbox" name="days" value="Saturday"> Sat</label>
+                        <label><input type="checkbox" name="days" value="Sunday"> Sun</label>
+                    </div>
+
+                    <label>Start Time</label>
+                    <input type="time" name="start_time" required>
+
+                    <label>End Time</label>
+                    <input type="time" name="end_time" required>
+
+                    <label>Reason</label>
+                    <input type="text" name="reason" placeholder="Example: planned reboot, patching, cable work">
+
+                    <button type="submit" class="save-btn">Create Schedule</button>
+                </form>
+
+                <div class="active-maintenance-list">
+                    <h3>Scheduled Windows</h3>
+
+                    {% if scheduled_maintenance.schedules %}
+                        {% for item in scheduled_maintenance.schedules %}
+                        <div class="scheduled-maintenance-item">
+                            <div>
+                                <strong>{{ item.device_name }}</strong>
+                                <span>{{ item.days }} • {{ item.start_time }} - {{ item.end_time }}</span>
+                                <small>{{ item.reason }}</small>
+                                {% if item.active %}
+                                <em class="scheduled-active-pill">ACTIVE NOW</em>
+                                {% endif %}
+                            </div>
+
+                            <form method="POST" action="/scheduled-maintenance/delete">
+                                <input type="hidden" name="schedule_id" value="{{ item.id }}">
+                                <button type="submit" class="small-clear-btn">Delete</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="scheduled-empty">No scheduled maintenance windows configured.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </section>
+
+
+    </main>
+
+    <aside class="right-sidebar">
+
+        <section class="event-card">
+            <div class="panel-header">
+                <h2>Recent Event Log</h2>
+                <form method="POST" action="/clear-event-log">
+                    <button type="submit" class="small-clear-btn">Clear</button>
+                </form>
+            </div>
+
+            <div id="recentEventItems">
+            {% if recent_events %}
+            <ul>
+                {% for event in recent_events %}
+                <li>{{ event }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No events recorded yet.</p>
+            {% endif %}
+            </div>
+        </section>
+
+    </aside>
+
+</div>
+
+<footer class="footer-bar">
+    Real-time Monitoring • Cisco SNMP Links • Event Logging • Home Network Health
+</footer>
+
+<script>
+function setTextIfPresent(elementId, value) {
+    var element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+function setHTMLIfPresent(elementId, value) {
+    var element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = value;
+    }
+}
+
+function getActionPanelIds() {
+    return ["addPanel", "maintenancePanel", "editPanel", "removePanel"];
+}
+
+function clearQuickActionHighlight() {
+    document.querySelectorAll(".action-btn").forEach(function (btn) {
+        btn.classList.remove("quick-action-active");
+    });
+}
+
+function highlightQuickActionButton(panelId) {
+    clearQuickActionHighlight();
+
+    var buttonMap = {
+        addPanel: ".action-btn.add",
+        maintenancePanel: ".action-btn.maintenance",
+        editPanel: ".action-btn.edit",
+        removePanel: ".action-btn.remove"
+    };
+
+    var selector = buttonMap[panelId];
+    var button = selector ? document.querySelector(selector) : null;
+
+    if (button) {
+        button.classList.add("quick-action-active");
+    }
+}
+
+function scrollToPanel(panel) {
+    if (!panel) {
+        return;
+    }
+
+    setTimeout(function () {
+        panel.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }, 100);
+}
+
+function showPanel(panelId) {
+    hidePanels(false);
+
+    var panel = document.getElementById(panelId);
+
+    if (!panel) {
+        console.warn("Quick Action panel not found:", panelId);
+        return false;
+    }
+
+    panel.classList.remove("hidden");
+    panel.setAttribute("data-quick-action-open", "true");
+
+    highlightQuickActionButton(panelId);
+    scrollToPanel(panel);
+
+    return false;
+}
+
+function openQuickActionPanel(panelId) {
+    if (typeof window.pauseSmartRefresh === "function") {
+        window.pauseSmartRefresh();
+    }
+
+    return showPanel(panelId);
+}
+
+function hidePanels(resumeRefresh) {
+    getActionPanelIds().forEach(function (panelId) {
+        var panel = document.getElementById(panelId);
+
+        if (panel) {
+            panel.classList.add("hidden");
+            panel.removeAttribute("data-quick-action-open");
+        }
+    });
+
+    clearQuickActionHighlight();
+
+    if (resumeRefresh !== false && typeof window.resumeSmartRefresh === "function") {
+        window.resumeSmartRefresh();
+    }
+
+    return false;
+}
+
+window.showPanel = showPanel;
+window.openQuickActionPanel = openQuickActionPanel;
+window.hidePanels = hidePanels;
+</script>
+
+
+<script>
+window.dismissCriticalPopup = function () {
+    var popup = document.getElementById("criticalAlertPopup");
+
+    if (!popup) {
+        return false;
+    }
+
+    var alertId = popup.getAttribute("data-alert-id") || "";
+    var dismissedAlerts = [];
+
+    try {
+        dismissedAlerts = JSON.parse(
+            localStorage.getItem("dismissedCriticalPopupAlerts") || "[]"
+        );
+    } catch (e) {
+        dismissedAlerts = [];
+    }
+
+    if (alertId && dismissedAlerts.indexOf(alertId) === -1) {
+        dismissedAlerts.push(alertId);
+    }
+
+    localStorage.setItem(
+        "dismissedCriticalPopupAlerts",
+        JSON.stringify(dismissedAlerts)
+    );
+
+    popup.style.display = "none";
+
+    return false;
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+    var popup = document.getElementById("criticalAlertPopup");
+
+    if (!popup) {
+        return;
+    }
+
+    var alertId = popup.getAttribute("data-alert-id") || "";
+    var dismissedAlerts = [];
+
+    try {
+        dismissedAlerts = JSON.parse(
+            localStorage.getItem("dismissedCriticalPopupAlerts") || "[]"
+        );
+    } catch (e) {
+        dismissedAlerts = [];
+    }
+
+    if (alertId && dismissedAlerts.indexOf(alertId) !== -1) {
+        popup.style.display = "none";
+    }
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const alerts = [
+        {% for alert in alerts %}
+        {
+            id: "{{ alert.id }}",
+            severity: "{{ alert.severity }}",
+            device: "{{ alert.device }}",
+            problem: "{{ alert.problem }}",
+            time: "{{ alert.time }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const voiceActions = document.querySelector(".voice-alert-actions");
+
+    if (voiceActions && !document.getElementById("enableBrowserNotifications")) {
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = "enableBrowserNotifications";
+        btn.className = "voice-test-btn";
+        btn.textContent = "Enable Browser Notifications";
+
+        voiceActions.appendChild(btn);
+
+        if (!document.getElementById("browserNotificationSecureNote")) {
+            const secureNote = document.createElement("div");
+            secureNote.id = "browserNotificationSecureNote";
+            secureNote.textContent = "* Browser notifications require a secure (HTTPS) site.";
+            secureNote.style.width = "100%";
+            secureNote.style.fontSize = "11px";
+            secureNote.style.color = "#9fb3c8";
+            secureNote.style.marginTop = "6px";
+            secureNote.style.textAlign = "right";
+            secureNote.style.lineHeight = "1.1";
+
+            voiceActions.appendChild(secureNote);
+        }
+
+        btn.addEventListener("click", async function () {
+
+            if (!("Notification" in window)) {
+                alert("Browser notifications are not supported.");
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+
+            if (permission === "granted") {
+                new Notification("Home Network Monitor", {
+                    body: "Browser notifications enabled successfully."
+                });
+            }
+        });
+    }
+
+    if (!("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+
+    let sentAlerts = [];
+
+    try {
+        sentAlerts = JSON.parse(
+            localStorage.getItem("browserNotificationAlerts") || "[]"
+        );
+    } catch(e) {
+        sentAlerts = [];
+    }
+
+    alerts.forEach(function(alert) {
+
+        if (alert.severity !== "CRITICAL") return;
+
+        if (!sentAlerts.includes(alert.id)) {
+
+            new Notification("🚨 Critical Alert", {
+                body:
+                    alert.device + " - " +
+                    alert.problem
+            });
+
+            sentAlerts.push(alert.id);
+        }
+    });
+
+    localStorage.setItem(
+        "browserNotificationAlerts",
+        JSON.stringify(sentAlerts)
+    );
+});
+</script>
+
+{% include "voice_alerts.html" %}
+
+
+<script>
+/* PHASE 8A - SMART BACKGROUND REFRESH */
+(function () {
+    const REFRESH_SECONDS = 20;
+    let refreshPaused = false;
+
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+
+    function setHTML(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = value;
+    }
+
+    function formsAreOpenOrFocused() {
+        const active = document.activeElement;
+        const typing = active && ["INPUT", "SELECT", "TEXTAREA"].includes(active.tagName);
+
+        // Phase 11D refresh-state fix:
+        // Do not keep Smart Refresh paused just because a panel is open after a form submit.
+        // Only pause while the user is actively typing/selecting OR while refreshPaused is explicitly true.
+        return refreshPaused || typing;
+    }
+
+    function updateSmartRefreshStatus(message, paused) {
+        const el = document.getElementById("smartRefreshStatus");
+        if (!el) return;
+        el.textContent = message;
+        el.classList.toggle("paused", !!paused);
+    }
+
+    function updateSystemState(isGood) {
+        const stateBox = document.getElementById("systemStateBox");
+        const banner = document.getElementById("statusBanner");
+
+        if (stateBox) {
+            stateBox.className = isGood ? "system-state good-state" : "system-state bad-state";
+            stateBox.innerHTML = isGood ? "✅<br>All Systems Operational" : "⚠<br>Attention Required";
+        }
+
+        if (banner) {
+            banner.className = isGood ? "status-banner banner-good" : "status-banner banner-bad dashboard-critical-flash";
+            banner.innerHTML = isGood ? "EVERYTHING IS UP & RUNNING ✅" : "SOMETHING IS DOWN ⚠";
+        }
+    }
+
+    async function refreshDashboardData() {
+        if (formsAreOpenOrFocused()) {
+            updateSmartRefreshStatus("Smart Refresh: Paused while editing", true);
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/dashboard-data", { cache: "no-store" });
+            if (!response.ok) throw new Error("API request failed");
+
+            const data = await response.json();
+
+            setText("lastFullScanValue", data.last_full_scan);
+            setText("networkHealthValue", data.health + "%");
+            setText("devicesOnlineValue", data.up);
+            setText("devicesOfflineValue", data.down);
+            setText("switchLinksUpValue", data.switch_up);
+            setText("switchLinksDownValue", data.switch_down);
+            setText("totalAlertsValue", data.total_alerts);
+            setText("activeCriticalValue", data.critical_count);
+
+            if (data.lifecycle_summary && data.lifecycle_summary.counts) {
+                setText("lifecycleUpValue", data.lifecycle_summary.counts.UP ?? 0);
+                setText("lifecycleSleepingValue", data.lifecycle_summary.counts.SLEEPING ?? 0);
+                setText("lifecycleProvisioningValue", data.lifecycle_summary.counts.PROVISIONING ?? 0);
+                setText("lifecycleMaintenanceValue", data.lifecycle_summary.counts.MAINTENANCE ?? 0);
+                setText("lifecycleDownValue", data.lifecycle_summary.counts.DOWN ?? 0);
+                setText("lifecycleOfflineValue", data.lifecycle_summary.counts.OFFLINE ?? 0);
+                setText("nocSleepingValue", data.lifecycle_summary.counts.SLEEPING ?? 0);
+            }
+
+            setText("internetUptimeValue", data.uptime_stats.network_uptime);
+            setText("todayInternetOutagesValue", data.uptime_stats.today_outages);
+            setText("longestInternetOutageValue", data.uptime_stats.longest_outage);
+            setText("lastInternetOutageValue", data.uptime_stats.last_outage);
+
+            setText("todayAvailabilityValue", data.availability_report.today.availability);
+            setText("weekAvailabilityValue", data.availability_report.week.availability);
+            setText("monthAvailabilityValue", data.availability_report.month.availability);
+            setText("last30AvailabilityValue", data.availability_report.last_30_days.availability);
+
+            if (data.network_intelligence) {
+                setText("niInfrastructureValue", data.network_intelligence.category_counts.infrastructure);
+                setText("niPhysicalValue", data.network_intelligence.category_counts.physical);
+                setText("niVirtualValue", data.network_intelligence.category_counts.virtual);
+                setText("niAverageLatencyValue", data.network_intelligence.average_latency);
+                setText("niSwitchHealthValue", data.network_intelligence.switch_link_health);
+                setText("niActiveAlertsValue", data.network_intelligence.active_alert_count);
+            }
+
+            if (data.network_intelligence_html) {
+                setHTML("networkIntelligenceLatencyRows", data.network_intelligence_html.latency_rows);
+                setHTML("networkIntelligenceHistoryRows", data.network_intelligence_html.history_rows);
+                setHTML("networkIntelligenceLinkRows", data.network_intelligence_html.link_rows);
+            }
+
+            setText("diagnosisText", data.diagnosis);
+
+            setHTML("deviceStatusRows", data.device_rows);
+            setHTML("routerInterfaceRows", data.router_rows);
+            setHTML("switchLinkRows", data.switch_rows);
+            setHTML("ciscoEventRows", data.cisco_event_rows);
+            setHTML("recentEventItems", data.recent_event_items);
+
+            updateSystemState(data.system_good);
+
+            if (typeof window.updateNocCommandCenter === "function") {
+                window.updateNocCommandCenter(data);
+            }
+
+            if (typeof window.updateExecutiveOperationsCenter === "function") {
+                window.updateExecutiveOperationsCenter(data);
+            }
+
+            if (typeof window.updateOperationsLayer === "function") {
+                window.updateOperationsLayer(data);
+            }
+
+            if (typeof window.updateGuidedDiagnosticEngine === "function") {
+                window.updateGuidedDiagnosticEngine(data);
+            }
+
+            if (typeof window.updateRootCauseCorrelation === "function") {
+                window.updateRootCauseCorrelation(data);
+            }
+
+            if (typeof window.updateUnifiedIncidentPresentation === "function") {
+                window.updateUnifiedIncidentPresentation(data);
+            }
+
+            if (typeof window.updateServiceImpactAwareness === "function") {
+                window.updateServiceImpactAwareness(data);
+                window.updateServiceImpactDrilldown(data);
+                if (typeof window.updateDependencyVisualization === "function") {
+                    window.updateDependencyVisualization(data);
+                }
+            }
+
+            if (typeof window.updateLiveAlertSynchronization === "function") {
+                window.updateLiveAlertSynchronization(data);
+            }
+
+            if (typeof window.updateNocHistoricalIntelligence === "function") {
+                window.updateNocHistoricalIntelligence(data);
+            }
+
+            updateSmartRefreshStatus("Smart Refresh: Active • Last update " + new Date().toLocaleTimeString(), false);
+
+        } catch (error) {
+            updateSmartRefreshStatus("Smart Refresh: API error - check logs", true);
+            console.error("Smart Refresh failed:", error);
+        }
+    }
+
+    window.pauseSmartRefresh = function () {
+        refreshPaused = true;
+        updateSmartRefreshStatus("Smart Refresh: Paused while editing", true);
+    };
+
+    window.resumeSmartRefresh = function () {
+        refreshPaused = false;
+        refreshDashboardData();
+    };
+
+    const originalShowPanel = window.showPanel;
+    window.showPanel = function (panelId) {
+        if (typeof originalShowPanel === "function") {
+            window.pauseSmartRefresh();
+            return originalShowPanel(panelId);
+        }
+        return false;
+    };
+
+    const originalHidePanels = window.hidePanels;
+    window.hidePanels = function () {
+        if (typeof originalHidePanels === "function") {
+            return originalHidePanels(true);
+        }
+        return false;
+    };
+
+    // Phase 11D refresh-state fix:
+    // Any form submit means editing is complete. Clear the pause state before the browser posts.
+    document.addEventListener("submit", function () {
+        refreshPaused = false;
+        sessionStorage.setItem("onWatchRefreshResume", "1");
+        updateSmartRefreshStatus("Smart Refresh: Resuming...", false);
+    });
+
+    // If the page reloads after a successful POST, force Smart Refresh back to active.
+    if (sessionStorage.getItem("onWatchRefreshResume") === "1") {
+        sessionStorage.removeItem("onWatchRefreshResume");
+        refreshPaused = false;
+        setTimeout(function () {
+            updateSmartRefreshStatus("Smart Refresh: Active • Last update " + new Date().toLocaleTimeString(), false);
+            refreshDashboardData();
+        }, 500);
+    }
+
+    document.addEventListener("focusin", function (event) {
+        if (event.target && ["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName)) {
+            window.pauseSmartRefresh();
+        }
+    });
+
+    document.addEventListener("focusout", function () {
+        setTimeout(function () {
+            if (!formsAreOpenOrFocused()) window.resumeSmartRefresh();
+        }, 500);
+    });
+
+    setInterval(refreshDashboardData, REFRESH_SECONDS * 1000);
+    setTimeout(refreshDashboardData, 3000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function refreshPhase10BIntelligence() {
+        fetch("/api/dashboard-data")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.network_intelligence) {
+                    return;
+                }
+
+                var ni = data.network_intelligence;
+                var niHtml = data.network_intelligence_html || {};
+
+                setTextIfPresent("niScoreValue", (ni.intelligence_score ?? "N/A") + "%");
+                setTextIfPresent("niScoreLabel", ni.score_label || "N/A");
+                setTextIfPresent("niGradeValue", ni.network_grade || "N/A");
+                setTextIfPresent("niWeakestLinkValue", ni.weakest_link || "N/A");
+                setTextIfPresent("niRecommendationValue", ni.recommendation || "N/A");
+                setTextIfPresent("niSummaryValue", ni.summary || "N/A");
+
+                setHTMLIfPresent("networkIntelligenceRiskRows", niHtml.risk_rows || "");
+
+                var scoreElement = document.getElementById("niScoreValue");
+                var gradeElement = document.getElementById("niGradeValue");
+
+                if (scoreElement) {
+                    scoreElement.classList.remove("green", "blue", "orange", "red");
+
+                    var score = parseInt(ni.intelligence_score || 0, 10);
+
+                    if (score >= 90) {
+                        scoreElement.classList.add("green");
+                    } else if (score >= 80) {
+                        scoreElement.classList.add("blue");
+                    } else if (score >= 70) {
+                        scoreElement.classList.add("orange");
+                    } else {
+                        scoreElement.classList.add("red");
+                    }
+                }
+
+                if (gradeElement) {
+                    gradeElement.classList.remove("green", "blue", "orange", "red");
+
+                    var grade = ni.network_grade || "";
+
+                    if (grade === "A+" || grade === "A") {
+                        gradeElement.classList.add("green");
+                    } else if (grade === "B") {
+                        gradeElement.classList.add("blue");
+                    } else if (grade === "C" || grade === "D") {
+                        gradeElement.classList.add("orange");
+                    } else {
+                        gradeElement.classList.add("red");
+                    }
+                }
+            })
+            .catch(function () {
+            });
+    }
+
+    refreshPhase10BIntelligence();
+    setInterval(refreshPhase10BIntelligence, 20000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function refreshPhase10CPredictiveIntelligence() {
+        fetch("/api/dashboard-data")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.phase10c) {
+                    return;
+                }
+
+                var p10c = data.phase10c;
+                var p10cHtml = data.phase10c_html || {};
+                var forecast = p10c.forecast || {};
+
+                setTextIfPresent("phase10cRiskLevel", forecast.risk_level || "N/A");
+                setTextIfPresent("phase10cRiskPoints", forecast.risk_points ?? "N/A");
+                setTextIfPresent("phase10cForecastText", forecast.forecast_text || "N/A");
+                setTextIfPresent("phase10cAverageStability", (forecast.average_stability ?? "N/A") + "%");
+                setTextIfPresent("phase10cInternetTrendEvents", forecast.internet_trend_events ?? "N/A");
+
+                setHTMLIfPresent("phase10cStabilityRows", p10cHtml.stability_rows || "");
+                setHTMLIfPresent("phase10cReliableRows", p10cHtml.reliable_rows || "");
+                setHTMLIfPresent("phase10cPredictiveRows", p10cHtml.predictive_rows || "");
+
+                var riskElement = document.getElementById("phase10cRiskLevel");
+
+                if (riskElement) {
+                    riskElement.classList.remove("phase10c-low", "phase10c-moderate", "phase10c-elevated", "phase10c-high");
+
+                    var riskLevel = forecast.risk_level || "";
+
+                    if (riskLevel === "LOW") {
+                        riskElement.classList.add("phase10c-low");
+                    } else if (riskLevel === "MODERATE") {
+                        riskElement.classList.add("phase10c-moderate");
+                    } else if (riskLevel === "ELEVATED") {
+                        riskElement.classList.add("phase10c-elevated");
+                    } else if (riskLevel === "HIGH") {
+                        riskElement.classList.add("phase10c-high");
+                    }
+                }
+            })
+            .catch(function () {
+            });
+    }
+
+    refreshPhase10CPredictiveIntelligence();
+    setInterval(refreshPhase10CPredictiveIntelligence, 30000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function setHealthPillClass(elementId, healthClass) {
+        var element = document.getElementById(elementId);
+        if (!element) {
+            return;
+        }
+
+        element.classList.remove("green", "blue", "orange", "red");
+        element.classList.add(healthClass || "orange");
+    }
+
+    function refreshLanInternetHealthSplit() {
+        fetch("/api/dashboard-data")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.lan_internet_health) {
+                    return;
+                }
+
+                var split = data.lan_internet_health;
+                var lan = split.lan || {};
+                var internet = split.internet || {};
+
+                setTextIfPresent("lanHealthLabel", lan.health_label || "N/A");
+                setTextIfPresent("lanWeakestValue", lan.weakest_lan || "N/A");
+                setTextIfPresent("lanAverageLatencyValue", lan.average_latency || "N/A");
+                setTextIfPresent("lanOnlineValue", (lan.online_devices ?? "0") + "/" + (lan.total_devices ?? "0"));
+                setTextIfPresent("lanSwitchHealthValue", lan.switch_health || "N/A");
+
+                setTextIfPresent("internetHealthLabel", internet.health_label || "N/A");
+                setTextIfPresent("internetStateValue", internet.state || "N/A");
+                setTextIfPresent("internetLatencyValue", internet.average_latency || "N/A");
+                setTextIfPresent("internetAvailabilityTodayValue", internet.availability_today || "N/A");
+                setTextIfPresent("internetOutagesTodaySplitValue", internet.outages_today ?? "0");
+                setHTMLIfPresent("internetTargetRows", internet.target_rows || "");
+
+                setHealthPillClass("lanHealthLabel", lan.health_class);
+                setHealthPillClass("internetHealthLabel", internet.health_class);
+            })
+            .catch(function () {});
+    }
+
+    refreshLanInternetHealthSplit();
+    setInterval(refreshLanInternetHealthSplit, 30000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function refreshDeviceClassificationEngine() {
+        fetch("/api/dashboard-data")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.device_classification) {
+                    return;
+                }
+
+                var classification = data.device_classification;
+                var classificationHtml = data.device_classification_html || {};
+
+                setTextIfPresent("deviceClassificationSummary", classification.overall_text || "N/A");
+                setHTMLIfPresent("deviceClassificationCards", classificationHtml.class_cards || "");
+                setHTMLIfPresent("deviceClassificationRows", classificationHtml.device_rows || "");
+            })
+            .catch(function () {});
+    }
+
+    refreshDeviceClassificationEngine();
+    setInterval(refreshDeviceClassificationEngine, 30000);
+})();
+</script>
+
+
+<script>
+(function () {
+    function refreshSleepDetectionEngine() {
+        fetch("/api/dashboard-data")
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (!data || !data.sleep_detection) { return; }
+                var sleep = data.sleep_detection || {};
+                var sleepHtml = data.sleep_detection_html || {};
+                setTextIfPresent("sleepDetectionState", sleep.engine_state || "N/A");
+                setTextIfPresent("sleepAllowedCount", sleep.sleep_allowed_count ?? "0");
+                setTextIfPresent("sleepingDeviceCount", sleep.sleeping_count ?? "0");
+                setTextIfPresent("awakeDeviceCount", sleep.awake_count ?? "0");
+                setTextIfPresent("sleepGraceMinutes", (sleep.grace_minutes ?? "30") + " min");
+                setHTMLIfPresent("sleepDetectionRows", sleepHtml.rows || "");
+                var pill = document.getElementById("sleepDetectionState");
+                if (pill) {
+                    pill.classList.remove("green", "blue", "orange", "red");
+                    pill.classList.add(sleep.engine_class || "blue");
+                }
+            })
+            .catch(function () {});
+    }
+    refreshSleepDetectionEngine();
+    setInterval(refreshSleepDetectionEngine, 30000);
+})();
+</script>
+
+
+<script>
+const ONWATCH_EXISTING_DEVICES = {{ all_devices | tojson }};
+const ONWATCH_DEVICE_TYPES = {{ device_types | tojson }};
+const ONWATCH_SWITCH_PORTS = {{ all_switch_ports | tojson }};
+const ONWATCH_MANAGED_PORTS = {{ managed_ports | tojson }};
+
+function getSelectedProvisioningType() {
+    var selected = document.querySelector('input[name="provisioning_type"]:checked');
+    return selected ? selected.value : "physical";
+}
+
+function selectProvisioningType(typeValue) {
+    var input = document.querySelector('input[name="provisioning_type"][value="' + typeValue + '"]');
+    if (input && !input.checked) {
+        input.checked = true;
+    }
+}
+
+function setRequired(selector, enabled) {
+    var item = document.querySelector(selector);
+    if (item) {
+        item.required = enabled;
+    }
+}
+
+function findExistingIpOwner(ipAddress) {
+    if (!ipAddress) {
+        return "";
+    }
+
+    for (var deviceName in ONWATCH_EXISTING_DEVICES) {
+        if (ONWATCH_EXISTING_DEVICES[deviceName] === ipAddress) {
+            return deviceName;
+        }
+    }
+
+    return "";
+}
+
+function suggestProvisioningTypeFromName(deviceName) {
+    var text = (deviceName || "").toLowerCase();
+
+    if (!text) {
+        return null;
+    }
+
+    if (text.includes("vm") || text.includes("virtual") || text.includes("home assistant") || text.includes("docker") || text.includes("ubuntu vm")) {
+        return {
+            type: "virtual",
+            message: "🧩 Suggestion: This looks like a Virtual Machine."
+        };
+    }
+
+    if (text.includes("firewall") || text.includes("router") || text.includes("switch") || text.includes("modem") || text.includes("gateway") || text.includes("access point") || text.includes("ap ") || text.includes("ups") || text.includes("dns") || text.includes("dhcp") || text.includes("vpn") || text.includes("cisco asa")) {
+        return {
+            type: "infrastructure",
+            message: "🛡 Suggestion: This looks like an Infrastructure device."
+        };
+    }
+
+    if (text.includes("printer") || text.includes("camera") || text.includes("mac") || text.includes("laptop") || text.includes("desktop") || text.includes("pc") || text.includes("server") || text.includes("nas")) {
+        return {
+            type: "physical",
+            message: "🖥 Suggestion: This looks like a Physical device."
+        };
+    }
+
+    return null;
+}
+
+function applyInfrastructureRoleSuggestion(deviceName) {
+    var roleSelect = document.getElementById("provisionInfrastructureRole");
+    if (!roleSelect) {
+        return;
+    }
+
+    var text = (deviceName || "").toLowerCase();
+
+    var role = "";
+    if (text.includes("firewall") || text.includes("asa")) role = "firewall";
+    else if (text.includes("router")) role = "router";
+    else if (text.includes("switch")) role = "switch";
+    else if (text.includes("modem") || text.includes("gateway")) role = "modem";
+    else if (text.includes("access point") || text.includes(" ap")) role = "access_point";
+    else if (text.includes("ups") || text.includes("battery")) role = "ups";
+    else if (text.includes("dns")) role = "dns";
+    else if (text.includes("dhcp")) role = "dhcp";
+    else if (text.includes("vpn")) role = "vpn";
+
+    if (role && !roleSelect.value) {
+        roleSelect.value = role;
+    }
+}
+
+function applyPhysicalTypeSuggestion(deviceName) {
+    var physicalType = document.getElementById("physicalDeviceType");
+    if (!physicalType) {
+        return;
+    }
+
+    var text = (deviceName || "").toLowerCase();
+
+    if (text.includes("chromebook") || text.includes("chrome book")) physicalType.value = "Chromebook";
+    else if (text.includes("printer")) physicalType.value = "Printer";
+    else if (text.includes("camera")) physicalType.value = "Camera";
+    else if (text.includes("mac")) physicalType.value = "Mac";
+    else if (text.includes("laptop")) physicalType.value = "Laptop";
+    else if (text.includes("desktop")) physicalType.value = "Desktop PC";
+    else if (text.includes("windows") || text.includes("pc")) physicalType.value = "Desktop PC";
+    else if (text.includes("server") || text.includes("nas") || text.includes("omv")) physicalType.value = "Server / NAS";
+    else if (text.includes("tv")) physicalType.value = "TV";
+    else if (text.includes("xbox") || text.includes("playstation") || text.includes("gaming")) physicalType.value = "Gaming Console";
+    else if (text.includes("phone") || text.includes("iphone") || text.includes("android") || text.includes("mobile")) physicalType.value = "Mobile Device";
+    else physicalType.value = "Other Endpoint";
+}
+
+function updateProvisioningFields(skipSuggestion) {
+    var deviceNameInput = document.getElementById("provisionDeviceName");
+    var ipInput = document.getElementById("provisionIpAddress");
+    var deviceName = deviceNameInput ? deviceNameInput.value.trim() : "";
+    var ipAddress = ipInput ? ipInput.value.trim() : "";
+
+    if (!skipSuggestion && deviceName) {
+        var suggestion = suggestProvisioningTypeFromName(deviceName);
+        var suggestionBox = document.getElementById("provisionSuggestionBox");
+
+        if (suggestion) {
+            selectProvisioningType(suggestion.type);
+
+            if (suggestion.type === "infrastructure") {
+                applyInfrastructureRoleSuggestion(deviceName);
+            }
+
+            if (suggestion.type === "physical") {
+                applyPhysicalTypeSuggestion(deviceName);
+            }
+
+            if (suggestionBox) {
+                suggestionBox.textContent = suggestion.message;
+                suggestionBox.classList.remove("hidden");
+            }
+        } else if (suggestionBox) {
+            suggestionBox.classList.add("hidden");
+            suggestionBox.textContent = "";
+        }
+    }
+
+    var selectedType = getSelectedProvisioningType();
+
+    var physicalFields = document.getElementById("physicalProvisionFields");
+    var virtualFields = document.getElementById("virtualProvisionFields");
+    var infrastructureFields = document.getElementById("infrastructureProvisionFields");
+
+    if (physicalFields) {
+        physicalFields.classList.toggle("hidden", selectedType !== "physical");
+    }
+
+    if (virtualFields) {
+        virtualFields.classList.toggle("hidden", selectedType !== "virtual");
+    }
+
+    if (infrastructureFields) {
+        infrastructureFields.classList.toggle("hidden", selectedType !== "infrastructure");
+    }
+
+    setRequired('select[name="switch_port"]', selectedType === "physical");
+    setRequired('select[name="hosted_by"]', selectedType === "virtual");
+    setRequired('select[name="infrastructure_role"]', selectedType === "infrastructure");
+
+    var switchPortSelect = document.getElementById("provisionSwitchPort");
+    var hostedBySelect = document.getElementById("provisionHostedBy");
+    var infrastructureRoleSelect = document.getElementById("provisionInfrastructureRole");
+    var physicalTypeSelect = document.getElementById("physicalDeviceType");
+    var submitButton = document.getElementById("provisionSubmitButton");
+    var warningBox = document.getElementById("provisionLiveWarning");
+
+    if (deviceNameInput) {
+        if (selectedType === "physical") {
+            deviceNameInput.placeholder = "Example: Security Camera 01";
+        } else if (selectedType === "virtual") {
+            deviceNameInput.placeholder = "Example: Home Assistant VM";
+        } else {
+            deviceNameInput.placeholder = "Example: UPS Battery Backup";
+        }
+    }
+
+    if (ipInput) {
+        if (selectedType === "physical") {
+            ipInput.placeholder = "Example: 192.168.0.55";
+        } else if (selectedType === "virtual") {
+            ipInput.placeholder = "Example: 192.168.0.41";
+        } else {
+            ipInput.placeholder = "Example: 192.168.0.50";
+        }
+    }
+
+    var warningText = "";
+
+    if (deviceName && ONWATCH_EXISTING_DEVICES[deviceName]) {
+        warningText = "Device name already exists: " + deviceName;
+    }
+
+    var ipOwner = findExistingIpOwner(ipAddress);
+    if (!warningText && ipOwner) {
+        warningText = ipAddress + " already belongs to " + ipOwner;
+    }
+
+    if (!warningText && selectedType === "virtual" && hostedBySelect && hostedBySelect.value) {
+        var hostName = hostedBySelect.value;
+        var hostType = (ONWATCH_DEVICE_TYPES[hostName] || "").toLowerCase();
+
+        if (hostName === deviceName) {
+            warningText = "A virtual machine cannot host itself.";
+        } else if (hostType.indexOf("virtual") !== -1 || hostType.indexOf("vm") !== -1) {
+            warningText = "A virtual machine cannot be hosted by another virtual machine.";
+        }
+    }
+
+    if (warningBox) {
+        warningBox.textContent = warningText;
+        warningBox.classList.toggle("hidden", warningText === "");
+    }
+
+    if (submitButton) {
+        submitButton.disabled = warningText !== "";
+        submitButton.classList.toggle("disabled", warningText !== "");
+    }
+
+    updateProvisioningPreview(selectedType, deviceName, ipAddress, switchPortSelect, hostedBySelect, infrastructureRoleSelect, physicalTypeSelect);
+}
+
+function updateProvisioningPreview(selectedType, deviceName, ipAddress, switchPortSelect, hostedBySelect, infrastructureRoleSelect, physicalTypeSelect) {
+    var previewDeviceName = document.getElementById("previewDeviceName");
+    var previewIpAddress = document.getElementById("previewIpAddress");
+    var previewClassification = document.getElementById("previewClassification");
+    var previewConnection = document.getElementById("previewConnection");
+    var previewPath = document.getElementById("previewPath");
+
+    if (previewDeviceName) {
+        previewDeviceName.textContent = deviceName || "Waiting for name";
+    }
+
+    if (previewIpAddress) {
+        previewIpAddress.textContent = ipAddress || "Waiting for IP";
+    }
+
+    var classificationText = "Physical Device";
+    var connectionText = "Select switch port";
+    var pathText = "Network Path: Internet → Cox Modem Gateway → Cisco Edge Router → Cisco Main Switch → " + (deviceName || "New Physical Device");
+
+    if (selectedType === "physical") {
+        var physicalType = physicalTypeSelect && physicalTypeSelect.value ? physicalTypeSelect.value : "Endpoint";
+        classificationText = physicalType;
+        var portText = switchPortSelect && switchPortSelect.selectedIndex > 0
+            ? switchPortSelect.options[switchPortSelect.selectedIndex].text
+            : "Select switch port";
+        connectionText = portText;
+    } else if (selectedType === "virtual") {
+        classificationText = "Virtual Machine";
+        var hostText = hostedBySelect && hostedBySelect.value ? hostedBySelect.value : "Select VM host";
+        var inheritedPort = "Inherited port will appear after host selection";
+
+        if (hostedBySelect && hostedBySelect.selectedIndex > 0) {
+            var option = hostedBySelect.options[hostedBySelect.selectedIndex];
+            inheritedPort = option.getAttribute("data-switch-port") || inheritedPort;
+        }
+
+        connectionText = "Hosted By: " + hostText + " | Inherited Port: " + inheritedPort;
+        pathText = "Network Path: Internet → Cox Modem Gateway → Cisco Edge Router → Cisco Main Switch → " + hostText + " → " + (deviceName || "New VM");
+    } else {
+        var roleText = infrastructureRoleSelect && infrastructureRoleSelect.selectedIndex > 0
+            ? infrastructureRoleSelect.options[infrastructureRoleSelect.selectedIndex].text
+            : "Select infrastructure role";
+        classificationText = "Infrastructure";
+        connectionText = roleText;
+        pathText = "Network Path: Internet → Cox Modem Gateway → Cisco Edge Router → Cisco Main Switch → " + (deviceName || "New Infrastructure Device");
+    }
+
+    if (previewClassification) {
+        previewClassification.textContent = classificationText;
+    }
+
+    if (previewConnection) {
+        previewConnection.textContent = connectionText;
+    }
+
+    if (previewPath) {
+        previewPath.textContent = pathText;
+    }
+}
+
+function closeProvisionSuccessModal() {
+    var modal = document.getElementById("provisionSuccessModal");
+    if (modal) {
+        modal.classList.add("hidden");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    updateProvisioningFields(true);
+
+    var modal = document.getElementById("provisionSuccessModal");
+    if (modal) {
+        setTimeout(function () {
+            closeProvisionSuccessModal();
+        }, 7000);
+    }
+});
+</script>
+
+
+<script>
+(function () {
+    function refreshNocCorrelationEngine() {
+        fetch("/api/dashboard-data")
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (!data || !data.noc_correlation) { return; }
+
+                var noc = data.noc_correlation || {};
+                var html = data.noc_correlation_html || {};
+
+                setTextIfPresent("nocRootCauseValue", noc.root_cause_count ?? "0");
+                setTextIfPresent("nocEndpointIssueValue", noc.endpoint_issue_count ?? "0");
+                setTextIfPresent("nocOperationalStateValue", noc.operational_state_count ?? "0");
+                setTextIfPresent("nocHealthScoreValue", (noc.health_score ?? "0") + "%");
+                setTextIfPresent("nocStateLabel", noc.state_label || "N/A");
+                setTextIfPresent("nocRecommendationValue", noc.recommendation || "N/A");
+                setHTMLIfPresent("nocCorrelationRows", html.rows || "");
+            })
+            .catch(function () {});
+    }
+
+    refreshNocCorrelationEngine();
+    setInterval(refreshNocCorrelationEngine, 30000);
+})();
+</script>
+
+
+<!-- PHASE 11D.1 - SMART REFRESH STATE FIX INSTALLED -->
+
+<script>
+/* PHASE 11D.1 - SCHEDULED DEVICE BINDING FIX */
+document.addEventListener("DOMContentLoaded", function () {
+    var scheduledForm = document.querySelector('form[action="/scheduled-maintenance/add"]');
+    if (!scheduledForm) {
+        return;
+    }
+
+    scheduledForm.addEventListener("submit", function (event) {
+        var deviceSelect = document.getElementById("scheduledDeviceName");
+
+        if (!deviceSelect || !deviceSelect.value) {
+            event.preventDefault();
+            alert("Please select the device you want to schedule for maintenance.");
+            return false;
+        }
+
+        sessionStorage.setItem("onWatchRefreshResume", "1");
+        return true;
+    });
+});
+</script>
+
+
+<script>
+/* PHASE 11E - NOC COMMAND CENTER LIVE REFRESH */
+(function () {
+    function updateNocCommandCenter(data) {
+        if (!data || !data.noc_command_center) {
+            return;
+        }
+
+        var cmd = data.noc_command_center;
+
+        if (typeof setTextIfPresent === "function") {
+            setTextIfPresent("nocCommandNetworkState", cmd.network_state || "Unknown");
+            setTextIfPresent("nocCommandHealth", (cmd.health_percent ?? 0) + "%");
+            setTextIfPresent("nocCommandDevicesUp", cmd.devices_up ?? 0);
+            setTextIfPresent("nocCommandCritical", cmd.critical_alerts ?? 0);
+            setTextIfPresent("nocCommandMaintenance", cmd.active_maintenance ?? 0);
+            setTextIfPresent("nocCommandScheduled", cmd.scheduled_total ?? 0);
+            setTextIfPresent("nocCommandCorrelation", (cmd.correlation_score ?? 100) + "%");
+            setTextIfPresent("nocCommandCorrelationState", cmd.correlation_state || "Normal");
+            setTextIfPresent("nocCommandRecommendation", cmd.top_recommendation || "No action required.");
+            setTextIfPresent("nocCommandCorrelationRecommendation", cmd.correlation_recommendation || "");
+        }
+
+
+        var recBox = document.getElementById("nocCommandRecommendations");
+        if (recBox && Array.isArray(cmd.recommendations)) {
+            recBox.innerHTML = cmd.recommendations.map(function (rec) {
+                var priority = (rec.priority || "OK").toLowerCase();
+                return "<div class='noc-integrated-item priority-" + priority + "'>" +
+                    "<div class='noc-integrated-badge'><span>" + (rec.icon || "🧠") + "</span><strong>" + (rec.badge || rec.priority || "INFO") + "</strong></div>" +
+                    "<div><strong>" + (rec.title || "Recommendation") + "</strong><p>" + (rec.message || "No details available.") + "</p></div>" +
+                    "</div>";
+            }).join("");
+        }
+
+        var stateBox = document.querySelector(".noc-command-state");
+        if (stateBox) {
+            stateBox.className = "noc-command-state " + (cmd.state_class || "good");
+        }
+    }
+
+    window.updateNocCommandCenter = updateNocCommandCenter;
+})();
+</script>
+
+
+<script>
+/* PHASE 11G - HISTORICAL INTELLIGENCE LIVE REFRESH */
+(function () {
+    function updateNocHistoricalIntelligence(data) {
+        var hist = null;
+
+        if (data && data.noc_command_center && data.noc_command_center.historical) {
+            hist = data.noc_command_center.historical;
+        } else if (data && data.noc_historical) {
+            hist = data.noc_historical;
+        }
+
+        if (!hist) {
+            return;
+        }
+
+        if (typeof setTextIfPresent === "function") {
+            setTextIfPresent("nocHistorySummary", hist.summary || "No historical events recorded yet.");
+            setTextIfPresent("nocHistoryTotalEvents", hist.total_events ?? 0);
+            setTextIfPresent("nocHistoryTrendCount", hist.trend_count ?? 0);
+            setTextIfPresent("nocHistoryTopDevice", hist.top_device || "N/A");
+            setTextIfPresent("nocHistoryTopDeviceEvents", (hist.top_device_events ?? 0) + " events");
+        }
+
+        if (typeof setHTMLIfPresent === "function") {
+            setHTMLIfPresent("nocHistoryTrendList", hist.trend_html || "<div class='noc-history-empty'>No recurring trend detected.</div>");
+        }
+    }
+
+    window.updateNocHistoricalIntelligence = updateNocHistoricalIntelligence;
+})();
+</script>
+
+<!-- PHASE 11H.1A SIDEBAR QUICK ACTION NAVIGATION FIX INSTALLED -->
+
+<script>
+/* PHASE 12A - EXECUTIVE OPERATIONS CENTER LIVE REFRESH */
+(function () {
+    function eocSetText(id, value) {
+        var element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function updateExecutiveOperationsCenter(data) {
+        if (!data || !data.executive_operations_center) {
+            return;
+        }
+
+        var eoc = data.executive_operations_center;
+
+        eocSetText("eocCurrentState", eoc.state || "Unknown");
+        eocSetText("eocHealth", (eoc.health_percent ?? 0) + "%");
+        eocSetText("eocDevicesUp", (eoc.devices_up ?? 0) + "/" + (eoc.devices_total ?? 0));
+        eocSetText("eocCritical", eoc.critical_alerts ?? 0);
+        eocSetText("eocWarnings", eoc.warning_alerts ?? 0);
+        eocSetText("eocMaintenance", eoc.maintenance_count ?? 0);
+        eocSetText("eocCorrelation", (eoc.correlation_score ?? 100) + "%");
+        eocSetText("eocCorrelationState", eoc.correlation_state || "Normal");
+        eocSetText("eocTopIssue", eoc.top_issue || "No active issue");
+        eocSetText("eocSummary", eoc.summary || "");
+        eocSetText("eocTopRecommendation", eoc.top_recommendation || "No action required.");
+        eocSetText("eocTopHistory", eoc.top_history || "No historical issue detected.");
+        eocSetText("eocTopDevice", eoc.top_device || "N/A");
+
+        var pill = document.querySelector(".eoc-state-pill");
+        if (pill) {
+            pill.className = "eoc-state-pill " + (eoc.state_class || "healthy");
+        }
+
+        document.querySelectorAll(".eoc-status-step").forEach(function (step) {
+            step.classList.remove("active");
+        });
+
+        var activeStep = document.querySelector(".eoc-status-step." + (eoc.state_class || "healthy"));
+        if (activeStep) {
+            activeStep.classList.add("active");
+        }
+
+        if (Array.isArray(eoc.uptime_ticker_items)) {
+            var ticker = document.getElementById("eocTickerTrack");
+            if (ticker) {
+                var html = "";
+                eoc.uptime_ticker_items.concat(eoc.uptime_ticker_items).forEach(function (item) {
+                    html += "<span><strong>" + (item.label || "") + "</strong> " + (item.value || "") + "</span>";
+                });
+                ticker.innerHTML = html;
+            }
+        }
+    }
+
+    window.updateExecutiveOperationsCenter = updateExecutiveOperationsCenter;
+})();
+</script>
+
+
+<script>
+/* PHASE 12A.1 - OPERATIONS LAYER LIVE REFRESH */
+(function () {
+    function setOpsText(id, value) {
+        var element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function updateOperationsLayer(data) {
+        if (!data || !data.operations_layer) {
+            return;
+        }
+
+        var ops = data.operations_layer;
+
+        setOpsText("opsState", ops.operations_state || "Normal Operations");
+        setOpsText("opsRootCauses", ops.root_causes ?? 0);
+        setOpsText("opsOpenIncidents", ops.open_incidents ?? 0);
+        setOpsText("opsInvestigating", ops.investigating ?? 0);
+        setOpsText("opsScheduledWork", ops.scheduled_work ?? 0);
+        setOpsText("opsOperatorActions", ops.operator_actions ?? 0);
+        setOpsText("opsNextAction", ops.next_action || "No operator action required.");
+    }
+
+    window.updateOperationsLayer = updateOperationsLayer;
+})();
+</script>
+
+
+<script>
+/* PHASE 12B.3 - GUIDED DIAGNOSTIC LIVE ALERT INTEGRATION */
+(function () {
+    function guidedSetText(id, value) {
+        var element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function updateGuidedDiagnosticEngine(data) {
+        if (!data || !data.guided_diagnostic_engine) {
+            return;
+        }
+
+        var g = data.guided_diagnostic_engine;
+        guidedSetText("guidedLiveStatus", g.live_status || "Live alert feed connected");
+        guidedSetText("guidedActiveAlertCount", g.active_alert_count ?? 0);
+        guidedSetText("guidedSelectedAlertId", g.selected_alert_id || "None");
+        guidedSetText("guidedLastUpdated", g.last_updated || "");
+        guidedSetText("guidedScenario", g.scenario || "Healthy");
+        guidedSetText("guidedIssue", g.issue || "No active issue");
+        guidedSetText("guidedLikelyCause", g.likely_cause || "System healthy");
+        guidedSetText("guidedConfidence", g.confidence || "100%");
+
+        var badge = document.getElementById("guidedSeverityBadge");
+        if (badge) {
+            var severity = (g.severity || "INFO").toLowerCase();
+            badge.className = "guided-severity-badge " + severity;
+            badge.textContent = (g.severity || "INFO").toUpperCase();
+        }
+
+        var list = document.getElementById("guidedInstructionsList");
+        if (list && Array.isArray(g.instructions)) {
+            list.innerHTML = "";
+            g.instructions.forEach(function (step) {
+                var li = document.createElement("li");
+                li.textContent = step;
+                list.appendChild(li);
+            });
+        }
+    }
+
+    window.updateGuidedDiagnosticEngine = updateGuidedDiagnosticEngine;
+})();
+</script>
+
+
+
+
+<script>
+/* PHASE 13A - SERVICE IMPACT AWARENESS LIVE UPDATE */
+(function () {
+    function setServiceText(id, value) {
+        var element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"]/g, function (char) {
+            return {"&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;"}[char];
+        });
+    }
+
+    function updateServiceImpactAwareness(data) {
+        if (!data || !data.service_impact) {
+            return;
+        }
+
+        var serviceImpact = data.service_impact;
+        var counts = serviceImpact.counts || {};
+
+        setServiceText("serviceImpactSummary", serviceImpact.summary || "Service impact data unavailable.");
+        setServiceText("serviceImpactOverall", serviceImpact.overall_state || "UNKNOWN");
+        setServiceText("serviceImpactUpdated", "Updated " + (serviceImpact.last_updated || ""));
+        setServiceText("serviceImpactUp", (counts.up || 0) + "/" + (counts.total || 0));
+        setServiceText("serviceImpactDegraded", counts.degraded || 0);
+        setServiceText("serviceImpactDown", counts.down || 0);
+
+        var panel = document.querySelector(".service-impact-panel");
+        if (panel) {
+            panel.className = "panel service-impact-panel service-impact-" + (serviceImpact.overall_class || "up");
+        }
+
+        var grid = document.getElementById("serviceImpactGrid");
+        if (!grid || !Array.isArray(serviceImpact.services)) {
+            return;
+        }
+
+        grid.innerHTML = serviceImpact.services.map(function (svc) {
+            var requiredCount = svc.required_count || 0;
+            var optionalCount = svc.optional_count || 0;
+            var optionalText = optionalCount > 0 ? " • Members: " + (svc.available_optional_count || 0) + "/" + optionalCount + " available" : "";
+
+            return "<div class='service-impact-card " + escapeHtml(svc.state_class || "unknown") + " priority-" + escapeHtml(svc.priority || "standard") + "'>" +
+                "<div class='service-impact-card-top'><strong>" + escapeHtml(svc.name) + "</strong><span>" + escapeHtml(svc.state) + "</span></div>" +
+                "<p>" + escapeHtml(svc.reason) + "</p>" +
+                "<small>Required: " + requiredCount + optionalText + "</small>" +
+                "</div>";
+        }).join("");
+    }
+
+    window.updateServiceImpactAwareness = updateServiceImpactAwareness;
+})();
+</script>
+
+<script>
+/* PHASE 13B - SERVICE IMPACT DRILL DOWN LIVE UPDATE */
+(function () {
+    function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"]/g, function (char) {
+            return {"&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;"}[char];
+        });
+    }
+
+    function updateServiceImpactDrilldown(data) {
+        if (!data || !data.service_impact_drilldown) {
+            return;
+        }
+
+        var drilldown = data.service_impact_drilldown;
+        var summary = document.getElementById("serviceDrilldownSummary");
+        var grid = document.getElementById("serviceDrilldownGrid");
+
+        if (summary) {
+            summary.textContent = drilldown.summary || "Service drill down data unavailable.";
+        }
+
+        if (!grid) {
+            return;
+        }
+
+        var items = Array.isArray(drilldown.items) ? drilldown.items : [];
+
+        if (items.length === 0) {
+            grid.innerHTML = "<div class='service-drilldown-empty'><strong>No impacted services detected.</strong><span>All monitored services are operating normally.</span></div>";
+            return;
+        }
+
+        grid.innerHTML = items.map(function (item) {
+            var root = item.root_cause || {};
+            var members = Array.isArray(item.affected_members) ? item.affected_members : [];
+            var membersHtml = members.length > 0
+                ? "<ul>" + members.map(function (member) { return "<li>" + escapeHtml(member) + "</li>"; }).join("") + "</ul>"
+                : "<em>None</em>";
+
+            return "<div class='service-drilldown-card status-" + escapeHtml(item.status_class || "unknown") + " priority-" + escapeHtml(item.priority || "standard") + "'>" +
+                "<div class='service-drilldown-card-top'><div><strong>" + escapeHtml(item.service) + "</strong><small>" + escapeHtml(item.reason) + "</small></div><span>" + escapeHtml(item.status) + "</span></div>" +
+                "<div class='service-drilldown-body'>" +
+                "<div class='drilldown-block'><span>Affected Members</span>" + membersHtml + "</div>" +
+                "<div class='drilldown-block'><span>Impact Scope</span><strong>" + escapeHtml(item.impact_scope) + "</strong></div>" +
+                "<div class='drilldown-block root-cause'><span>Root Cause</span><strong>" + escapeHtml(root.type || "Unknown") + "</strong><em>" + escapeHtml(root.device || "Unknown") + (root.port ? " • " + escapeHtml(root.port) : "") + "</em>" +
+                (root.failure_type ? "<small>" + escapeHtml(root.failure_type) + "</small>" : "") +
+                (root.affected_device ? "<small>Impacted Device: " + escapeHtml(root.affected_device) + "</small>" : "") +
+                "</div>" +
+                "<div class='drilldown-block confidence'><span>Confidence</span><strong>" + escapeHtml(item.confidence || "0%") + "</strong></div>" +
+                "</div>" +
+                "<div class='service-drilldown-action'><span>Recommended Action</span><strong>" + escapeHtml(item.recommended_action || "Review affected service members.") + "</strong></div>" +
+                "</div>";
+        }).join("");
+    }
+
+    window.updateServiceImpactDrilldown = updateServiceImpactDrilldown;
+})();
+</script>
+
+
+<script>
+/* PHASE 13C.1 / 13C.2 - DEPENDENCY VISUALIZATION LIVE UPDATE */
+(function () {
+    function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"]/g, function (char) {
+            return {"&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;"}[char];
+        });
+    }
+
+    function setText(id, value) {
+        var element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function renderNode(node, isLast) {
+        var ipText = node.ip ? " • " + escapeHtml(node.ip) : "";
+        var detailText = node.detail ? "<em>" + escapeHtml(node.detail) + "</em>" : "";
+        var html = "<div class='dependency-node status-" + escapeHtml(node.state_class || "unknown") + "'>" +
+            "<div class='dependency-node-icon'>" + escapeHtml(node.icon || "📦") + "</div>" +
+            "<div class='dependency-node-info'><strong>" + escapeHtml(node.label) + "</strong>" +
+            "<small>" + escapeHtml(node.type || "Device") + ipText + "</small>" + detailText + "</div>" +
+            "<div class='dependency-node-state'>" + escapeHtml(node.state || "UNKNOWN") + "</div>" +
+            "</div>";
+        if (!isLast) {
+            html += "<div class='dependency-arrow'>↓</div>";
+        }
+        return html;
+    }
+
+    function updateDependencyVisualization(data) {
+        if (!data || !data.dependency_visualization) {
+            return;
+        }
+
+        var dependency = data.dependency_visualization;
+        var counts = dependency.counts || {};
+        var grid = document.getElementById("dependencyVisualizationGrid");
+
+        setText("dependencyVisualizationSummary", dependency.summary || "Dependency visualization data unavailable.");
+        setText("dependencyPathCount", counts.paths ?? 0);
+        setText("dependencyNodeCount", counts.nodes ?? 0);
+        setText("dependencyAffectedCount", counts.affected_nodes ?? counts.down_nodes ?? 0);
+        setText("dependencyRootCauseCount", counts.root_cause_nodes ?? 0);
+
+        if (!grid) {
+            return;
+        }
+
+        var paths = Array.isArray(dependency.paths) ? dependency.paths : [];
+        if (paths.length === 0) {
+            grid.innerHTML = "<div class='dependency-empty'><strong>No dependency paths available.</strong><span>The dashboard will show a path when a service or device is impacted.</span></div>";
+            return;
+        }
+
+        grid.innerHTML = paths.map(function (path) {
+            var nodes = Array.isArray(path.nodes) ? path.nodes : [];
+            var nodesHtml = nodes.map(function (node, index) {
+                return renderNode(node, index === nodes.length - 1);
+            }).join("");
+
+            return "<div class='dependency-path-card status-" + escapeHtml(path.state_class || "unknown") + "'>" +
+                "<div class='dependency-path-top'><div><strong>" + escapeHtml(path.title || "Dependency Path") + "</strong>" +
+                "<small>Root Cause Path: " + escapeHtml(path.root_cause || "No active root cause") + "</small></div>" +
+                "<span>" + escapeHtml(path.state || "UNKNOWN") + "</span></div>" +
+                "<div class='dependency-path-chain'>" + nodesHtml + "</div>" +
+                "</div>";
+        }).join("");
+    }
+
+    window.updateDependencyVisualization = updateDependencyVisualization;
+})();
+</script>
+
+<script>
+/* PHASE 12B.4 - ROOT CAUSE CORRELATION LIVE UPDATE */
+(function () {
+    function setRootText(id, value) {
+        var element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function updateRootCauseCorrelation(data) {
+        if (!data || !data.root_cause_correlation) {
+            return;
+        }
+
+        var r = data.root_cause_correlation;
+
+        setRootText("rootCauseState", r.state || "Healthy");
+        setRootText("rootCauseValue", r.root_cause || "No active root cause");
+        setRootText("rootTypeValue", r.root_type || "None");
+        setRootText("affectedDeviceValue", r.affected_device || "None");
+        setRootText("affectedPortValue", r.affected_port || "None");
+        setRootText("rootConfidenceValue", r.confidence || "100%");
+        setRootText("rootOperatorAction", r.operator_action || "No action required.");
+        setRootText("rootAffectedCount", r.affected_devices_count ?? 0);
+        setRootText("rootSuppressedCount", r.suppressed_alerts_count ?? 0);
+        setRootText("rootLastUpdated", r.last_updated || "");
+    }
+
+    window.updateRootCauseCorrelation = updateRootCauseCorrelation;
+})();
+</script>
+
+
+<script>
+/* PHASE 12B.5 - UNIFIED INCIDENT PRESENTATION LIVE UPDATE */
+(function () {
+    function setUnifiedText(id, value) {
+        var element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    function updateUnifiedInstructions(steps) {
+        var list = document.getElementById("guidedInstructionsList");
+        if (!list || !Array.isArray(steps)) {
+            return;
+        }
+
+        list.innerHTML = "";
+        steps.forEach(function (step) {
+            var li = document.createElement("li");
+            li.textContent = step;
+            list.appendChild(li);
+        });
+    }
+
+    function updateUnifiedIncidentPresentation(data) {
+        if (!data || !data.unified_incident) {
+            return;
+        }
+
+        var u = data.unified_incident;
+
+        setUnifiedText("unifiedIncidentStatus", u.status || "Healthy");
+        setUnifiedText("unifiedPrimaryTitle", u.primary_title || "No active incident");
+        setUnifiedText("unifiedIncidentType", u.incident_type || "Healthy");
+        setUnifiedText("unifiedRootCause", u.root_cause || "No active root cause");
+        setUnifiedText("unifiedAffectedDevice", u.affected_device || "None");
+        setUnifiedText("unifiedAffectedPort", u.affected_port || "None");
+        setUnifiedText("unifiedConfidence", u.confidence || "100%");
+        setUnifiedText("unifiedSummary", u.summary || "No active incident detected.");
+        setUnifiedText("unifiedOperatorAction", u.operator_action || "No action required.");
+
+        setUnifiedText("eocTopIssue", u.primary_title || "No active incident");
+        setUnifiedText("eocSummary", u.summary || "No active incident detected.");
+        setUnifiedText("eocTopRecommendation", u.operator_action || "No action required.");
+        setUnifiedText("eocTopDevice", u.affected_device || "N/A");
+
+        setUnifiedText("guidedScenario", u.incident_type || "Healthy");
+        setUnifiedText("guidedIssue", u.primary_title || "No active incident");
+        setUnifiedText("guidedLikelyCause", u.likely_cause || "System healthy");
+        setUnifiedText("guidedConfidence", u.confidence || "100%");
+        updateUnifiedInstructions(u.instructions);
+
+        var badge = document.getElementById("unifiedSeverityBadge");
+        if (badge) {
+            var severity = (u.severity || "INFO").toLowerCase();
+            badge.className = "unified-severity-badge " + severity;
+            badge.textContent = (u.severity || "INFO").toUpperCase();
+        }
+
+        var card = document.querySelector(".unified-incident-card");
+        if (card) {
+            card.className = "unified-incident-card severity-" + (u.severity || "INFO").toLowerCase();
+        }
+    }
+
+    window.updateUnifiedIncidentPresentation = updateUnifiedIncidentPresentation;
+})();
+</script>
+
+
+<script>
+/* ======================================================
+   PHASE 12B.5.2 - LIVE ALERT SYNCHRONIZATION ENGINE
+   Fixes:
+   1. Voice alerts announce live Smart Refresh incidents.
+   2. Resolved alerts are announced once.
+   3. Stale yellow/red warning panels are removed when alerts clear.
+   4. Critical popup is removed when the alert is no longer active.
+   5. Active Alert Summary is rebuilt from API data.
+====================================================== */
+(function () {
+    function byId(id) {
+        return document.getElementById(id);
+    }
+
+    function safeText(value, fallback) {
+        if (value === undefined || value === null || value === "") {
+            return fallback || "";
+        }
+        return String(value);
+    }
+
+    function getUnified(data) {
+        return (data && data.unified_incident) ? data.unified_incident : {};
+    }
+
+    function getIncidentKey(data) {
+        var u = getUnified(data);
+        var keyParts = [
+            u.primary_title,
+            u.root_cause,
+            u.affected_device,
+            u.affected_port,
+            u.severity
+        ];
+        return keyParts.map(function (item) {
+            return safeText(item, "").trim();
+        }).join("|");
+    }
+
+    function incidentIsActive(data) {
+        if (!data) {
+            return false;
+        }
+
+        var u = getUnified(data);
+        var status = safeText(u.status, "").toLowerCase();
+        var title = safeText(u.primary_title, "").toLowerCase();
+        var root = safeText(u.root_cause, "").toLowerCase();
+        var severity = safeText(u.severity, "").toUpperCase();
+
+        if (data.system_good === true) {
+            return false;
+        }
+
+        if (Number(data.critical_count || 0) > 0) {
+            return true;
+        }
+
+        if (status && !["healthy", "normal", "no active incident"].includes(status)) {
+            return true;
+        }
+
+        if (severity && !["INFO", "OK", "HEALTHY"].includes(severity)) {
+            return true;
+        }
+
+        if (title && !title.includes("no active") && !title.includes("healthy")) {
+            return true;
+        }
+
+        if (root && !root.includes("no active") && root !== "none") {
+            return true;
+        }
+
+        return false;
+    }
+
+    function setStatusBannerHealthy() {
+        var banner = byId("statusBanner");
+        if (!banner) {
+            return;
+        }
+
+        banner.className = "status-banner banner-good";
+        banner.textContent = "EVERYTHING IS UP & RUNNING ✅";
+    }
+
+    function setStatusBannerAttention(data) {
+        var banner = byId("statusBanner");
+        if (!banner) {
+            return;
+        }
+
+        var u = getUnified(data);
+        var severity = safeText(u.severity, "WARNING").toUpperCase();
+
+        banner.className = "status-banner banner-bad dashboard-critical-flash";
+        banner.textContent = severity === "CRITICAL" ? "CRITICAL NETWORK ALERT ⚠" : "NETWORK WARNING ACTIVE ⚠";
+    }
+
+    function removeCriticalPopup() {
+        var popup = byId("criticalAlertPopup");
+        if (popup) {
+            popup.remove();
+        }
+    }
+
+    function removeVisualAlertCenter() {
+        document.querySelectorAll(".visual-alert-center").forEach(function (panel) {
+            panel.remove();
+        });
+    }
+
+    function updateVisualAlertCenter(data) {
+        var active = incidentIsActive(data);
+        var statusBanner = byId("statusBanner");
+
+        if (!active) {
+            removeVisualAlertCenter();
+            removeCriticalPopup();
+            setStatusBannerHealthy();
+            document.body.classList.remove("live-alert-active");
+            return;
+        }
+
+        var u = getUnified(data);
+        var severity = safeText(u.severity, "WARNING").toUpperCase();
+        var isCritical = severity === "CRITICAL" || Number(data.critical_count || 0) > 0;
+        var panelClass = isCritical ? "visual-alert-center visual-alert-critical live-visual-alert" : "visual-alert-center visual-alert-warning live-visual-alert";
+        var badge = isCritical ? "🚨 CRITICAL ALERT ACTIVE" : "⚠ WARNING ALERT ACTIVE";
+        var title = safeText(u.primary_title, "Network Attention Recommended");
+        var summary = safeText(u.summary, "A monitored device or link is reporting a warning condition.");
+        var problem = safeText(u.root_cause, title);
+        var affected = safeText(u.affected_device, "Network Device");
+        var updated = safeText(u.last_updated, new Date().toLocaleTimeString());
+
+        removeVisualAlertCenter();
+
+        var panel = document.createElement("section");
+        panel.className = panelClass;
+        panel.id = "liveVisualAlertCenter";
+        panel.innerHTML =
+            '<div class="visual-alert-topline">' +
+                '<div class="visual-alert-badge">' + badge + '</div>' +
+                '<div class="visual-alert-count">1 Active Incident</div>' +
+            '</div>' +
+            '<div class="visual-alert-main">' +
+                '<div>' +
+                    '<div class="visual-alert-title"></div>' +
+                    '<div class="visual-alert-subtitle"></div>' +
+                '</div>' +
+                '<a href="/alerts" class="visual-alert-action' + (isCritical ? '' : ' warning-action') + '">View Alerts</a>' +
+            '</div>' +
+            '<div class="visual-alert-list">' +
+                '<div class="visual-alert-item">' +
+                    '<div class="visual-alert-device"></div>' +
+                    '<div class="visual-alert-problem"></div>' +
+                    '<div class="visual-alert-time"></div>' +
+                '</div>' +
+            '</div>';
+
+        panel.querySelector(".visual-alert-title").textContent = title;
+        panel.querySelector(".visual-alert-subtitle").textContent = summary;
+        panel.querySelector(".visual-alert-device").textContent = affected;
+        panel.querySelector(".visual-alert-problem").textContent = problem;
+        panel.querySelector(".visual-alert-time").textContent = updated;
+
+        if (statusBanner && statusBanner.parentNode) {
+            statusBanner.parentNode.insertBefore(panel, statusBanner);
+        }
+
+        setStatusBannerAttention(data);
+        document.body.classList.add("live-alert-active");
+    }
+
+    function updateActiveAlertSummary(data) {
+        var existing = document.querySelector(".dashboard-active-alerts-panel");
+        var diagnosis = document.querySelector(".diagnosis-panel");
+        var alertRows = safeText(data && data.alert_rows, "");
+        var hasAlerts = incidentIsActive(data) || (alertRows && !alertRows.includes("No active alerts"));
+
+        if (!hasAlerts) {
+            if (existing) {
+                existing.remove();
+            }
+            return;
+        }
+
+        if (!existing) {
+            existing = document.createElement("section");
+            existing.className = "panel dashboard-active-alerts-panel";
+            existing.innerHTML =
+                '<div class="panel-header">' +
+                    '<h2>Active Alert Summary</h2>' +
+                    '<a href="/alerts" class="small-view-alerts-btn">Open Alert Center</a>' +
+                '</div>' +
+                '<table>' +
+                    '<tr><th>Severity</th><th>Device / Link</th><th>Problem</th><th>Time</th></tr>' +
+                    '<tbody id="dashboardActiveAlertRows"></tbody>' +
+                '</table>';
+
+            if (diagnosis && diagnosis.parentNode) {
+                diagnosis.parentNode.insertBefore(existing, diagnosis);
+            }
+        }
+
+        var tbody = byId("dashboardActiveAlertRows") || existing.querySelector("tbody");
+        if (!tbody) {
+            return;
+        }
+
+        if (alertRows && !alertRows.includes("No active alerts")) {
+            tbody.innerHTML = alertRows;
+        } else {
+            var u = getUnified(data);
+            var sev = safeText(u.severity, "WARNING").toUpperCase();
+            var badgeClass = sev === "CRITICAL" ? "critical" : (sev === "WARNING" ? "warning" : "info");
+            var badgeText = sev === "CRITICAL" ? "🔴 Critical" : (sev === "WARNING" ? "🟡 Warning" : "🔵 Info");
+            tbody.innerHTML =
+                '<tr class="dashboard-alert-row ' + badgeClass + '">' +
+                    '<td><span class="severity-badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+                    '<td>' + safeText(u.affected_device, "Network") + '</td>' +
+                    '<td>' + safeText(u.primary_title, "Active incident") + '</td>' +
+                    '<td>' + new Date().toLocaleTimeString() + '</td>' +
+                '</tr>';
+        }
+    }
+
+    function speak(message) {
+        if (!("speechSynthesis" in window)) {
+            return;
+        }
+
+        var voiceEnabled = localStorage.getItem("voiceAlertsEnabled") === "true";
+        if (!voiceEnabled) {
+            return;
+        }
+
+        try {
+            window.speechSynthesis.cancel();
+            var utterance = new SpeechSynthesisUtterance(message);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+            window.speechSynthesis.speak(utterance);
+        } catch (e) {
+            console.warn("Voice alert failed:", e);
+        }
+    }
+
+    function buildActiveVoiceMessage(data) {
+        var u = getUnified(data);
+        var severity = safeText(u.severity, "Warning");
+        var title = safeText(u.primary_title, "Network incident detected");
+        var affected = safeText(u.affected_device, "network device");
+        var port = safeText(u.affected_port, "");
+
+        if (port && port !== "None") {
+            return severity + " alert. " + title + ". Affected device: " + affected + ". Affected port: " + port + ".";
+        }
+
+        return severity + " alert. " + title + ". Affected device: " + affected + ".";
+    }
+
+    function buildResolvedVoiceMessage(previous) {
+        var title = previous && previous.title ? previous.title : "previous network alert";
+        return "Alert resolved. " + title + " has cleared.";
+    }
+
+    function synchronizeVoiceAlerts(data) {
+        var active = incidentIsActive(data);
+        var key = getIncidentKey(data);
+        var previousRaw = localStorage.getItem("onWatchLiveIncidentPrevious");
+        var previous = null;
+
+        try {
+            previous = previousRaw ? JSON.parse(previousRaw) : null;
+        } catch (e) {
+            previous = null;
+        }
+
+        if (active) {
+            var u = getUnified(data);
+            var previousKey = previous ? previous.key : "";
+
+            if (key && key !== previousKey) {
+                speak(buildActiveVoiceMessage(data));
+            }
+
+            localStorage.setItem("onWatchLiveIncidentPrevious", JSON.stringify({
+                key: key,
+                title: safeText(u.primary_title, "Network incident"),
+                affected_device: safeText(u.affected_device, ""),
+                root_cause: safeText(u.root_cause, ""),
+                severity: safeText(u.severity, "WARNING"),
+                active: true
+            }));
+            return;
+        }
+
+        if (previous && previous.active) {
+            speak(buildResolvedVoiceMessage(previous));
+        }
+
+        localStorage.setItem("onWatchLiveIncidentPrevious", JSON.stringify({
+            key: "",
+            title: "",
+            active: false
+        }));
+    }
+
+    function updateLiveAlertSynchronization(data) {
+        if (!data) {
+            return;
+        }
+
+        updateVisualAlertCenter(data);
+        updateActiveAlertSummary(data);
+        synchronizeVoiceAlerts(data);
+    }
+
+    window.updateLiveAlertSynchronization = updateLiveAlertSynchronization;
+
+    // Run once after page load so stale server-rendered banners are cleaned up quickly.
+    setTimeout(function () {
+        fetch("/api/dashboard-data", { cache: "no-store" })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                updateLiveAlertSynchronization(data);
+            })
+            .catch(function (error) {
+                console.warn("Live Alert Sync initial refresh failed:", error);
+            });
+    }, 2500);
+})();
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+

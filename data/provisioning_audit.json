@@ -1,0 +1,479 @@
+[
+    {
+        "time": "2026-06-18 23:31:10",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Test Printer",
+        "ip": "192.168.0.250",
+        "details": "Port Gi1/0/1"
+    },
+    {
+        "time": "2026-06-19 11:10:27",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Azero Chromebook",
+        "ip": "192.168.0.8",
+        "details": "Port Gi1/0/6"
+    },
+    {
+        "time": "2026-06-19 11:44:31",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Azero Chromebook",
+        "ip": "192.168.0.8",
+        "details": "Port Gi1/0/6"
+    },
+    {
+        "time": "2026-06-19 16:45:32",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Azero Chromebook",
+        "ip": "192.168.0.8",
+        "details": "Port Gi1/0/6"
+    },
+    {
+        "time": "2026-06-30 19:59:15",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Azero HP Laptop",
+        "ip": "192.168.0.9",
+        "details": "Port Gi1/0/7"
+    },
+    {
+        "time": "2026-07-05 11:12:15",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Switch #2 for testing",
+        "ip": "192.168.0.50",
+        "details": "Switch"
+    },
+    {
+        "time": "2026-07-05 11:34:55",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Switch #2 for testing",
+        "ip": "192.168.0.50",
+        "details": "Switch"
+    },
+    {
+        "time": "2026-07-05 17:36:37",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Switch #2 for testing",
+        "ip": "192.168.0.50",
+        "details": "Switch"
+    },
+    {
+        "time": "2026-07-08 21:09:08",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.5.1",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-08 21:09:13",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.5.1",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:00",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-09 00:41:06",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:19",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:20",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:20",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:28",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:29",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:29",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:30",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:30",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:30",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:41:31",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:42:12",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:59:13",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router2",
+        "ip": "192.168.0.102",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-09 00:59:27",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router2",
+        "ip": "192.168.0.102",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 00:59:34",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "South+Carolina_Router2",
+        "ip": "192.168.0.102",
+        "details": "Duplicate device name"
+    },
+    {
+        "time": "2026-07-09 01:39:01",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-09 02:41:05",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-09 02:46:35",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.0.100",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-09 03:10:42",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.5.1",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-09 09:14:07",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.5.1",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-09 09:25:20",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South+Carolina_Router",
+        "ip": "192.168.5.1",
+        "details": "Router"
+    },
+    {
+        "time": "2026-07-11 09:53:56",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Test Printer",
+        "ip": "192.168.0.200",
+        "details": "Port Gi1/0/8"
+    },
+    {
+        "time": "2026-07-11 09:54:55",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Test Printer 2",
+        "ip": "192.168.0.201",
+        "details": "Port Gi1/0/9"
+    },
+    {
+        "time": "2026-07-11 09:56:55",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Test Printer 3",
+        "ip": "192.168.0.202",
+        "details": "Port Gi1/0/10"
+    },
+    {
+        "time": "2026-07-13 07:47:16",
+        "actor": "ON WATCH USER",
+        "action": "ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Office Printer",
+        "ip": "192.168.0.55",
+        "details": "Port Gi1/0/8"
+    },
+    {
+        "time": "2026-07-15 18:17:39",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "Cox Modem - 192.168.0.1",
+        "ip": "192.168.0.1",
+        "details": "Reserved IP blocked"
+    },
+    {
+        "time": "2026-07-15 18:21:05",
+        "actor": "ON WATCH USER",
+        "action": "ADD DEVICE",
+        "status": "FAILED",
+        "device": "Cox Modem - 192.168.0.1",
+        "ip": "192.168.0.1",
+        "details": "Reserved IP blocked"
+    },
+    {
+        "time": "2026-07-15 19:02:35",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Internet",
+        "ip": "8.8.8.8",
+        "details": "Internet"
+    },
+    {
+        "time": "2026-07-15 19:08:06",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Cox Modem - 192.168.0.1",
+        "ip": "192.168.0.1",
+        "details": "Modem"
+    },
+    {
+        "time": "2026-07-15 19:19:21",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Main Switch",
+        "ip": "192.168.0.2",
+        "details": "Switch"
+    },
+    {
+        "time": "2026-07-15 20:26:20",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Internet",
+        "ip": "8.8.8.8",
+        "details": "Internet"
+    },
+    {
+        "time": "2026-07-15 20:27:18",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Cox Modem Gateway",
+        "ip": "192.168.0.1",
+        "details": "Modem"
+    },
+    {
+        "time": "2026-07-15 20:28:06",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Main Switch",
+        "ip": "192.168.0.2",
+        "details": "Switch"
+    },
+    {
+        "time": "2026-07-15 21:15:55",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Internet",
+        "ip": "8.8.8.8",
+        "details": "Internet"
+    },
+    {
+        "time": "2026-07-15 21:16:45",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Cox Modem Gateway",
+        "ip": "192.168.0.1",
+        "details": "Modem | Parent: Internet"
+    },
+    {
+        "time": "2026-07-15 21:17:10",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Main Switch",
+        "ip": "192.168.0.2",
+        "details": "Switch | Parent: Cox Modem Gateway"
+    },
+    {
+        "time": "2026-07-15 22:29:46",
+        "actor": "ON WATCH USER",
+        "action": "PHASE 26 ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Alicia's MAC",
+        "ip": "192.168.0.239",
+        "details": "Provisioned and mapped to Main Switch Gi1/0/2"
+    },
+    {
+        "time": "2026-07-15 22:34:49",
+        "actor": "ON WATCH USER",
+        "action": "PHASE 26 ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Azero's MAC",
+        "ip": "192.168.0.10",
+        "details": "Provisioned and mapped to Main Switch Gi1/0/3"
+    },
+    {
+        "time": "2026-07-16 00:15:10",
+        "actor": "ON WATCH USER",
+        "action": "PHASE 26 ADD PHYSICAL",
+        "status": "SUCCESS",
+        "device": "Virtual Infrastructure Host",
+        "ip": "192.168.0.11",
+        "details": "Provisioned and mapped to Main Switch Gi1/0/4"
+    },
+    {
+        "time": "2026-07-16 00:19:24",
+        "actor": "ON WATCH USER",
+        "action": "ADD VIRTUAL",
+        "status": "SUCCESS",
+        "device": "On - Watch Monitor VM",
+        "ip": "192.168.0.40",
+        "details": "Hosted by Virtual Infrastructure Host | Inherited Port: No physical switch port"
+    },
+    {
+        "time": "2026-07-16 00:29:02",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "Edge Router",
+        "ip": "192.168.0.21",
+        "details": "Router | Parent: Cox Modem Gateway"
+    },
+    {
+        "time": "2026-07-17 20:13:02",
+        "actor": "ON WATCH USER",
+        "action": "ADD INFRASTRUCTURE",
+        "status": "SUCCESS",
+        "device": "South_Carolina_Router",
+        "ip": "192.168.5.1",
+        "details": "Router | Parent: Edge Router"
+    }
+]

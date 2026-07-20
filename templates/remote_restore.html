@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Remote Restore Engine | On Watch Network Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        /* ======================================================
+           PHASE 12C.2 - REMOTE RESTORE ENGINE PAGE
+        ====================================================== */
+        .remote-hero {
+            border: 2px solid #7c3aed;
+            background:
+                radial-gradient(circle at top left, rgba(124,58,237,.22), transparent 42%),
+                linear-gradient(135deg, #081220, #0b1829);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 14px;
+            box-shadow: 0 0 24px rgba(124,58,237,.18);
+        }
+        .remote-hero h2 { margin:0 0 8px; color:#a78bfa; font-size:28px; letter-spacing:1px; }
+        .remote-hero p { color:#dbeafe; line-height:1.6; margin:8px 0; }
+        .remote-hero-grid { display:grid; grid-template-columns: 1.5fr 1fr; gap:14px; align-items:center; }
+        .remote-feature-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .remote-feature { color:#dcfce7; font-weight:900; font-size:13px; }
+
+        .remote-grid { display:grid; grid-template-columns: 1fr 1fr 1.08fr; gap:14px; align-items:start; }
+        .remote-stack { display:grid; gap:14px; }
+        .remote-panel {
+            background: linear-gradient(180deg, rgba(8,18,32,.96), rgba(5,14,26,.96));
+            border: 1px solid #244569;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 0 16px rgba(0,0,0,.18);
+        }
+        .remote-panel h3 { margin:0 0 12px; color:#ffffff; font-size:17px; letter-spacing:.5px; }
+        .remote-panel h3 span { color:#32a5ff; }
+        .remote-table { width:100%; border-collapse:collapse; }
+        .remote-table th, .remote-table td { border-bottom:1px solid #1f3b57; padding:10px 8px; color:#dbeafe; font-size:13px; }
+        .remote-table th { color:#9ccfff; text-align:left; font-size:12px; text-transform:uppercase; }
+        .remote-table tr.selected { background: rgba(37,99,235,.35); }
+        .remote-radio { transform:scale(1.15); }
+        .remote-small { display:block; color:#9fb3c8; font-size:12px; font-weight:700; margin-top:4px; }
+        .remote-form-row { margin-bottom:12px; }
+        .remote-form-row label { display:block; color:#badcff; font-size:12px; font-weight:900; text-transform:uppercase; margin-bottom:6px; }
+        .remote-input {
+            width:100%; box-sizing:border-box; padding:12px 13px; border-radius:10px;
+            border:1px solid #244569; background:#081220; color:#ffffff; font-weight:800;
+        }
+        .remote-checkbox { display:flex; gap:10px; align-items:flex-start; color:#dbeafe; margin:10px 0; line-height:1.35; }
+        .remote-checkbox input { margin-top:3px; transform:scale(1.2); }
+        .remote-checkbox strong { display:block; color:#ffffff; }
+        .remote-checkbox span { display:block; color:#9fb3c8; font-size:12px; margin-top:3px; }
+        .remote-status-box {
+            margin-top:12px; border-radius:12px; padding:13px; background:rgba(0,255,119,.12);
+            border:1px solid rgba(0,255,119,.35); color:#dcfce7; font-weight:900;
+        }
+        .remote-status-box.bad { background:rgba(255,85,85,.12); border-color:rgba(255,85,85,.55); color:#fecaca; }
+        .remote-btn {
+            border:none; border-radius:10px; padding:12px 16px; cursor:pointer; color:#ffffff;
+            background:#2563eb; font-weight:900; text-decoration:none; display:inline-block;
+        }
+        .remote-btn:hover { filter:brightness(1.12); }
+        .remote-btn.secondary { background:#334155; }
+        .remote-btn.deploy { background:linear-gradient(135deg,#2563eb,#7c3aed); font-size:18px; padding:16px 22px; width:100%; }
+        .remote-btn.danger { background:#b80000; }
+        .remote-warning {
+            border:1px solid rgba(255,176,0,.65); background:rgba(255,176,0,.09); color:#ffd98a;
+            border-radius:12px; padding:12px; font-weight:900; line-height:1.45; margin-top:12px;
+        }
+        .remote-preview-step { display:grid; grid-template-columns:28px 1fr; gap:10px; margin:12px 0; color:#dbeafe; }
+        .remote-step-dot { width:24px; height:24px; border-radius:999px; background:#2563eb; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; }
+        .remote-preview-step strong { display:block; color:#ffffff; }
+        .remote-preview-step span { color:#9fb3c8; font-size:12px; display:block; margin-top:3px; }
+        .remote-history { margin-top:14px; }
+        .pill { display:inline-block; border-radius:999px; padding:5px 9px; font-size:11px; font-weight:900; text-transform:uppercase; }
+        .pill.success { background:#064e3b; color:#86efac; }
+        .pill.failed { background:#7f1d1d; color:#fecaca; }
+        .pill.running { background:#1e3a8a; color:#bfdbfe; }
+        .remote-execution-banner { border-left:5px solid #32a5ff; background:#081220; border-radius:12px; padding:13px; margin-bottom:14px; color:#dbeafe; }
+        .remote-execution-banner strong { color:#ffffff; display:block; }
+        .deploy-confirm { width:100%; padding:13px; border-radius:10px; border:1px solid #7c3aed; background:#f8fbff; color:#06111f; text-align:center; font-weight:900; letter-spacing:2px; }
+        @media(max-width:1200px){ .remote-grid,.remote-hero-grid{grid-template-columns:1fr;} }
+    </style>
+</head>
+
+<body>
+
+<div class="topology-wrapper">
+    <div class="topology-title">Network Topology</div>
+    <div class="topology-row">
+        <div class="topology-node"><div class="topology-icon">🌎</div><div>Internet</div></div>
+        <div class="topology-arrow">➜</div>
+        <div class="topology-node"><div class="topology-icon">📡</div><div>Cox Modem</div></div>
+        <div class="topology-arrow">➜</div>
+        <div class="topology-node"><div class="topology-icon">🛜</div><div>Cisco Router</div></div>
+        <div class="topology-arrow">➜</div>
+        <div class="topology-node"><div class="topology-icon">🔌</div><div>Cisco Switch</div></div>
+        <div class="topology-arrow">➜</div>
+        <div class="topology-node"><div class="topology-icon">💻</div><div>Endpoints</div></div>
+    </div>
+</div>
+
+<header class="main-header">
+    <h1>REMOTE RESTORE ENGINE</h1>
+    <div class="subtitle">Deploy • Migrate • Recover • Roll Back</div>
+</header>
+
+<div class="main-layout no-right-sidebar">
+    <aside class="left-sidebar">
+        <div class="side-title">🏠 Home Network Monitor</div>
+        <div class="time-card"><div class="time-icon">🕒</div><div>{{ last_full_scan }}</div></div>
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/network-map" class="side-nav">🗺 Network Map</a>
+        <a href="/port-mapper" class="side-nav">🔗 Port Mapper</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+        <a href="/internet-history" class="side-nav">🌐 Internet History</a>
+        <a href="/backup-center" class="side-nav">🗄 Backup Center</a>
+        <a href="/remote-restore" class="side-nav active">☁ Remote Restore</a>
+        <a href="/reset-center" class="side-nav">🔄 Reset Center</a>
+        <div class="system-state good-state">☁<br>Remote Restore Ready</div>
+    </aside>
+
+    <main class="dashboard-content">
+        <section class="remote-hero">
+            <div class="remote-hero-grid">
+                <div>
+                    <h2>☁ PHASE 12C.2 - REMOTE RESTORE ENGINE</h2>
+                    <p>Deploy an On Watch backup to another server over SSH/SCP. This page is for disaster recovery, server migration, and standby server deployment.</p>
+                </div>
+                <div class="remote-feature-list">
+                    <div class="remote-feature">✅ SSH Connectivity Validation</div>
+                    <div class="remote-feature">✅ Safety Snapshot</div>
+                    <div class="remote-feature">✅ One-Click Deployment</div>
+                    <div class="remote-feature">✅ Auto Rollback</div>
+                    <div class="remote-feature">✅ Post-Deployment Verify</div>
+                    <div class="remote-feature">✅ Audit Trail</div>
+                </div>
+            </div>
+        </section>
+
+        {% if remote_status.active %}
+        <div class="remote-execution-banner">
+            <strong>Remote restore job is running</strong>
+            Phase: {{ remote_status.phase }} • {{ remote_status.message }}<br>
+            Target: {{ remote_status.target_host }} • Backup: {{ remote_status.backup_filename }}
+        </div>
+        {% elif remote_status.phase in ['completed','failed'] %}
+        <div class="remote-execution-banner">
+            <strong>Last remote restore state: {{ remote_status.phase|upper }}</strong>
+            {{ remote_status.message }}{% if remote_status.error %} • {{ remote_status.error }}{% endif %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/remote-restore/deploy" id="remoteDeployForm">
+            <div class="remote-grid">
+                <div class="remote-stack">
+                    <section class="remote-panel">
+                        <h3><span>1.</span> Select Backup To Deploy</h3>
+                        <table class="remote-table">
+                            <thead><tr><th></th><th>Backup Name</th><th>Date / Time</th><th>Size</th></tr></thead>
+                            <tbody>
+                            {% for backup in backups %}
+                            <tr class="{% if loop.first %}selected{% endif %}">
+                                <td><input class="remote-radio" type="radio" name="backup_filename" value="{{ backup.filename }}" {% if loop.first %}checked{% endif %} onchange="updateSelectedBackup(this)"></td>
+                                <td>{{ backup.filename }}</td>
+                                <td>{{ backup.modified }}</td>
+                                <td>{{ backup.size_mb }} MB</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4">No backups found in {{ backup_dir }}</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <span class="remote-small">Total backups: {{ backup_count }} • Backup directory: {{ backup_dir }}</span>
+                    </section>
+
+                    <section class="remote-panel">
+                        <h3><span>3.</span> Deployment Options</h3>
+                        <label class="remote-checkbox"><input type="checkbox" name="create_safety_snapshot" checked><div><strong>Create Safety Snapshot</strong><span>Back up the current remote installation before restore.</span></div></label>
+                        <label class="remote-checkbox"><input type="checkbox" name="backup_existing_files" checked><div><strong>Backup Existing Files</strong><span>Protect current remote files and configuration.</span></div></label>
+                        <label class="remote-checkbox"><input type="checkbox" name="restart_after_restore" checked><div><strong>Restart On Watch Services</strong><span>Restart the remote service after files are deployed.</span></div></label>
+                        <label class="remote-checkbox"><input type="checkbox" name="verify_after_restore" checked><div><strong>Verify After Deployment</strong><span>Run a health check against the remote server.</span></div></label>
+                        <label class="remote-checkbox"><input type="checkbox" name="rollback_on_failure" checked><div><strong>Rollback On Failure</strong><span>Restore the safety snapshot if verification fails.</span></div></label>
+                    </section>
+                </div>
+
+                <div class="remote-stack">
+                    <section class="remote-panel">
+                        <h3><span>2.</span> Remote Target Server</h3>
+                        <div class="remote-form-row">
+                            <label>IP Address / Hostname</label>
+                            <input class="remote-input" type="text" name="target_host" id="targetHost" value="{{ remote_settings.default_target_host }}" required>
+                        </div>
+                        <div class="remote-form-row">
+                            <label>SSH User</label>
+                            <input class="remote-input" type="text" name="ssh_user" id="sshUser" value="{{ remote_settings.default_user }}" required>
+                        </div>
+                        <div class="remote-form-row">
+                            <label>SSH Key Path</label>
+                            <input class="remote-input" type="text" name="ssh_key_path" id="sshKeyPath" value="{{ remote_settings.default_ssh_key }}">
+                        </div>
+                        <div class="remote-form-row">
+                            <label>Remote Project Directory</label>
+                            <input class="remote-input" type="text" name="remote_project_dir" id="remoteProjectDir" value="{{ remote_settings.remote_project_dir }}" required>
+                        </div>
+                        <div class="remote-form-row">
+                            <label>Remote Staging / Snapshot Directory</label>
+                            <input class="remote-input" type="text" name="remote_backup_dir" id="remoteBackupDir" value="{{ remote_settings.remote_backup_dir }}" required>
+                        </div>
+                        <button type="button" class="remote-btn" onclick="testRemoteConnection()">Test Connection</button>
+                        <div id="remoteConnectionStatus" class="remote-status-box">Connection Status: Not Tested</div>
+                    </section>
+
+                    <section class="remote-panel">
+                        <h3><span>4.</span> Deployment Summary</h3>
+                        <p style="color:#dbeafe; line-height:1.7;">
+                            <strong>Selected Backup:</strong> <span id="selectedBackupName">{% if backups %}{{ backups[0].filename }}{% else %}None{% endif %}</span><br>
+                            <strong>Target Server:</strong> <span id="summaryTarget">{{ remote_settings.default_target_host }}</span><br>
+                            <strong>Deploy Path:</strong> <span id="summaryPath">{{ remote_settings.remote_project_dir }}</span><br>
+                            <strong>Method:</strong> SSH + SCP<br>
+                            <strong>Estimated Time:</strong> 2 - 4 minutes
+                        </p>
+                        <div class="remote-warning">⚠ This will overwrite the existing On Watch installation on the remote server. Type DEPLOY below before starting.</div>
+                        <input class="deploy-confirm" type="text" name="confirm_remote_restore" id="confirmRemoteRestore" placeholder="TYPE DEPLOY TO CONFIRM" autocomplete="off">
+                    </section>
+                </div>
+
+                <div class="remote-stack">
+                    <section class="remote-panel">
+                        <h3><span>5.</span> Deployment Preview</h3>
+                        <div class="remote-preview-step"><div class="remote-step-dot">1</div><div><strong>Validate Connection</strong><span>Confirm SSH access, disk space, Python, and service status.</span></div></div>
+                        <div class="remote-preview-step"><div class="remote-step-dot">2</div><div><strong>Create Safety Snapshot</strong><span>Back up the current remote On Watch installation.</span></div></div>
+                        <div class="remote-preview-step"><div class="remote-step-dot">3</div><div><strong>Upload Backup</strong><span>Copy selected backup to remote staging directory.</span></div></div>
+                        <div class="remote-preview-step"><div class="remote-step-dot">4</div><div><strong>Extract & Deploy</strong><span>Extract files into the remote project directory.</span></div></div>
+                        <div class="remote-preview-step"><div class="remote-step-dot">5</div><div><strong>Restart Services</strong><span>Restart On Watch on the target server.</span></div></div>
+                        <div class="remote-preview-step"><div class="remote-step-dot">6</div><div><strong>Verify / Rollback</strong><span>Verify deployment and roll back automatically if needed.</span></div></div>
+                    </section>
+
+                    <section class="remote-panel">
+                        <h3><span>6.</span> Deploy Backup</h3>
+                        <button type="submit" class="remote-btn deploy" id="deployButton">☁ DEPLOY BACKUP TO REMOTE SERVER</button>
+                        <button type="button" class="remote-btn danger" style="width:100%; margin-top:10px;" onclick="document.getElementById('confirmRemoteRestore').value=''">Cancel Deployment</button>
+                    </section>
+                </div>
+            </div>
+        </form>
+
+        <section class="remote-panel remote-history">
+            <h3>🕘 Recent Remote Deployments</h3>
+            <table class="remote-table">
+                <thead><tr><th>Date / Time</th><th>Target</th><th>Backup</th><th>Status</th><th>Result</th><th>Error</th></tr></thead>
+                <tbody>
+                {% for item in remote_history[:8] %}
+                <tr>
+                    <td>{{ item.time }}</td>
+                    <td>{{ item.target_host }}</td>
+                    <td>{{ item.backup_filename }}</td>
+                    <td><span class="pill {% if item.status == 'completed' %}success{% elif item.status == 'failed' %}failed{% else %}running{% endif %}">{{ item.status }}</span></td>
+                    <td>{{ item.result }}</td>
+                    <td>{{ item.error }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6">No remote restore deployments recorded yet.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script>
+function updateSelectedBackup(input) {
+    document.querySelectorAll('.remote-table tr').forEach(row => row.classList.remove('selected'));
+    input.closest('tr').classList.add('selected');
+    document.getElementById('selectedBackupName').innerText = input.value;
+}
+
+document.getElementById('targetHost').addEventListener('input', function(){
+    document.getElementById('summaryTarget').innerText = this.value;
+});
+document.getElementById('remoteProjectDir').addEventListener('input', function(){
+    document.getElementById('summaryPath').innerText = this.value;
+});
+
+document.getElementById('remoteDeployForm').addEventListener('submit', function(e){
+    const confirmValue = document.getElementById('confirmRemoteRestore').value.trim().toUpperCase();
+    if (confirmValue !== 'DEPLOY') {
+        e.preventDefault();
+        alert('Type DEPLOY to confirm the remote restore deployment.');
+        return false;
+    }
+    return confirm('This will deploy the selected backup to the remote server. Continue?');
+});
+
+function testRemoteConnection() {
+    const statusBox = document.getElementById('remoteConnectionStatus');
+    statusBox.className = 'remote-status-box';
+    statusBox.innerText = 'Connection Status: Testing...';
+
+    fetch('/api/remote-restore/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            target_host: document.getElementById('targetHost').value,
+            ssh_user: document.getElementById('sshUser').value,
+            ssh_key_path: document.getElementById('sshKeyPath').value,
+            remote_project_dir: document.getElementById('remoteProjectDir').value,
+            remote_backup_dir: document.getElementById('remoteBackupDir').value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const result = data.result || {};
+            statusBox.className = 'remote-status-box';
+            statusBox.innerText = 'Connection Status: ONLINE | Disk: ' + (result.disk_space || 'Unknown') + ' | Python: ' + (result.python || 'Unknown') + ' | Service: ' + (result.service || 'Unknown');
+        } else {
+            statusBox.className = 'remote-status-box bad';
+            statusBox.innerText = 'Connection Status: FAILED | ' + (data.error || (data.result && data.result.stderr) || 'Unable to connect');
+        }
+    })
+    .catch(error => {
+        statusBox.className = 'remote-status-box bad';
+        statusBox.innerText = 'Connection Status: FAILED | ' + error;
+    });
+}
+
+setInterval(function(){
+    fetch('/api/remote-restore/status')
+        .then(response => response.json())
+        .then(data => {
+            const execution = data.execution || {};
+            if (execution.active) {
+                document.title = 'Remote Restore Running | On Watch';
+            }
+        })
+        .catch(() => {});
+}, 10000);
+</script>
+
+</body>
+</html>

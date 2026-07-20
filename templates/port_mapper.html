@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enterprise Device Inventory | On Watch Network Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .enterprise-inventory-section {
+            margin: 22px 0;
+            padding: 18px;
+            border: 1px solid rgba(49, 168, 255, 0.35);
+            border-radius: 16px;
+            background: rgba(4, 18, 34, 0.72);
+        }
+
+        .enterprise-section-title {
+            margin: 0 0 14px;
+            color: #31a8ff;
+            letter-spacing: 1px;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .enterprise-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+        }
+
+        .enterprise-inventory-card {
+            border: 1px solid rgba(0, 255, 119, 0.35);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            background: radial-gradient(circle at top, rgba(0, 110, 255, 0.18), rgba(8, 18, 32, 0.96));
+        }
+
+        .enterprise-card-icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .enterprise-card-name {
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .enterprise-card-ip {
+            color: #7fd0ff;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .enterprise-card-port {
+            color: #ffea3a;
+            font-size: 12px;
+            font-weight: 800;
+            margin-top: 8px;
+        }
+
+        .enterprise-rule-note {
+            margin-top: 10px;
+            color: #7fd0ff;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .device-management-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .device-management-card {
+            border: 1px solid rgba(49, 168, 255, 0.35);
+            border-radius: 14px;
+            padding: 16px;
+            background: rgba(8, 18, 32, 0.96);
+        }
+
+        .device-management-card h3 {
+            margin-top: 0;
+            color: #31a8ff;
+        }
+
+        .device-management-card label {
+            display: block;
+            margin-top: 12px;
+            color: #9ccfff;
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .device-management-card input,
+        .device-management-card select {
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(49, 168, 255, 0.35);
+            background: #081220;
+            color: #ffffff;
+            box-sizing: border-box;
+        }
+
+        .inventory-warning-note {
+            margin-top: 10px;
+            color: #ffda6a;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header class="map-page-header">
+    <div class="map-brand">
+        <div class="map-shield">🛡️</div>
+        <div>
+            <div class="map-brand-title">ON WATCH</div>
+            <div class="map-brand-subtitle">NETWORK MONITOR</div>
+        </div>
+    </div>
+
+    <div class="map-title-block">
+        <h1>ON WATCH NETWORK MONITOR</h1>
+        <div>ENTERPRISE DEVICE INVENTORY</div>
+    </div>
+
+    <div class="map-header-status">
+        <div class="map-status-pill map-up">Inventory Online</div>
+        <div class="map-last-updated">
+            Last Scan: {{ last_full_scan }}
+            <span class="map-refresh-icon">↻</span>
+        </div>
+    </div>
+</header>
+
+<div class="network-map-layout">
+
+    <aside class="network-map-left-sidebar">
+        <div class="map-time-card">
+            <div class="map-time-icon">🕒</div>
+            <div id="mapClock">Loading...</div>
+            <div id="mapDate">Loading...</div>
+        </div>
+
+        <a href="/" class="map-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="map-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="map-nav">🔌 Cisco Links</a>
+        <a href="/network-map" class="map-nav">🗺 Network Map</a>
+        <a href="/enterprise-inventory" class="map-nav active">📦 Enterprise Inventory</a>
+        <a href="/infrastructure-registry" class="map-nav">🏗 Infrastructure Registry</a>
+        <a href="/event-log" class="map-nav">📜 Event Log</a>
+        <a href="/alerts" class="map-nav">
+            ⚠ Alerts
+            {% if active_alert_count > 0 %}
+            <span class="map-alert-count">{{ active_alert_count }}</span>
+            {% endif %}
+        </a>
+        <a href="/knowledge-base" class="map-nav">📚 Knowledge Base</a>
+        <a href="/internet-history" class="map-nav">🌐 Internet History</a>
+        <a href="/backup-center" class="map-nav">🗄 Backup Center</a>
+        <a href="/reset-center" class="map-nav">🔄 Reset Center</a>
+
+        <div class="map-sidebar-title">QUICK ACTIONS</div>
+
+        <a href="/provisioning" class="map-action-btn green">➕ Add Device</a>
+        <a href="/network-map" class="map-action-btn blue">🗺 View Network Map</a>
+        <a href="/infrastructure-registry" class="map-action-btn blue">🏗 Infrastructure Registry</a>
+        <a href="/router-monitoring" class="map-action-btn blue">⚙ Router Monitoring</a>
+
+        <div class="map-system-card">
+            <div class="map-system-check">🏢</div>
+            <div>
+                <strong>Enterprise Inventory</strong><br>
+                <span>{{ infrastructure_count }} Infrastructure • {{ physical_count }} Physical • {{ virtual_count }} Virtual</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="network-map-main">
+
+        <section class="network-map-panel port-mapper-panel">
+            <div class="map-panel-header">
+                <h2>ENTERPRISE DEVICE INVENTORY</h2>
+                <div id="portMapperStatus" class="smart-refresh-status">Live Refresh: Active</div>
+            </div>
+
+            <section class="stats-grid port-mapper-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Total Devices</div>
+                    <div class="stat-value blue"><span id="pmTotalDevices">{{ total_devices }}</span></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Infrastructure</div>
+                    <div class="stat-value blue"><span id="pmInfrastructureCount">{{ infrastructure_count }}</span></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Physical Devices</div>
+                    <div class="stat-value green"><span id="pmPhysicalCount">{{ physical_count }}</span></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Virtual Devices</div>
+                    <div class="stat-value orange"><span id="pmVirtualCount">{{ virtual_count }}</span></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Mapped Physical</div>
+                    <div class="stat-value green"><span id="pmMappedCount">{{ mapped_count }}</span></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Unmapped Physical</div>
+                    <div class="stat-value orange"><span id="pmUnmappedCount">{{ unmapped_count }}</span></div>
+                </div>
+            </section>
+
+            <form method="POST" action="/reset-all-port-mappings"
+                  onsubmit="return confirm('This will clear ALL switch port mappings. Devices will NOT be deleted. Continue?');"
+                  class="port-mapper-reset-form">
+                <button type="submit" class="small-remove-btn">⚠ Reset All Port Mappings</button>
+            </form>
+
+            <div class="info-box port-mapper-info">
+                Enterprise Inventory separates devices into Infrastructure, Physical Devices, and Virtual Devices.
+                Only Physical Devices are assigned to switch ports. Virtual Devices inherit their host's physical port.
+            </div>
+
+            <div id="device-management" class="enterprise-inventory-section">
+                <h2 class="enterprise-section-title">DEVICE MANAGEMENT</h2>
+
+                <div class="device-management-grid">
+                    <div class="device-management-card">
+                        <h3>✏️ Edit Device</h3>
+                        <form method="POST" action="/edit-device">
+                            <label>Select Device</label>
+                            <select name="old_name" required>
+                                {% for name, ip in all_devices.items() %}
+                                <option value="{{ name }}">{{ name }} - {{ ip }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label>New IP Address</label>
+                            <input type="text" name="new_ip" placeholder="192.168.0.x" required>
+
+                            <label>New Switch Port</label>
+                            <select name="new_port">
+                                <option value="">No switch port mapping</option>
+                                {% for index, label in managed_ports.items() %}
+                                <option value="{{ index }}">{{ label }} = {{ index }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <div class="inventory-warning-note">
+                                Device names are locked. Updating the port automatically syncs the topology link and Network Map.
+                            </div>
+
+                            <button type="submit" class="small-save-btn" style="margin-top:14px;">Update Device</button>
+                        </form>
+                    </div>
+
+                    <div class="device-management-card">
+                        <h3>🗑 Remove Device</h3>
+                        <form method="POST" action="/remove-device" onsubmit="return confirm('Remove this device from inventory, switch ports, and topology links?');">
+                            <label>Select Device</label>
+                            <select name="device_name" required>
+                                {% for name, ip in all_devices.items() %}
+                                <option value="{{ name }}">{{ name }} - {{ ip }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <div class="inventory-warning-note">
+                                Removing a device also removes its switch-port mapping and any topology links connected to it.
+                            </div>
+
+                            <button type="submit" class="small-remove-btn" style="margin-top:14px;">Remove Device</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="enterprise-inventory-section">
+                <h2 class="enterprise-section-title">INFRASTRUCTURE</h2>
+                <div class="enterprise-card-grid" id="infrastructureRows">
+                    {% for item in inventory_categories.infrastructure %}
+                    <div class="enterprise-inventory-card infrastructure-card">
+                        <div class="enterprise-card-icon">{{ item.icon }}</div>
+                        <div class="enterprise-card-name">{{ item.name }}</div>
+                        <div class="enterprise-card-ip">{{ item.ip }}</div>
+                        <div><span class="status {{ item.state }}">{{ item.state }}</span></div>
+                        {% if item.has_port %}
+                        <div class="enterprise-card-port">Physical Link: {{ item.port_label }}</div>
+                        {% else %}
+                        <div class="enterprise-card-port">Monitored Infrastructure</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="enterprise-rule-note">
+                    Infrastructure devices are monitored as core network components. They are not managed like normal endpoint devices.
+                </div>
+            </div>
+
+            <div class="enterprise-inventory-section">
+                <h2 class="enterprise-section-title">PHYSICAL DEVICES</h2>
+
+                <div class="port-mapper-table-wrap">
+                    <table class="port-mapper-table">
+                        <tr>
+                            <th>Device</th>
+                            <th>IP Address</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Current Port</th>
+                            <th>Assign / Change Port</th>
+                            <th>Action</th>
+                        </tr>
+
+                        <tbody id="physicalRows">
+                        {% for item in inventory_categories.physical %}
+                        <tr class="{% if not item.has_port %}unmapped-device-row{% endif %}">
+                            <td><strong>{{ item.icon }} {{ item.name }}</strong></td>
+                            <td>{{ item.ip }}</td>
+                            <td>{{ item.type }}</td>
+                            <td><span class="status {{ item.state }}">{{ item.state }}</span></td>
+                            <td>
+                                {% if item.has_port %}
+                                    <span class="mapped-port-pill">{{ item.port_label }}</span>
+                                    <div class="port-index-small">{{ item.port_index }}</div>
+                                {% else %}
+                                    <span class="unmapped-port-pill">No mapped switch port</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <select id="port-select-{{ loop.index }}" class="port-select" data-device-name="{{ item.name }}">
+                                    <option value="">Choose port...</option>
+                                    {% for index, label in selectable_ports.items() %}
+                                        {% set used_by = switch_ports.get(index, "") %}
+                                        <option value="{{ index }}"
+                                            {% if item.port_index == index %}selected{% endif %}>
+                                            {{ label }} = {{ index }}
+                                            {% if used_by and used_by != item.name %}
+                                                — currently {{ used_by }}
+                                            {% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <button type="button" class="small-save-btn" onclick="savePortMapping('{{ item.name|replace("'", "\'") }}', 'port-select-{{ loop.index }}')">Save</button>
+
+                                {% if item.has_port %}
+                                <button type="button" class="small-remove-btn" onclick="removePortMapping('{{ item.name|replace("'", "\'") }}')">Remove</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="enterprise-rule-note">
+                    Physical devices consume Cisco switch ports and can be assigned, changed, or removed from this table.
+                </div>
+            </div>
+
+            <div class="enterprise-inventory-section">
+                <h2 class="enterprise-section-title">VIRTUAL DEVICES</h2>
+
+                <div class="port-mapper-table-wrap">
+                    <table class="port-mapper-table relationship-table">
+                        <tr>
+                            <th>Device</th>
+                            <th>IP Address</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Hosted By</th>
+                            <th>Inherited Physical Port</th>
+                        </tr>
+
+                        <tbody id="virtualRows">
+                        {% for item in inventory_categories.virtual %}
+                        <tr>
+                            <td><strong>{{ item.icon }} {{ item.name }}</strong></td>
+                            <td>{{ item.ip }}</td>
+                            <td>{{ item.type }}</td>
+                            <td><span class="status {{ item.state }}">{{ item.state }}</span></td>
+                            <td>{{ item.parent }}<br><small>{{ item.relationship }}</small></td>
+                            <td>
+                                <span class="mapped-port-pill">{{ item.parent_port_label }}</span>
+                                {% if item.parent_port_index %}
+                                <div class="port-index-small">{{ item.parent_port_index }}</div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="enterprise-rule-note">
+                    Virtual devices do not consume their own switch ports. They inherit connectivity from the physical host.
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <aside class="network-map-right-sidebar">
+
+        <section class="map-details-card">
+            <h2>ENTERPRISE RULES</h2>
+            <div class="selected-device-card">
+                <p><strong>Infrastructure:</strong> Core monitored network components.</p>
+                <p><strong>Physical Devices:</strong> Devices that consume switch ports.</p>
+                <p><strong>Virtual Devices:</strong> Hosted systems that inherit their parent port.</p>
+            </div>
+        </section>
+
+        <section class="map-details-card">
+            <h2>LOCKED INVENTORY</h2>
+            <div class="selected-device-card">
+                <div class="selected-detail-row"><span>Infrastructure</span><strong>{{ infrastructure_count }}</strong></div>
+                <div class="selected-detail-row"><span>Physical Devices</span><strong>{{ physical_count }}</strong></div>
+                <div class="selected-detail-row"><span>Virtual Devices</span><strong>{{ virtual_count }}</strong></div>
+            </div>
+        </section>
+
+        <section class="map-details-card">
+            <h2>NEXT STEP</h2>
+            <div class="map-control-grid">
+                <button type="button" onclick="location.href='/network-map'">🗺 View Map</button>
+                <button type="button" onclick="location.href='/'">🏠 Dashboard</button>
+            </div>
+        </section>
+
+    </aside>
+
+</div>
+
+<footer class="footer-bar">
+    On Watch Network Monitor Dashboard &nbsp; | &nbsp; Enterprise Device Inventory
+</footer>
+
+<script>
+function updateMapClock() {
+    const now = new Date();
+
+    const clock = document.getElementById("mapClock");
+    const date = document.getElementById("mapDate");
+
+    if (clock) clock.textContent = now.toLocaleTimeString();
+    if (date) date.textContent = now.toLocaleDateString();
+}
+
+updateMapClock();
+setInterval(updateMapClock, 1000);
+</script>
+
+<script>
+(function () {
+    const REFRESH_SECONDS = 15;
+
+    function esc(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function isFormActive() {
+        const active = document.activeElement;
+        return active && ["INPUT", "SELECT", "TEXTAREA"].includes(active.tagName);
+    }
+
+    function showMapperStatus(message, isError=false) {
+        const status = document.getElementById("portMapperStatus");
+        if (status) {
+            status.textContent = message;
+            status.classList.toggle("paused", !!isError);
+        }
+    }
+
+    function buildPortOptions(item, selectablePorts, switchPorts) {
+        let html = '<option value="">Choose port...</option>';
+
+        Object.entries(selectablePorts).forEach(([index, label]) => {
+            const usedBy = switchPorts[index] || "";
+            const selected = item.port_index === index ? "selected" : "";
+            const usedText = usedBy && usedBy !== item.name ? " — currently " + esc(usedBy) : "";
+            html += `<option value="${esc(index)}" ${selected}>${esc(label)} = ${esc(index)}${usedText}</option>`;
+        });
+
+        return html;
+    }
+
+    function buildInfrastructureCard(item) {
+        const portText = item.has_port ? `Physical Link: ${esc(item.port_label)}` : "Monitored Infrastructure";
+
+        return `
+            <div class="enterprise-inventory-card infrastructure-card">
+                <div class="enterprise-card-icon">${esc(item.icon)}</div>
+                <div class="enterprise-card-name">${esc(item.name)}</div>
+                <div class="enterprise-card-ip">${esc(item.ip)}</div>
+                <div><span class="status ${esc(item.state)}">${esc(item.state)}</span></div>
+                <div class="enterprise-card-port">${portText}</div>
+            </div>
+        `;
+    }
+
+    function buildPhysicalRow(item, selectablePorts, switchPorts, rowIndex) {
+        const rowClass = item.has_port ? "" : "unmapped-device-row";
+        const selectId = "port-select-live-" + rowIndex;
+
+        const currentPort = item.has_port
+            ? `<span class="mapped-port-pill">${esc(item.port_label)}</span><div class="port-index-small">${esc(item.port_index)}</div>`
+            : `<span class="unmapped-port-pill">No mapped switch port</span>`;
+
+        const removeButton = item.has_port
+            ? `<button type="button" class="small-remove-btn" onclick="removePortMapping('${esc(item.name)}')">Remove</button>`
+            : "";
+
+        return `
+            <tr class="${rowClass}">
+                <td><strong>${esc(item.icon)} ${esc(item.name)}</strong></td>
+                <td>${esc(item.ip)}</td>
+                <td>${esc(item.type)}</td>
+                <td><span class="status ${esc(item.state)}">${esc(item.state)}</span></td>
+                <td>${currentPort}</td>
+                <td>
+                    <select id="${selectId}" class="port-select" data-device-name="${esc(item.name)}">
+                        ${buildPortOptions(item, selectablePorts, switchPorts)}
+                    </select>
+                </td>
+                <td>
+                    <button type="button" class="small-save-btn" onclick="savePortMapping('${esc(item.name)}', '${selectId}')">Save</button>
+                    ${removeButton}
+                </td>
+            </tr>
+        `;
+    }
+
+    function buildVirtualRow(item) {
+        return `
+            <tr>
+                <td><strong>${esc(item.icon)} ${esc(item.name)}</strong></td>
+                <td>${esc(item.ip)}</td>
+                <td>${esc(item.type)}</td>
+                <td><span class="status ${esc(item.state)}">${esc(item.state)}</span></td>
+                <td>${esc(item.parent)}<br><small>${esc(item.relationship)}</small></td>
+                <td>
+                    <span class="mapped-port-pill">${esc(item.parent_port_label)}</span>
+                    ${item.parent_port_index ? `<div class="port-index-small">${esc(item.parent_port_index)}</div>` : ""}
+                </td>
+            </tr>
+        `;
+    }
+
+    function renderEnterpriseInventory(data) {
+        const categories = data.inventory_categories || {};
+        const infrastructure = categories.infrastructure || [];
+        const physical = categories.physical || [];
+        const virtual = categories.virtual || [];
+
+        const infrastructureRows = document.getElementById("infrastructureRows");
+        const physicalRows = document.getElementById("physicalRows");
+        const virtualRows = document.getElementById("virtualRows");
+
+        if (infrastructureRows) infrastructureRows.innerHTML = infrastructure.map(buildInfrastructureCard).join("");
+
+        if (physicalRows) {
+            physicalRows.innerHTML = physical.map((item, index) =>
+                buildPhysicalRow(item, data.selectable_ports || {}, data.switch_ports || {}, index)
+            ).join("");
+        }
+
+        if (virtualRows) virtualRows.innerHTML = virtual.map(buildVirtualRow).join("");
+
+        const total = document.getElementById("pmTotalDevices");
+        const infrastructureCount = document.getElementById("pmInfrastructureCount");
+        const physicalCount = document.getElementById("pmPhysicalCount");
+        const virtualCount = document.getElementById("pmVirtualCount");
+        const mapped = document.getElementById("pmMappedCount");
+        const unmapped = document.getElementById("pmUnmappedCount");
+
+        if (total) total.textContent = data.total_devices ?? 0;
+        if (infrastructureCount) infrastructureCount.textContent = data.infrastructure_count ?? infrastructure.length;
+        if (physicalCount) physicalCount.textContent = data.physical_count ?? physical.length;
+        if (virtualCount) virtualCount.textContent = data.virtual_count ?? virtual.length;
+        if (mapped) mapped.textContent = data.mapped_count ?? 0;
+        if (unmapped) unmapped.textContent = data.unmapped_count ?? 0;
+    }
+
+    async function refreshPortMapper(force=false) {
+        if (!force && isFormActive()) {
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/port-mapper-data", { cache: "no-store" });
+            if (!response.ok) throw new Error("Enterprise Inventory API failed");
+
+            const data = await response.json();
+            renderEnterpriseInventory(data);
+            showMapperStatus("Live Refresh: Active");
+        } catch (error) {
+            showMapperStatus("Live Refresh: Error", true);
+        }
+    }
+
+    window.savePortMapping = async function(deviceName, selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) {
+            alert("Port selector not found.");
+            return;
+        }
+
+        const switchPort = select.value;
+        if (!switchPort) {
+            alert("Please choose a switch port first.");
+            return;
+        }
+
+        showMapperStatus("Saving...");
+
+        try {
+            const response = await fetch("/api/assign-device-port", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    device_name: deviceName,
+                    switch_port: switchPort
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Save failed");
+            }
+
+            showMapperStatus("Saved");
+            await refreshPortMapper(true);
+        } catch (error) {
+            alert("Save failed: " + error.message);
+            showMapperStatus("Save Error", true);
+        }
+    };
+
+    window.removePortMapping = async function(deviceName) {
+        if (!confirm("Remove switch port mapping for " + deviceName + "?")) {
+            return;
+        }
+
+        showMapperStatus("Removing...");
+
+        try {
+            const response = await fetch("/api/remove-device-port", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    device_name: deviceName
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Remove failed");
+            }
+
+            showMapperStatus("Removed");
+            await refreshPortMapper(true);
+        } catch (error) {
+            alert("Remove failed: " + error.message);
+            showMapperStatus("Remove Error", true);
+        }
+    };
+
+    setInterval(() => refreshPortMapper(false), REFRESH_SECONDS * 1000);
+})();
+</script>
+
+</body>
+</html>

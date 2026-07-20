@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Backup & Restore Center | On Watch Network Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        /* ======================================================
+           PHASE 12C - ONE-CLICK RESTORE CENTER DASHBOARD
+        ====================================================== */
+
+        .restore-center-hero {
+            border: 2px solid #32a5ff;
+            background:
+                radial-gradient(circle at top left, rgba(50,165,255,.18), transparent 40%),
+                linear-gradient(135deg, #081220, #0b1829);
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 14px;
+            box-shadow: 0 0 22px rgba(50,165,255,.16);
+        }
+
+        .restore-center-hero h2 {
+            margin: 0 0 8px;
+            color: #7fd0ff;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+
+        .restore-center-hero p {
+            color: #d8ecff;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+
+        .restore-safety-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .restore-safety-item {
+            background: rgba(5, 14, 26, .9);
+            border: 1px solid rgba(50,165,255,.45);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .restore-safety-item strong {
+            display: block;
+            color: #ffffff;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .restore-safety-item span {
+            display: block;
+            color: #9ccfff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .restore-warning-panel {
+            border: 2px solid #ffb000;
+            background: linear-gradient(135deg, rgba(255,176,0,.13), rgba(8,18,32,.94));
+            box-shadow: 0 0 18px rgba(255,176,0,.14);
+        }
+
+        .restore-danger-panel {
+            border: 2px solid #ff5555;
+            background: linear-gradient(135deg, rgba(255,0,0,.12), rgba(8,18,32,.94));
+            box-shadow: 0 0 18px rgba(255,0,0,.16);
+        }
+
+        .backup-restore-table td {
+            vertical-align: middle;
+        }
+
+        .backup-file-name {
+            color: #ffffff;
+            font-weight: 900;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        .backup-file-meta {
+            display: block;
+            color: #9fb3c8;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .restore-select-btn,
+        .restore-confirm-btn,
+        .restore-cancel-btn {
+            border: none;
+            border-radius: 9px;
+            color: white;
+            cursor: pointer;
+            font-weight: 900;
+            padding: 10px 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .restore-select-btn {
+            background: #ff8a00;
+            margin-left: 6px;
+        }
+
+        .restore-select-btn:hover,
+        .restore-confirm-btn:hover,
+        .restore-cancel-btn:hover {
+            filter: brightness(1.15);
+        }
+
+        .restore-confirm-btn {
+            background: #b80000;
+        }
+
+        .restore-confirm-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: .7;
+        }
+
+        .restore-cancel-btn {
+            background: #555;
+        }
+
+        .restore-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .restore-modal-overlay.active {
+            display: flex;
+        }
+
+        .restore-modal-card {
+            width: min(720px, 96vw);
+            background: linear-gradient(180deg, #0b1829, #06111f);
+            border: 2px solid #ff5555;
+            border-radius: 18px;
+            box-shadow: 0 0 34px rgba(255,0,0,.28);
+            padding: 24px;
+        }
+
+        .restore-modal-icon {
+            font-size: 46px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .restore-modal-card h2 {
+            color: #ffb000;
+            margin: 0 0 10px;
+            text-align: center;
+        }
+
+        .restore-selected-file {
+            background: #081220;
+            border: 1px solid #244569;
+            border-radius: 12px;
+            color: #ffffff;
+            font-weight: 900;
+            padding: 14px;
+            word-break: break-word;
+            margin: 14px 0;
+            text-align: center;
+        }
+
+        .restore-confirm-text {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            border: 1px solid #ffb000;
+            background: #f7fbff;
+            color: #001b44;
+            font-size: 16px;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .restore-checkbox-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(255,176,0,.08);
+            border: 1px solid rgba(255,176,0,.55);
+            border-radius: 12px;
+            color: #ffd98a;
+            padding: 12px;
+            margin: 14px 0;
+            line-height: 1.4;
+        }
+
+        .restore-checkbox-row input {
+            margin-top: 4px;
+            transform: scale(1.25);
+        }
+
+        .restore-modal-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .restore-history-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .restore-history-card {
+            background: #081220;
+            border: 1px solid #244569;
+            border-left: 5px solid #32a5ff;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .restore-history-card.success {
+            border-left-color: #00ff77;
+        }
+
+        .restore-history-card.failed {
+            border-left-color: #ff5555;
+        }
+
+        .restore-history-card strong {
+            display: block;
+            color: #ffffff;
+            margin-bottom: 6px;
+            word-break: break-word;
+        }
+
+        .restore-history-card span,
+        .restore-history-card small {
+            display: block;
+            color: #9fb3c8;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .restore-status-pill {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .restore-status-pill.success {
+            color: #06111f;
+            background: #00ff77;
+        }
+
+        .restore-status-pill.failed {
+            color: #ffffff;
+            background: #b80000;
+        }
+
+        @media (max-width: 1000px) {
+            .restore-safety-strip,
+            .restore-history-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .restore-modal-actions {
+                display: block;
+            }
+
+            .restore-modal-actions button {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="topology-wrapper">
+    <div class="topology-title">Network Topology</div>
+
+    <div class="topology-row">
+        <div class="topology-node">
+            <div class="topology-icon">🌎</div>
+            <div>Internet</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">📡</div>
+            <div>Cox Modem</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">🛜</div>
+            <div>Cisco Router</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">🔌</div>
+            <div>Cisco Switch</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">💻</div>
+            <div>Endpoints</div>
+        </div>
+    </div>
+</div>
+
+<header class="main-header">
+    <h1>BACKUP & RESTORE CENTER</h1>
+    <div class="subtitle">Protect • Backup • Restore • Recover</div>
+</header>
+
+<div class="main-layout no-right-sidebar">
+
+    <aside class="left-sidebar">
+        <div class="side-title">🏠 Home Network Monitor</div>
+
+        <div class="time-card">
+            <div class="time-icon">🕒</div>
+            <div>{{ last_full_scan }}</div>
+        </div>
+
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/network-map" class="side-nav">🗺 Network Map</a>
+        <a href="/port-mapper" class="side-nav">🔗 Port Mapper</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+        <a href="/internet-history" class="side-nav">🌐 Internet History</a>
+        <a href="/backup-center" class="side-nav active">🗄 Backup Center</a>
+        <a href="/remote-restore" class="side-nav">🚀 Remote Restore</a>
+        <a href="/reset-center" class="side-nav">🔄 Reset Center</a>
+
+        <div class="system-state good-state">🛡<br>Restore Ready</div>
+    </aside>
+
+    <main class="dashboard-content">
+
+        <section class="stats-grid backup-summary-grid">
+            <div class="stat-card">
+                <div class="stat-label">Backup Files</div>
+                <div class="stat-value blue">{{ backup_count }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Backup Location</div>
+                <div class="stat-value green" style="font-size:18px;">~/backups</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Restore Center</div>
+                <div class="stat-value orange" style="font-size:24px;">Phase 12C</div>
+            </div>
+        </section>
+
+        <section class="restore-center-hero">
+            <h2>🛡 Phase 12C – One-Click Restore Center</h2>
+            <p>
+                Restore Center allows On Watch to recover from a previous full backup directly from the web interface.
+                Before any restore is performed, On Watch automatically creates an emergency backup of the current system.
+            </p>
+
+            <div class="restore-safety-strip">
+                <div class="restore-safety-item">
+                    <strong>1. Select Backup</strong>
+                    <span>Choose a restore point</span>
+                </div>
+
+                <div class="restore-safety-item">
+                    <strong>2. Confirm Restore</strong>
+                    <span>Type RESTORE to continue</span>
+                </div>
+
+                <div class="restore-safety-item">
+                    <strong>3. Emergency Backup</strong>
+                    <span>Current system is protected first</span>
+                </div>
+
+                <div class="restore-safety-item">
+                    <strong>4. Restart On Watch</strong>
+                    <span>Service restarts after restore</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel backup-create-panel">
+            <div class="panel-header">
+                <h2>Create Full Monitor Backup</h2>
+            </div>
+
+            <form method="POST" action="/create-monitor-backup" class="backup-form"
+                  onsubmit="return confirm('Create a new full On Watch backup now?');">
+
+                <label>Version / Phase Label</label>
+                <input type="text" name="version_label" value="phase12c" placeholder="Example: phase12c" required>
+
+                <label>Description Label</label>
+                <input type="text" name="description_label" value="restore-ready" placeholder="Example: restore-ready" required>
+
+                <div class="backup-name-preview">
+                    Backup filename format:
+                    <strong>network-monitor-YYYYMMDD-phase12c-restore-ready.tar.gz</strong>
+                </div>
+
+                <button type="submit" class="backup-create-btn">
+                    Create Full Monitor Backup
+                </button>
+            </form>
+        </section>
+
+        <section class="panel restore-warning-panel">
+            <h2>⚠ Restore Safety Notice</h2>
+            <p>
+                Restoring a backup replaces the current On Watch project files with the selected backup contents.
+                The restore process should only be used when you intentionally want to return to a previous known-good version.
+            </p>
+            <p class="warning-text">
+                A pre-restore emergency backup is created automatically before the restore runs.
+            </p>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Available Restore Points</h2>
+                <a href="/" class="small-view-alerts-btn">Back To Dashboard</a>
+            </div>
+
+            <table class="backup-restore-table">
+                <tr>
+                    <th>Backup File</th>
+                    <th>Size</th>
+                    <th>Modified</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% if backups %}
+                    {% for backup in backups %}
+                    <tr>
+                        <td class="backup-file-name">
+                            {{ backup.filename }}
+                            <span class="backup-file-meta">Restore point available</span>
+                        </td>
+                        <td>{{ backup.size_mb }} MB</td>
+                        <td>{{ backup.modified }}</td>
+                        <td>
+                            <a href="/download-backup/{{ backup.filename }}" class="backup-download-btn">⬇ Download</a>
+
+                            <button
+                                type="button"
+                                class="restore-select-btn"
+                                onclick="return openRestoreModal('{{ backup.filename }}');"
+                            >
+                                ♻ Restore
+                            </button>
+
+                            <form method="POST" action="/delete-backup/{{ backup.filename }}" class="inline-delete-form"
+                                  onsubmit="return confirm('Delete this backup file? This cannot be undone.');">
+                                <button type="submit" class="backup-delete-btn">🗑 Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4">No backups found yet.</td>
+                    </tr>
+                {% endif %}
+            </table>
+        </section>
+
+        <section class="panel">
+            <h2>Restore History</h2>
+
+            {% if restore_history %}
+            <div class="restore-history-grid">
+                {% for item in restore_history[:6] %}
+                <div class="restore-history-card {% if item.status == 'SUCCESS' %}success{% else %}failed{% endif %}">
+                    <span class="restore-status-pill {% if item.status == 'SUCCESS' %}success{% else %}failed{% endif %}">
+                        {{ item.status }}
+                    </span>
+                    <strong>{{ item.restored_backup }}</strong>
+                    <span>Time: {{ item.time }}</span>
+                    <span>Emergency Backup: {{ item.emergency_backup }}</span>
+                    <small>{{ item.message }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="warning-text">No restore history found yet.</p>
+            {% endif %}
+        </section>
+
+        <section class="panel">
+            <h2>What This Backup Includes</h2>
+            <table>
+                <tr>
+                    <th>Included Area</th>
+                    <th>Examples</th>
+                </tr>
+                <tr><td>Application Code</td><td>app.py</td></tr>
+                <tr><td>Templates</td><td>dashboard.html, alerts.html, knowledge_base.html, reset_center.html, backup_center.html</td></tr>
+                <tr><td>Static Files</td><td>style.css and other static assets</td></tr>
+                <tr><td>Configuration</td><td>config.json</td></tr>
+                <tr><td>Data Files</td><td>alerts.json, uptime_stats.json, internet_uptime_history.json, knowledge_base.json</td></tr>
+                <tr><td>Logs</td><td>events.log</td></tr>
+            </table>
+        </section>
+
+    </main>
+</div>
+
+<div id="restoreModal" class="restore-modal-overlay">
+    <div class="restore-modal-card">
+        <div class="restore-modal-icon">⚠</div>
+        <h2>Confirm Restore</h2>
+
+        <p>
+            You are about to restore the following On Watch backup. This will replace the current running project files.
+            An emergency backup will be created automatically before the restore starts.
+        </p>
+
+        <div id="restoreSelectedFile" class="restore-selected-file">
+            No backup selected
+        </div>
+
+        <form id="restoreConfirmForm" method="POST" action="">
+            <label>Type RESTORE to confirm</label>
+            <input
+                id="restoreConfirmInput"
+                class="restore-confirm-text"
+                type="text"
+                name="confirm_restore"
+                placeholder="RESTORE"
+                autocomplete="off"
+                oninput="return validateRestoreConfirmation();"
+            >
+
+            <label class="restore-checkbox-row">
+                <input
+                    id="restoreSafetyCheck"
+                    type="checkbox"
+                    onchange="return validateRestoreConfirmation();"
+                >
+                <span>
+                    I understand this will restore the selected backup and restart On Watch.
+                    I also understand an emergency backup will be created first.
+                </span>
+            </label>
+
+            <div class="restore-modal-actions">
+                <button type="button" class="restore-cancel-btn" onclick="return closeRestoreModal();">
+                    Cancel
+                </button>
+
+                <button id="restoreConfirmButton" type="submit" class="restore-confirm-btn" disabled>
+                    Restore Selected Backup
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer class="footer-bar">
+    On Watch Network Monitor • Backup & Restore Center • Phase 12C
+</footer>
+
+<script>
+    function openRestoreModal(filename) {
+        const modal = document.getElementById('restoreModal');
+        const selectedFile = document.getElementById('restoreSelectedFile');
+        const form = document.getElementById('restoreConfirmForm');
+        const input = document.getElementById('restoreConfirmInput');
+        const checkbox = document.getElementById('restoreSafetyCheck');
+        const button = document.getElementById('restoreConfirmButton');
+
+        selectedFile.textContent = filename;
+        form.action = '/restore-backup/' + encodeURIComponent(filename);
+        input.value = '';
+        checkbox.checked = false;
+        button.disabled = true;
+        button.textContent = 'Restore Selected Backup';
+
+        modal.classList.add('active');
+        setTimeout(function() {
+            input.focus();
+        }, 100);
+
+        return false;
+    }
+
+    function closeRestoreModal() {
+        const modal = document.getElementById('restoreModal');
+        modal.classList.remove('active');
+        return false;
+    }
+
+    function validateRestoreConfirmation() {
+        const input = document.getElementById('restoreConfirmInput');
+        const checkbox = document.getElementById('restoreSafetyCheck');
+        const button = document.getElementById('restoreConfirmButton');
+
+        const valid = input.value.trim().toUpperCase() === 'RESTORE' && checkbox.checked;
+        button.disabled = !valid;
+
+        return true;
+    }
+
+    document.getElementById('restoreConfirmForm').addEventListener('submit', function(event) {
+        const button = document.getElementById('restoreConfirmButton');
+        const selectedFile = document.getElementById('restoreSelectedFile').textContent;
+
+        const finalConfirm = confirm(
+            'FINAL CONFIRMATION:\n\nRestore this backup?\n\n' +
+            selectedFile +
+            '\n\nOn Watch will create an emergency backup first, then restore and restart.'
+        );
+
+        if (!finalConfirm) {
+            event.preventDefault();
+            return false;
+        }
+
+        button.disabled = true;
+        button.textContent = 'Restoring Backup...';
+        return true;
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeRestoreModal();
+        }
+    });
+</script>
+
+</body>
+</html>

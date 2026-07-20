@@ -1,5 +1,39 @@
+####################################################
+# OnWatch Network Monitor
+####################################################
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+*.so
+
+# Virtual environments
 .venv/
 venv/
-__pycache__/
-*.pyc
+
+# Logs
 logs/
+*.log
+
+# Backup files
+backups/
+*.bak
+*.backup*
+*.broken
+*.before-*
+
+# macOS
+.DS_Store
+
+# VS Code settings
+.vscode/
+
+# Environment files
+.env
+.env.*
+
+# Runtime topology cache
+topology.json

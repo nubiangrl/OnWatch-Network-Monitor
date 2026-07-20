@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Reset Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="topology-wrapper">
+    <div class="topology-title">Network Topology</div>
+
+    <div class="topology-row">
+        <div class="topology-node">
+            <div class="topology-icon">🌎</div>
+            <div>Internet</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">📡</div>
+            <div>Cox Modem</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">🛜</div>
+            <div>Cisco Router</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">🔌</div>
+            <div>Cisco Switch</div>
+        </div>
+
+        <div class="topology-arrow">➜</div>
+
+        <div class="topology-node">
+            <div class="topology-icon">💻</div>
+            <div>Endpoints</div>
+        </div>
+    </div>
+</div>
+
+<header class="main-header">
+    <h1>SYSTEM RESET CENTER</h1>
+    <div class="subtitle">
+        Maintenance Tools • Reset Testing Data • Clear Logs
+    </div>
+</header>
+
+<div class="main-layout no-right-sidebar">
+
+    <aside class="left-sidebar">
+
+        <div class="side-title">🏠 Home Network Monitor</div>
+
+        <div class="time-card">
+            <div class="time-icon">🕒</div>
+            <div>{{ last_full_scan }}</div>
+        </div>
+
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+        <a href="/reset-center" class="side-nav active">🔄 Reset Center</a>
+        <a href="/internet-history" class="side-nav">🌐 Internet History</a>
+
+        <div class="system-state good-state">
+            ⚙️<br>Maintenance Mode
+        </div>
+
+    </aside>
+
+    <main class="dashboard-content">
+
+        <section class="panel reset-warning-panel">
+            <h2>⚠ System Reset Center</h2>
+            <p>
+                Use this page to clear testing data and reset monitor history. These actions cannot be undone.
+                Only use these options when you are sure you want to clear the selected data.
+            </p>
+        </section>
+
+        <section class="stats-grid reset-stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-label">Internet Uptime Started</div>
+                <div class="stat-value blue" style="font-size:18px;">
+                    {{ uptime_stats.monitor_started if uptime_stats.monitor_started else "Not Set" }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Internet Outages</div>
+                <div class="stat-value orange">{{ uptime_stats.total_outages }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Today's Internet Outages</div>
+                <div class="stat-value orange">{{ uptime_stats.today_outages }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Resolved Alerts</div>
+                <div class="stat-value blue">{{ resolved_alert_count }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Alert Counter</div>
+                <div class="stat-value red">{{ total_alerts }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Knowledge Notes</div>
+                <div class="stat-value green">{{ knowledge_note_count }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Internet Availability</div>
+                <div class="stat-value green">{{ availability_report.total_availability }}</div>
+            </div>
+
+        </section>
+
+        <section class="reset-center-grid">
+
+            <div class="reset-card">
+                <h2>🌐 Reset Internet Uptime Stats</h2>
+                <p>
+                    Resets Internet uptime, today's Internet outages, longest Internet outage,
+                    last Internet outage, total outages, total recoveries, and accumulated downtime.
+                </p>
+
+                <form method="POST" action="/reset-internet-uptime"
+                      onsubmit="return confirm('Reset Internet uptime statistics? This cannot be undone.');">
+                    <button type="submit" class="reset-action-btn">
+                        Reset Internet Uptime Stats
+                    </button>
+                </form>
+            </div>
+
+
+            <div class="reset-card">
+                <h2>📈 Reset Internet Availability Reporting</h2>
+                <p>
+                    Resets Internet availability reporting back to a clean baseline. This clears Internet uptime stats
+                    and Internet outage history together so availability starts fresh from the current time.
+                </p>
+
+                <form method="POST" action="/reset-internet-availability"
+                      onsubmit="return confirm('Reset Internet availability reporting, uptime stats, and Internet history? This cannot be undone.');">
+                    <button type="submit" class="reset-action-btn">
+                        Reset Availability Reporting
+                    </button>
+                </form>
+            </div>
+
+            <div class="reset-card">
+                <h2>📜 Clear Event Log</h2>
+                <p>
+                    Clears the Recent Event Log file. This removes the displayed system events from the log history.
+                </p>
+
+                <form method="POST" action="/reset-event-log"
+                      onsubmit="return confirm('Clear the Event Log? This cannot be undone.');">
+                    <button type="submit" class="reset-action-btn">
+                        Clear Event Log
+                    </button>
+                </form>
+            </div>
+
+            <div class="reset-card">
+                <h2>🔌 Clear Cisco Events</h2>
+                <p>
+                    Clears the Cisco syslog events file. This removes the current Cisco event history from the dashboard.
+                </p>
+
+                <form method="POST" action="/reset-cisco-events"
+                      onsubmit="return confirm('Clear Cisco Events? This cannot be undone.');">
+                    <button type="submit" class="reset-action-btn">
+                        Clear Cisco Events
+                    </button>
+                </form>
+            </div>
+
+            <div class="reset-card">
+                <h2>⚠ Clear Resolved Alerts</h2>
+                <p>
+                    Clears resolved alert history only. Active alerts will remain in place and will not be removed.
+                </p>
+
+                <form method="POST" action="/reset-resolved-alerts"
+                      onsubmit="return confirm('Clear resolved alerts? Active alerts will remain.');">
+                    <button type="submit" class="reset-action-btn">
+                        Clear Resolved Alerts
+                    </button>
+                </form>
+            </div>
+
+            <div class="reset-card">
+                <h2>📊 Reset Total Alert Counters</h2>
+                <p>
+                    Resets the dashboard Total Alerts and Total Recoveries counters back to zero.
+                    This does not remove active alerts or alert history.
+                </p>
+
+                <form method="POST" action="/reset-alert-counters"
+                      onsubmit="return confirm('Reset Total Alert and Recovery counters? This cannot be undone.');">
+                    <button type="submit" class="reset-action-btn">
+                        Reset Alert Counters
+                    </button>
+                </form>
+            </div>
+
+            <div class="reset-card">
+                <h2>🚨 Reset All Alert History</h2>
+                <p>
+                    Clears both active and resolved alert history. Current problems may reappear on the next scan
+                    if the device or link is still down.
+                </p>
+
+                <form method="POST" action="/reset-all-alert-history"
+                      onsubmit="return confirm('Clear ALL active and resolved alert history? Current problems may reappear on the next scan.');">
+                    <button type="submit" class="reset-action-btn">
+                        Reset Active + Resolved Alerts
+                    </button>
+                </form>
+            </div>
+
+            <div class="reset-card">
+                <h2>📚 Reset Knowledge Base Notes</h2>
+                <p>
+                    Deletes all Knowledge Base notes. This is useful only when you want to clear test notes or start over.
+                </p>
+
+                <form method="POST" action="/reset-knowledge-base"
+                      onsubmit="return confirm('Delete ALL Knowledge Base notes? This cannot be undone.');">
+                    <button type="submit" class="reset-action-btn">
+                        Reset Knowledge Base Notes
+                    </button>
+                </form>
+            </div>
+
+            <div class="reset-card">
+                <h2>🔊 Reset Voice Alert Settings</h2>
+                <p>
+                    Clears browser voice alert settings stored in this browser. This resets Voice Alerts back to OFF
+                    until you enable them again.
+                </p>
+
+                <button type="button" class="reset-action-btn"
+                        onclick="resetVoiceAlertSettings();">
+                    Reset Voice Alert Settings
+                </button>
+            </div>
+
+            <div class="reset-card">
+                <h2>📲 Reset Notification Settings</h2>
+                <p>
+                    Resets SMS/email notification settings to safe defaults and disables SMS alerts.
+                    You will need to re-enter notification details if you use this.
+                </p>
+
+                <form method="POST" action="/reset-notification-settings"
+                      onsubmit="return confirm('Reset SMS/email notification settings and disable SMS alerts? This cannot be undone.');">
+                    <button type="submit" class="reset-action-btn">
+                        Reset Notification Settings
+                    </button>
+                </form>
+            </div>
+
+
+            <div class="reset-card">
+                <h2>🌐 Clear Internet Uptime History</h2>
+                <p>
+                    Clears the detailed Internet outage history log. This does not reset the current Internet uptime cards
+                    unless you also use Reset Internet Uptime Stats.
+                </p>
+
+                <form method="POST" action="/reset-internet-history"
+                      onsubmit="return confirm('Clear Internet Uptime History? This cannot be undone.');">
+                    <button type="submit" class="reset-action-btn">
+                        Clear Internet Uptime History
+                    </button>
+                </form>
+            </div>
+
+        </section>
+
+        <section class="panel">
+            <h2>Reset Notes</h2>
+            <table>
+                <tr>
+                    <th>Reset Option</th>
+                    <th>What It Clears</th>
+                    <th>What It Keeps</th>
+                </tr>
+
+                <tr>
+                    <td>Internet Uptime Stats</td>
+                    <td>Internet uptime counters and outage history</td>
+                    <td>Device list, alerts, logs, Cisco events</td>
+                </tr>
+
+                <tr>
+                    <td>Event Log</td>
+                    <td>Recent Event Log entries</td>
+                    <td>Internet uptime stats, alerts, devices</td>
+                </tr>
+
+                <tr>
+                    <td>Cisco Events</td>
+                    <td>Cisco syslog event history</td>
+                    <td>Event log, alerts, uptime stats</td>
+                </tr>
+
+                <tr>
+                    <td>Resolved Alerts</td>
+                    <td>Resolved alert history</td>
+                    <td>Active alerts</td>
+                </tr>
+                <tr>
+                    <td>Total Alert Counters</td>
+                    <td>Total Alerts and Total Recoveries counters</td>
+                    <td>Alert history and active alerts</td>
+                </tr>
+
+                <tr>
+                    <td>All Alert History</td>
+                    <td>Active and resolved alert history</td>
+                    <td>Devices, logs, uptime stats</td>
+                </tr>
+
+                <tr>
+                    <td>Knowledge Base Notes</td>
+                    <td>All saved Knowledge Base notes</td>
+                    <td>Devices, logs, alerts, uptime stats</td>
+                </tr>
+
+                <tr>
+                    <td>Voice Alert Settings</td>
+                    <td>Browser voice alert local settings</td>
+                    <td>Server configuration and alert history</td>
+                </tr>
+
+                <tr>
+                    <td>Notification Settings</td>
+                    <td>SMS/email notification configuration</td>
+                    <td>Alert history, uptime stats, event logs</td>
+                </tr>
+
+                <tr>
+                    <td>Internet Uptime History</td>
+                    <td>Detailed Internet outage start, recovery, duration, and target history</td>
+                    <td>Current uptime counters unless reset separately</td>
+                </tr>
+                <tr>
+                    <td>Internet Availability Reporting</td>
+                    <td>Internet uptime stats, downtime totals, and Internet outage history</td>
+                    <td>Device list, Knowledge Base, Backup files, Cisco logs</td>
+                </tr>
+
+            </table>
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+function resetVoiceAlertSettings() {
+    if (!confirm("Reset Voice Alert settings for this browser? Voice Alerts will be turned OFF until enabled again.")) {
+        return;
+    }
+
+    const keysToRemove = [
+        "voiceAlertsEnabled",
+        "voiceAlertEnabled",
+        "voiceAlertsOn",
+        "homeNetworkVoiceAlerts",
+        "homeNetworkMonitorVoiceAlerts",
+        "voiceAlertAcknowledged",
+        "lastSpokenAlertId",
+        "spokenAlertIds"
+    ];
+
+    keysToRemove.forEach(function(key) {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+    });
+
+    alert("Voice Alert settings were reset for this browser.");
+}
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Device Status | Home Network Monitor</title>
+    <meta http-equiv="refresh" content="20">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+<style>
+/* PHASE 14 - DEVICE DEPENDENCY COLUMNS */
+.phase14-device-note { background:rgba(0,255,119,.08); border-left:5px solid #00ff77; border-radius:10px; padding:12px; color:#d8ffe8; margin-bottom:14px; }
+.phase14-small { display:block; color:#9fb3c8; font-size:11px; font-weight:700; }
+</style>
+
+</head>
+
+<body>
+
+<header class="main-header">
+    <h1>DEVICE STATUS</h1>
+    <div class="subtitle">Real-Time Status of All Monitored Devices</div>
+</header>
+
+<div class="main-layout no-right-sidebar">
+
+    <aside class="left-sidebar">
+        <div class="side-title">🏠 Home Network Monitor</div>
+
+        <div class="time-card">
+            <div class="time-icon">🕒</div>
+            <div>{{ last_full_scan }}</div>
+        </div>
+
+        <a href="/" class="side-nav">🏠 Dashboard</a>
+        <a href="/device-status" class="side-nav active">🖥 Device Status</a>
+        <a href="/cisco-links" class="side-nav">🔌 Cisco Links</a>
+        <a href="/event-log" class="side-nav">📜 Event Log</a>
+        <a href="/alerts" class="side-nav">⚠ Alerts</a>
+        <a href="/knowledge-base" class="side-nav">📚 Knowledge Base</a>
+
+        <div class="button-group">
+            <a href="/" class="action-btn router">← Back To Dashboard</a>
+        </div>
+
+        {% if down == 0 and error == 0 %}
+        <div class="system-state good-state">
+            ✅<br>All Devices Healthy
+        </div>
+        {% else %}
+        <div class="system-state bad-state">
+            ⚠<br>Device Attention Needed
+        </div>
+        {% endif %}
+    </aside>
+
+    <main class="dashboard-content">
+
+        <section class="voice-alert-panel">
+            <div class="voice-alert-left">
+                <div class="voice-alert-title">🔊 Voice Alerts</div>
+                <div class="voice-alert-text">
+                    Voice alerts are active on this page when enabled.
+                </div>
+            </div>
+
+            <div class="voice-alert-actions">
+                <button type="button" id="enableVoiceAlerts" class="voice-enable-btn">
+                    Enable Voice Alerts
+                </button>
+
+                <button type="button" id="testVoiceAlert" class="voice-test-btn">
+                    Test Voice
+                </button>
+
+                <div id="voiceAlertStatus" class="voice-status off">
+                    Voice Alerts: OFF
+                </div>
+            </div>
+        </section>
+
+
+        <section class="stats-grid device-stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Devices</div>
+                <div class="stat-value blue">{{ total }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Online</div>
+                <div class="stat-value green">{{ up }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Offline</div>
+                <div class="stat-value red">{{ down }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Errors</div>
+                <div class="stat-value orange">{{ error }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Device Health</div>
+                <div class="stat-value green">{{ health }}%</div>
+            </div>
+        </section>
+
+        <section class="phase14-device-note">
+            <strong>Phase 14 Dependency Engine:</strong> Device status now includes switch-port correlation and root-cause context when a device is mapped to a Cisco switch port.
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>All Monitored Devices</h2>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Device Name</th>
+                    <th>IP Address</th>
+                    <th>Status</th>
+                    <th>Latency</th>
+                    <th>Switch Port</th>
+                    <th>Correlation</th>
+                    <th>Last Checked</th>
+                    <th>Last Change</th>
+                </tr>
+
+                {% for name, info in status.items() %}
+                <tr>
+                    <td>{{ name }}</td>
+                    <td>{{ info.ip }}</td>
+                    <td class="status {{ info.state }}">{{ info.state }}</td>
+                    <td>{{ info.latency }}</td>
+                    {% set dep = phase14_device_dependency_lookup.get(name, {}) %}
+                    <td>{{ dep.port if dep else "Not mapped" }}<span class="phase14-small">{{ dep.link_state if dep else "" }}</span></td>
+                    <td>{{ dep.correlation if dep else "No switch-port correlation" }}</td>
+                    <td>{{ info.last_checked }}</td>
+                    <td>{{ info.last_change }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </section>
+
+    </main>
+
+</div>
+
+<footer class="footer-bar">
+    Home Network Monitor • Device Status • Real-Time Availability
+</footer>
+
+{% include "voice_alerts.html" %}
+
+</body>
+</html>
