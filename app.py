@@ -20,6 +20,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import smtplib
 from email.message import EmailMessage
 from utils.common import clean_ascii, now
+from utils.time_helpers import (
+    calculate_alert_duration,
+    calculate_overlap_seconds,
+    format_duration_seconds,
+    format_time_ago,
+    parse_timestamp,
+)
 
 
 
@@ -5793,46 +5800,8 @@ def monitor_loop():
         time.sleep(CHECK_INTERVAL)
 
 
-def parse_timestamp(value):
-    try:
-        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
-    except Exception:
-        return None
 
 
-def format_duration_seconds(total_seconds):
-    try:
-        total_seconds = int(total_seconds)
-    except Exception:
-        return ""
-
-    if total_seconds < 0:
-        return ""
-
-    days = total_seconds // 86400
-    total_seconds %= 86400
-
-    hours = total_seconds // 3600
-    total_seconds %= 3600
-
-    minutes = total_seconds // 60
-    seconds = total_seconds % 60
-
-    parts = []
-
-    if days:
-        parts.append(f"{days}d")
-
-    if hours:
-        parts.append(f"{hours}h")
-
-    if minutes:
-        parts.append(f"{minutes}m")
-
-    if seconds or not parts:
-        parts.append(f"{seconds}s")
-
-    return " ".join(parts)
 
 
 
@@ -5922,12 +5891,6 @@ def period_start_last_30_days():
     return datetime.now() - timedelta(days=30)
 
 
-def calculate_overlap_seconds(start_a, end_a, start_b, end_b):
-    overlap_start = max(start_a, start_b)
-    overlap_end = min(end_a, end_b)
-    if overlap_end <= overlap_start:
-        return 0
-    return max(0, int((overlap_end - overlap_start).total_seconds()))
 
 
 def get_internet_availability_report():
@@ -6180,29 +6143,6 @@ def record_uptime_outage_end(device, problem):
     save_uptime_stats(stats)
 
 
-def format_time_ago(timestamp_value):
-    timestamp = parse_timestamp(timestamp_value)
-
-    if not timestamp:
-        return "N/A"
-
-    seconds = int((datetime.now() - timestamp).total_seconds())
-
-    if seconds < 60:
-        return f"{seconds}s ago"
-
-    minutes = seconds // 60
-
-    if minutes < 60:
-        return f"{minutes}m ago"
-
-    hours = minutes // 60
-
-    if hours < 24:
-        return f"{hours}h ago"
-
-    days = hours // 24
-    return f"{days}d ago"
 
 
 def get_uptime_dashboard_stats():
@@ -6240,14 +6180,6 @@ def get_uptime_dashboard_stats():
     }
 
 
-def calculate_alert_duration(alert_time, resolved_time):
-    start = parse_timestamp(alert_time)
-    end = parse_timestamp(resolved_time)
-
-    if not start or not end:
-        return ""
-
-    return format_duration_seconds((end - start).total_seconds())
 
 
 def load_alert_history():
@@ -19489,7 +19421,7 @@ def api_network_map_quick_provision():
             pass
         write_event(f"ERROR | PHASE 25 QUICK PROVISION | {action} | {e}")
         write_provisioning_audit(
-            "PHSE 25 QUICK PROVISION",
+            "PHASE 25 QUICK PROVISION",
             "FAILED",
             clean_ascii(data.get("device_name", "")),
             clean_ascii(data.get("ip_address", "")),
@@ -19511,7 +19443,7 @@ def reconcile_phase26_infrastructure_topology(physical_links, infrastructure_nam
     - The preferred root order is Internet, Modem, Switch, Router, Firewall,
       Access Point, then all other infrastructure roles.
     - Every infrastructure child receives at most one parent.
-    - Duplicate links and cycles are suppressed without deletingsaved links.
+    - Duplicate links and cycles are suppressed without deleting saved links.
     - Interface names/indexes are swapped when a saved link is traversed in
       the opposite direction, so card-level interface correlation stays correct.
     """
@@ -20300,6 +20232,5 @@ if __name__ == "__main__":
     thread.start()
 
     app.run(host="0.0.0.0", port=5050)
-
 
 
