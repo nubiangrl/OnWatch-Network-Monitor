@@ -38,6 +38,14 @@ from services.device_service import (
     normalize_mac_address,
     validate_ip,
 )
+from services.snmp_service import (
+    _snmp_value_from_line,
+    is_snmp_noise_event,
+    is_usable_snmp_interface,
+    parse_snmpwalk_oid_integer_map,
+    run_snmpwalk_oid_readonly,
+    run_snmpwalk_readonly,
+)
 from routes.dashboard import register_dashboard_routes
 from routes.api import (
     register_api_routes,
@@ -2386,20 +2394,6 @@ CDP_CACHE_PLATFORM_OID = ".1.3.6.1.4.1.9.9.23.1.2.1.1.8"
 CDP_CACHE_ADDRESS_OID = ".1.3.6.1.4.1.9.9.23.1.2.1.1.4"
 
 
-def _snmp_value_from_line(line):
-    """Return a clean value from a normal net-snmp output line."""
-    text = clean_ascii(line)
-    if "=" not in text:
-        return ""
-    value = text.split("=", 1)[1].strip()
-    if ":" in value:
-        value_type, possible_value = value.split(":", 1)
-        if value_type.strip().upper() in {
-            "STRING", "HEX-STRING", "INTEGER", "INTEGER32", "IPADDRESS",
-            "OID", "TIMETICKS", "GAUGE32", "COUNTER32", "COUNTER64"
-        }:
-            value = possible_value.strip()
-    return value.strip().strip('"')
 
 
 def _cdp_oid_suffix(line):
@@ -5104,25 +5098,6 @@ def is_network_infrastructure_device(device_name):
     return role in ["Router", "Switch", "Firewall", "Access Point"]
 
 
-def is_usable_snmp_interface(name):
-    """Keep physical/router/switch interfaces; suppress virtual management-only interfaces."""
-    name = clean_ascii(name)
-    if not name or name.lower() == "unknown":
-        return False
-
-    lower = name.lower()
-
-    ignored_prefixes = [
-        "null", "loopback", "lo", "vlan", "bvi", "nvi", "tunnel", "tun",
-        "port-channel", "po", "stackport", "control-plane", "voip-null",
-        "async", "virtual", "template", "dialer", "cellular", "wlan-ap"
-    ]
-
-    for prefix in ignored_prefixes:
-        if lower == prefix or lower.startswith(prefix):
-            return False
-
-    return True
 
 
 def interface_sort_key(item):
@@ -14423,36 +14398,8 @@ def run_safe_network_scan(cidr="192.168.0.0/24"):
     return sorted(rows, key=lambda item: tuple(int(part) if part.isdigit() else 999 for part in item.get("ip", "0.0.0.0").split(".")))
 
 
-def run_snmpwalk_readonly(host, community, oid, timeout_seconds=10):
-    if not shutil.which("snmpwalk"):
-        return ""
-    try:
-        completed = subprocess.run(
-            ["snmpwalk", "-v2c", "-c", str(community), "-Oqv", str(host), str(oid)],
-            capture_output=True,
-            text=True,
-            timeout=timeout_seconds,
-            shell=False
-        )
-        return completed.stdout or ""
-    except Exception:
-        return ""
 
 
-def run_snmpwalk_oid_readonly(host, community, oid, timeout_seconds=10):
-    if not shutil.which("snmpwalk"):
-        return ""
-    try:
-        completed = subprocess.run(
-            ["snmpwalk", "-v2c", "-c", str(community), str(host), str(oid)],
-            capture_output=True,
-            text=True,
-            timeout=timeout_seconds,
-            shell=False
-        )
-        return completed.stdout or ""
-    except Exception:
-        return ""
 
 
 def get_switch_mac_address_table():
@@ -14652,13 +14599,6 @@ def get_cached_switch_mac_address_table(max_age_seconds=60):
         return result
 
 
-def parse_snmpwalk_oid_integer_map(text):
-    rows = {}
-    for line in str(text or "").splitlines():
-        m = re.search(r"\.([0-9]+)\s*=\s*(?:Counter32|Counter64|Gauge32|INTEGER):\s*([0-9]+)", line)
-        if m:
-            rows[m.group(1)] = int(m.group(2))
-    return rows
 
 
 def get_switch_port_utilization_statistics():
@@ -18216,9 +18156,6 @@ def get_active_physical_root_context():
     return {"active": False}
 
 
-def is_snmp_noise_event(line):
-    text = clean_ascii(line).lower()
-    return "snmp failed" in text or "snmpwalk" in text or "snmp timeout" in text
 
 
 def should_suppress_historical_line_due_to_root_cause(line):
