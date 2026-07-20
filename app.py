@@ -32,7 +32,10 @@ from services.config_service import (
     load_json_config,
 )
 from routes.dashboard import register_dashboard_routes
-from routes.api import register_api_routes
+from routes.api import (
+    register_api_routes,
+    register_topology_intelligence_api_routes,
+)
 
 
 
@@ -20150,36 +20153,21 @@ def api_topology_change_detection_baseline():
 
 
 
-@app.route("/api/relationship-engine")
-def api_relationship_engine():
-    return jsonify(phase27_relationship_engine_summary())
+# PHASE 28.7 - TOPOLOGY INTELLIGENCE API ROUTES
+register_topology_intelligence_api_routes(
+    app,
+    relationship_summary=phase27_relationship_engine_summary,
+    root_cause_summary=build_root_cause_topology_summary,
+    analyze_root_cause=analyze_root_cause_topology,
+    infrastructure_payload=build_phase26_infrastructure_payload,
+    write_event=write_event,
+)
 
 
-@app.route("/api/root-cause-topology")
-def api_root_cause_topology():
-    try:
-        return jsonify(build_root_cause_topology_summary())
-    except Exception as e:
-        write_event(f"ERROR | ROOT CAUSE TOPOLOGY API | {e}")
-        return jsonify({"success":False,"phase":"26B.6","message":str(e)}),500
 
 
-@app.route("/api/root-cause-topology/analyze", methods=["POST"])
-def api_root_cause_topology_analyze():
-    try:
-        body=request.get_json(silent=True) or {}
-        return jsonify(analyze_root_cause_topology(force=True, confirm_immediately=bool(body.get("confirm_immediately",False))))
-    except Exception as e:
-        write_event(f"ERROR | ROOT CAUSE TOPOLOGY ANALYZE API | {e}")
-        return jsonify({"success":False,"phase":"26B.6","message":str(e)}),500
 
-@app.route("/api/network-map-infrastructure")
-def api_network_map_infrastructure():
-    try:
-        return jsonify(build_phase26_infrastructure_payload())
-    except Exception as e:
-        write_event(f"ERROR | PHASE 26 INFRASTRUCTURE MAP | {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
+
 
 if __name__ == "__main__":
     os.makedirs("logs", exist_ok=True)
