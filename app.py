@@ -19,6 +19,8 @@ import urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import smtplib
 from email.message import EmailMessage
+from utils.common import clean_ascii, now
+
 
 
 # ======================================================
@@ -139,8 +141,6 @@ ALERT_TRANSITION_SEQUENCE = 0
 
 
 
-def now():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def initialize_phase27_relationship_engine():
@@ -3966,13 +3966,6 @@ def get_notification_settings():
     return config.get("notifications", {})
 
 
-def clean_ascii(value):
-    if value is None:
-        return ""
-
-    value = str(value)
-    value = value.replace("\\xa0", " ")
-    return value.encode("ascii", "ignore").decode("ascii").strip()
 
 
 
@@ -19496,7 +19489,7 @@ def api_network_map_quick_provision():
             pass
         write_event(f"ERROR | PHASE 25 QUICK PROVISION | {action} | {e}")
         write_provisioning_audit(
-            "PHASE 25 QUICK PROVISION",
+            "PHSE 25 QUICK PROVISION",
             "FAILED",
             clean_ascii(data.get("device_name", "")),
             clean_ascii(data.get("ip_address", "")),
@@ -19518,7 +19511,7 @@ def reconcile_phase26_infrastructure_topology(physical_links, infrastructure_nam
     - The preferred root order is Internet, Modem, Switch, Router, Firewall,
       Access Point, then all other infrastructure roles.
     - Every infrastructure child receives at most one parent.
-    - Duplicate links and cycles are suppressed without deleting saved links.
+    - Duplicate links and cycles are suppressed without deletingsaved links.
     - Interface names/indexes are swapped when a saved link is traversed in
       the opposite direction, so card-level interface correlation stays correct.
     """
@@ -20307,5 +20300,6 @@ if __name__ == "__main__":
     thread.start()
 
     app.run(host="0.0.0.0", port=5050)
+
 
 
