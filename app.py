@@ -31,6 +31,13 @@ from services.config_service import (
     atomic_write_json_config,
     load_json_config,
 )
+from services.device_service import (
+    get_map_icon,
+    get_map_status_class,
+    is_lan_ip,
+    normalize_mac_address,
+    validate_ip,
+)
 from routes.dashboard import register_dashboard_routes
 from routes.api import (
     register_api_routes,
@@ -5512,12 +5519,6 @@ def get_switch_port_label(port_index):
     return get_selectable_switch_ports().get(port_index, f"Index {port_index}")
 
 
-def validate_ip(ip):
-    try:
-        ipaddress.ip_address(ip)
-        return True
-    except ValueError:
-        return False
 
 
 def diagnose_network():
@@ -6864,12 +6865,6 @@ def is_internet_device(device_name):
     return clean_ascii(device_name) == get_internet_service_name() or normalize_infrastructure_role(DEVICE_TYPES.get(device_name, "")) == "Internet"
 
 
-def is_lan_ip(ip_value):
-    try:
-        ip_text = str(ip_value).split(",")[0].strip()
-        return ipaddress.ip_address(ip_text).is_private
-    except Exception:
-        return False
 
 
 def get_internet_latency_details():
@@ -11398,47 +11393,8 @@ def detect_map_device_type(name, ip=""):
     return "Endpoint"
 
 
-def get_map_icon(device_type):
-    icons = {
-        "Internet": "🌎",
-        "Modem": "📡",
-        "Router": "🛜",
-        "Switch": "🔀",
-        "Server / NAS": "🗄️",
-        "Server": "🖥️",
-        "Desktop PC": "🖥️",
-        "Windows PC": "🖥️",
-        "Laptop": "💻",
-        "Mac": "💻",
-        "Chromebook": "💻",
-        "Printer": "🖨️",
-        "Camera": "📷",
-        "TV": "📺",
-        "Gaming Console": "🎮",
-        "Mobile Device": "📱",
-        "IoT Device": "🏠",
-        "Audio Device": "🔊",
-        "Virtual Machine": "🧩",
-        "Other Endpoint": "💻",
-        "Endpoint": "💻"
-    }
-
-    return icons.get(device_type, "💻")
 
 
-def get_map_status_class(state):
-    state = (state or "UNKNOWN").upper()
-
-    if state == "UP":
-        return "map-up"
-
-    if state == "DOWN":
-        return "map-down"
-
-    if state in ["ERROR", "WARNING"]:
-        return "map-warning"
-
-    return "map-unknown"
 
 
 
@@ -13961,24 +13917,6 @@ NOC_SAFE_PORT_LABELS = {
 }
 
 
-def normalize_mac_address(value):
-    """Return MAC address in AA:BB:CC:DD:EE:FF format when possible."""
-    value = clean_ascii(str(value or "")).strip()
-    if not value:
-        return ""
-
-    value = value.replace("-", ":").replace(".", "")
-
-    if ":" in value:
-        parts = [p.zfill(2) for p in value.split(":") if p]
-        if len(parts) == 6:
-            return ":".join(p.upper()[-2:] for p in parts)
-
-    hex_only = re.sub(r"[^0-9A-Fa-f]", "", value)
-    if len(hex_only) == 12:
-        return ":".join(hex_only[i:i+2].upper() for i in range(0, 12, 2))
-
-    return value.upper()
 
 
 # ======================================================
