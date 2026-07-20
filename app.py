@@ -27,6 +27,10 @@ from utils.time_helpers import (
     format_time_ago,
     parse_timestamp,
 )
+from services.config_service import (
+    atomic_write_json_config,
+    load_json_config,
+)
 
 
 
@@ -621,8 +625,7 @@ def load_config():
     global RELATIONSHIP_STORE, RELATIONSHIP_MANAGER
     global RELATIONSHIP_MIGRATION, RELATIONSHIP_ENGINE_READY
 
-    with open(CONFIG_FILE, "r") as f:
-        config = json.load(f)
+    config = load_json_config(CONFIG_FILE)
 
     DEVICES = config.get("devices", {})
     CHECK_INTERVAL = config.get("check_interval_seconds", 15)
@@ -3954,12 +3957,7 @@ def save_config():
                 "updated_at": now(),
             })
 
-    temp_file = f"{CONFIG_FILE}.tmp"
-
-    with open(temp_file, "w") as f:
-        json.dump(config, f, indent=4)
-
-    os.replace(temp_file, CONFIG_FILE)
+    atomic_write_json_config(CONFIG_FILE, config)
 
 
 def write_event(message):
