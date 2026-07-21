@@ -51,6 +51,12 @@ from services.relationship_service import (
     get_dependency_icon,
     normalize_relationship_entry,
 )
+from services.monitoring_service import (
+    check_device,
+    get_device_down_minutes,
+    parse_latency_ms,
+    status_number_to_text,
+)
 from routes.dashboard import register_dashboard_routes
 from routes.api import (
     register_api_routes,
@@ -4896,17 +4902,6 @@ def read_cisco_events(limit=20):
     return events
 
 
-def check_device(ip):
-    try:
-        response = ping(ip, timeout=2)
-
-        if response is None:
-            return "DOWN", "N/A"
-
-        return "UP", f"{round(response * 1000, 2)} ms"
-
-    except Exception:
-        return "ERROR", "N/A"
 
 
 
@@ -5013,14 +5008,6 @@ def parse_integer_value(line):
         return 0
 
 
-def status_number_to_text(value):
-    if value == 1:
-        return "UP"
-    if value == 2:
-        return "DOWN"
-    if value == 3:
-        return "TESTING"
-    return "UNKNOWN"
 
 
 def short_interface_name(name):
@@ -6521,16 +6508,6 @@ def get_active_alerts():
     return alerts
 
 # PHASE 10A - NETWORK INTELLIGENCE FOUNDATION
-def parse_latency_ms(latency_value):
-    if latency_value is None:
-        return None
-
-    text = str(latency_value).replace("ms", "").strip()
-
-    try:
-        return float(text)
-    except Exception:
-        return None
 
 
 def get_device_category_counts():
@@ -7109,12 +7086,6 @@ def get_sleep_status_label():
     return clean_ascii(SLEEP_DETECTION.get("sleep_state_label", "SLEEPING")) or "SLEEPING"
 
 
-def get_device_down_minutes(last_change_text):
-    last_change_time = parse_timestamp(last_change_text)
-    if not last_change_time:
-        return 0
-
-    return max(0, int((datetime.now() - last_change_time).total_seconds() / 60))
 
 
 def apply_sleep_detection_state(device_name, raw_state, last_change_text):
