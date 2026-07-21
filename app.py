@@ -94,6 +94,11 @@ from services.infrastructure_service import (
     is_snmp_capable_infrastructure_role,
     normalize_infrastructure_role,
 )
+from services.topology_builder_service import (
+    _confidence_physical_key,
+    _phase26b5_snapshot_key,
+    get_core_topology_type_names,
+)
 from routes.dashboard import register_dashboard_routes
 from routes.api import (
     register_api_routes,
@@ -2826,11 +2831,6 @@ def _confidence_endpoint(device, interface):
     }
 
 
-def _confidence_physical_key(a, b):
-    left = f"{a['device_token']}|{a['interface_token']}"
-    right = f"{b['device_token']}|{b['interface_token']}"
-    ordered = sorted([left, right])
-    return "physical-" + re.sub(r"[^a-z0-9]+", "-", "--".join(ordered)).strip("-")[:170]
 
 
 def _manual_evidence_rows():
@@ -3340,8 +3340,6 @@ def _phase26b5_snapshot(topology):
     }
 
 
-def _phase26b5_snapshot_key(snapshot):
-    return json.dumps(snapshot, sort_keys=True, separators=(",", ":"))
 
 
 def _phase26b5_index(items):
@@ -8793,29 +8791,6 @@ def get_physical_topology_primary_switch():
     return get_infrastructure_name("main_switch")
 
 
-def get_core_topology_type_names():
-    """Types that participate in the main infrastructure path.
-
-    Phase 13E rule:
-    - Core path is determined by inventory/type data.
-    - Endpoint links are not rendered as core topology chain links.
-    - No specific endpoint names are hard-coded here.
-    """
-    return {
-        "internet",
-        "modem",
-        "router",
-        "switch",
-        "firewall",
-        "access point",
-        "wireless access point",
-        "ups",
-        "power",
-        "dns server",
-        "dhcp server",
-        "vpn gateway",
-        "infrastructure"
-    }
 
 
 def is_core_topology_device(device_name):
@@ -19610,6 +19585,14 @@ def build_phase26_infrastructure_payload():
             "last_updated": now()
         }
     }
+
+
+# PHASE 29.8 - Compatibility endpoint for topology change summaries.
+# The lifecycle route module exposes topology change operations, while this
+# stable read-only alias preserves the dashboard/API validation path.
+@app.route("/api/topology-change-summary")
+def api_topology_change_summary():
+    return jsonify(build_topology_change_summary())
 
 
 # PHASE 28.8 - TOPOLOGY LIFECYCLE API ROUTES
