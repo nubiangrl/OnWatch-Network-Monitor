@@ -106,12 +106,7 @@ from services.background_worker_service import (
     start_restore_worker,
 )
 from services.application_bootstrap_service import run_application
-from routes.dashboard import register_dashboard_routes
-from routes.api import (
-    register_api_routes,
-    register_topology_intelligence_api_routes,
-)
-from routes.topology_api import register_topology_lifecycle_api_routes
+from services.route_registration_service import register_application_routes
 
 
 
@@ -14053,10 +14048,8 @@ def get_switch_port_utilization_statistics():
 # New pages reuse the same dashboard context so nothing breaks.
 # ======================================================
 # PHASE 28.5 - MODULAR DASHBOARD PAGE ROUTES
-register_dashboard_routes(app, build_dashboard_context)
 
 # PHASE 28.6 - CORE API ROUTES
-register_api_routes(app)
 
 
 
@@ -19326,28 +19319,9 @@ def build_phase26_infrastructure_payload():
 # PHASE 29.8 - Compatibility endpoint for topology change summaries.
 # The lifecycle route module exposes topology change operations, while this
 # stable read-only alias preserves the dashboard/API validation path.
-@app.route("/api/topology-change-summary")
-def api_topology_change_summary():
-    return jsonify(build_topology_change_summary())
 
 
 # PHASE 28.8 - TOPOLOGY LIFECYCLE API ROUTES
-register_topology_lifecycle_api_routes(
-    app,
-    build_self_building_topology_summary=build_self_building_topology_summary,
-    build_self_building_topology=build_self_building_topology,
-    build_topology_change_summary=build_topology_change_summary,
-    check_topology_changes=check_topology_changes,
-    discover_cdp_neighbors=discover_cdp_neighbors,
-    discover_lldp_neighbors=discover_lldp_neighbors,
-    build_link_confidence_database=build_link_confidence_database,
-    build_snapshot=_phase26b5_snapshot,
-    topology_change_settings=_phase26b5_settings,
-    save_config=save_config,
-    write_event=write_event,
-    now=now,
-    config=config,
-)
 
 
 
@@ -19361,14 +19335,10 @@ register_topology_lifecycle_api_routes(
 
 
 # PHASE 28.7 - TOPOLOGY INTELLIGENCE API ROUTES
-register_topology_intelligence_api_routes(
-    app,
-    relationship_summary=phase27_relationship_engine_summary,
-    root_cause_summary=build_root_cause_topology_summary,
-    analyze_root_cause=analyze_root_cause_topology,
-    infrastructure_payload=build_phase26_infrastructure_payload,
-    write_event=write_event,
-)
+
+
+# PHASE 30.4 - CENTRALIZED ROUTE REGISTRATION AND DEPENDENCY WIRING
+register_application_routes(app, globals())
 
 
 if __name__ == "__main__":
