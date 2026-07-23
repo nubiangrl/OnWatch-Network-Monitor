@@ -100,6 +100,11 @@ from services.topology_builder_service import (
     get_core_topology_type_names,
 )
 from services.monitoring_engine_service import run_monitoring_engine
+from services.background_worker_service import (
+    schedule_ieee_oui_refresh_if_needed,
+    start_monitoring_worker,
+    start_restore_worker,
+)
 from routes.dashboard import register_dashboard_routes
 from routes.api import (
     register_api_routes,
@@ -4632,12 +4637,11 @@ def restore_monitor_backup_async(filename, requested_by="Dashboard"):
         if RESTORE_EXECUTION_STATE.get("active"):
             raise RuntimeError("A restore job is already running")
 
-    worker = threading.Thread(
-        target=restore_monitor_backup,
-        args=(safe_name, requested_by),
-        daemon=True
+    worker = start_restore_worker(
+        restore_monitor_backup,
+        safe_name,
+        requested_by,
     )
-    worker.start()
 
     return {
         "time": now(),
@@ -13372,33 +13376,13 @@ def refresh_ieee_oui_cache(force=False):
     }
 
 
-def _refresh_ieee_oui_cache_background():
-    global IEEE_OUI_REFRESH_THREAD
-    try:
-        refresh_ieee_oui_cache(force=False)
-    finally:
-        with IEEE_OUI_LOCK:
-            IEEE_OUI_REFRESH_THREAD = None
+
+
 
 
 def _schedule_ieee_oui_refresh_if_needed():
-    global IEEE_OUI_REFRESH_THREAD
-    needs_refresh = any(
-        _ieee_cache_needs_refresh(os.path.join(IEEE_OUI_CACHE_DIR, filename))
-        for _, _, filename in IEEE_OUI_REGISTRIES
-    )
-    if not needs_refresh:
-        return
-
-    with IEEE_OUI_LOCK:
-        if IEEE_OUI_REFRESH_THREAD and IEEE_OUI_REFRESH_THREAD.is_alive():
-            return
-        IEEE_OUI_REFRESH_THREAD = threading.Thread(
-            target=_refresh_ieee_oui_cache_background,
-            name="ieee-oui-refresh",
-            daemon=True
-        )
-        IEEE_OUI_REFRESH_THREAD.start()
+    """Compatibility wrapper for the extracted IEEE refresh scheduler."""
+    return schedule_ieee_oui_refresh_if_needed(globals())
 
 
 def _parse_ieee_registry_file(path, registry_name):
@@ -19424,8 +19408,7 @@ if __name__ == "__main__":
     check_topology_changes(force=True)
     analyze_root_cause_topology(force=True)
 
-    thread = threading.Thread(target=monitor_loop, daemon=True)
-    thread.start()
+    thread = start_monitoring_worker(monitor_loop)
 
     app.run(host="0.0.0.0", port=5050)
 
