@@ -107,6 +107,7 @@ from services.background_worker_service import (
 )
 from services.application_bootstrap_service import run_application
 from services.route_registration_service import register_application_routes
+from services.dependency_container_service import create_dependency_container
 
 
 
@@ -225,8 +226,6 @@ ALERT_TRANSITION_LOCK = threading.Lock()
 ALERT_TRANSITION_EVENTS = []
 ACTIVE_ALERT_TRANSITION_KEYS = set()
 ALERT_TRANSITION_SEQUENCE = 0
-
-
 
 
 
@@ -843,8 +842,6 @@ def load_config():
 # ======================================================
 
 
-
-
 def register_infrastructure_device(device_name, ip_address, role, snmp_enabled=None):
     """Add/update one device in the Phase 16 infrastructure registry."""
     device_name = clean_ascii(device_name)
@@ -1079,8 +1076,6 @@ def build_infrastructure_registry_summary():
     }
 
 
-
-
 # ======================================================
 # PHASE 26B.7H - PORTABLE BLANK-SLATE NETWORK DESIGN
 # ======================================================
@@ -1313,10 +1308,6 @@ INFRASTRUCTURE_PARENT_ROLE_PREFERENCES = {
 }
 
 
-
-
-
-
 def _select_auto_infrastructure_parent(device_name, device_role, registry, eligible_names=None):
     preferences = INFRASTRUCTURE_PARENT_ROLE_PREFERENCES.get(
         normalize_infrastructure_role(device_role),
@@ -1333,10 +1324,6 @@ def _select_auto_infrastructure_parent(device_name, device_role, registry, eligi
             if normalize_infrastructure_role(candidate_info.get("role", "")) == preferred_role:
                 return candidate_name
     return ""
-
-
-
-
 
 
 def _registry_name_by_ip(registry, ip_address):
@@ -1368,10 +1355,6 @@ def _canonical_registered_infrastructure_name(value, registry, ip_address=""):
         if candidate == token or (candidate and (candidate.endswith(token) or token.endswith(candidate))):
             return clean_ascii(name)
     return ""
-
-
-
-
 
 
 def _phase26b8_physical_edges(registry, minimum_confidence):
@@ -2332,14 +2315,6 @@ CDP_CACHE_PLATFORM_OID = ".1.3.6.1.4.1.9.9.23.1.2.1.1.8"
 CDP_CACHE_ADDRESS_OID = ".1.3.6.1.4.1.9.9.23.1.2.1.1.4"
 
 
-
-
-
-
-
-
-
-
 def _canonical_inventory_device(remote_id, remote_ip=""):
     """Resolve CDP Device ID/IP to the current On Watch inventory name."""
     remote_id = clean_ascii(remote_id)
@@ -2365,8 +2340,6 @@ def _local_interface_name(device_name, ifindex):
     interfaces = inventory.get("interfaces", {}) if isinstance(inventory, dict) else {}
     record = interfaces.get(str(ifindex), {}) if isinstance(interfaces, dict) else {}
     return clean_ascii(record.get("name", "")) or f"ifIndex {ifindex}"
-
-
 
 
 def discover_cdp_neighbors(force=False):
@@ -2537,14 +2510,6 @@ LLDP_REM_SYS_NAME_OID = ".1.0.8802.1.1.2.1.4.1.1.9"
 LLDP_REM_SYS_DESC_OID = ".1.0.8802.1.1.2.1.4.1.1.10"
 
 
-
-
-
-
-
-
-
-
 def _normalize_interface_token(value):
     """Create a comparable token for long/short interface spellings."""
     text = clean_ascii(value).lower().replace(" ", "")
@@ -2594,8 +2559,6 @@ def _lldp_local_interface_name(device_name, local_port_num, local_port_ids, loca
                 return clean_ascii(record.get("name", "")) or value
 
     return advertised_id or advertised_desc or f"LLDP port {port_num}"
-
-
 
 
 def discover_lldp_neighbors(force=False):
@@ -2831,8 +2794,6 @@ def _confidence_endpoint(device, interface):
         "device_token": _confidence_device_token(_confidence_canonical_device(device)),
         "interface_token": _confidence_interface_token(interface),
     }
-
-
 
 
 def _manual_evidence_rows():
@@ -3342,8 +3303,6 @@ def _phase26b5_snapshot(topology):
     }
 
 
-
-
 def _phase26b5_index(items):
     indexed = {}
     for item in items or []:
@@ -3646,8 +3605,6 @@ def _phase26b6_signature(incident):
     return "|".join([clean_ascii(incident.get("root_cause", "")), clean_ascii(incident.get("failure_type", "")), clean_ascii(incident.get("root_interface", ""))]).lower()
 
 
-
-
 def _phase26b6a_normalize_history(save=False):
     """Collapse duplicate lifecycle records so each incident ID appears once.
 
@@ -3839,14 +3796,8 @@ def save_config():
     atomic_write_json_config(CONFIG_FILE, config)
 
 
-
-
 def get_notification_settings():
     return config.get("notifications", {})
-
-
-
-
 
 
 # ======================================================
@@ -4128,8 +4079,6 @@ def send_sms_recovery(alert):
 
     except Exception as e:
         write_event(f"ERROR | SMS RECOVERY FAILED | {e}")
-
-
 
 
 def load_knowledge_base():
@@ -4754,10 +4703,6 @@ def read_cisco_events(limit=20):
     return events
 
 
-
-
-
-
 def check_internet_targets():
     """Check only Internet targets explicitly configured by the operator."""
     results = {}
@@ -4860,8 +4805,6 @@ def parse_integer_value(line):
         return 0
 
 
-
-
 def short_interface_name(name):
     return (
         name.replace("TwentyFiveGigE", "Twe")
@@ -4926,8 +4869,6 @@ def is_network_infrastructure_device(device_name):
     role = normalize_infrastructure_role(device_type)
 
     return role in ["Router", "Switch", "Firewall", "Access Point"]
-
-
 
 
 def interface_sort_key(item):
@@ -5324,8 +5265,6 @@ def get_switch_port_label(port_index):
     return get_selectable_switch_ports().get(port_index, f"Index {port_index}")
 
 
-
-
 def diagnose_network():
     """Return a role-based diagnosis using the live Infrastructure Registry."""
     role_states = {}
@@ -5351,16 +5290,6 @@ def diagnose_network():
     if down_devices:
         return "Some devices are down: " + ", ".join(down_devices)
     return "Network appears healthy."
-
-
-
-
-
-
-
-
-
-
 
 
 def load_internet_history():
@@ -5444,8 +5373,6 @@ def period_start_month():
 
 def period_start_last_30_days():
     return datetime.now() - timedelta(days=30)
-
-
 
 
 def get_internet_availability_report():
@@ -5698,8 +5625,6 @@ def record_uptime_outage_end(device, problem):
     save_uptime_stats(stats)
 
 
-
-
 def get_uptime_dashboard_stats():
     stats = load_uptime_stats()
 
@@ -5733,14 +5658,6 @@ def get_uptime_dashboard_stats():
         "total_recoveries": stats.get("total_recoveries", 0),
         "active_outages": len(stats.get("active_outages", {}))
     }
-
-
-
-
-
-
-
-
 
 
 def sync_alert_history(active_alerts):
@@ -5831,8 +5748,6 @@ def get_intelligent_alert_classification_config():
     configured = [clean_ascii(name) for name in settings.get("critical_device_names", []) if clean_ascii(name) in DEVICES]
     settings["critical_device_names"] = sorted(set(configured) | get_all_infrastructure_names())
     return settings
-
-
 
 
 def get_device_alert_type(device_name):
@@ -6373,8 +6288,6 @@ def is_internet_device(device_name):
     return clean_ascii(device_name) == get_internet_service_name() or normalize_infrastructure_role(DEVICE_TYPES.get(device_name, "")) == "Internet"
 
 
-
-
 def get_internet_latency_details():
     internet_status = status.get(get_internet_service_name(), {})
     internet_state = internet_status.get("state", "UNKNOWN")
@@ -6545,8 +6458,6 @@ def build_lan_internet_health_split():
     }
 
 
-
-
 # PHASE 10D - DEVICE CLASSIFICATION ENGINE
 def get_device_classification(device_name, ip_address=""):
     infrastructure_names = set(INFRASTRUCTURE.values()) if isinstance(INFRASTRUCTURE, dict) else set()
@@ -6654,8 +6565,6 @@ def get_sleep_grace_minutes():
 
 def get_sleep_status_label():
     return clean_ascii(SLEEP_DETECTION.get("sleep_state_label", "SLEEPING")) or "SLEEPING"
-
-
 
 
 def apply_sleep_detection_state(device_name, raw_state, last_change_text):
@@ -7205,19 +7114,7 @@ def build_network_intelligence_html(intelligence):
 
 
 
-
-
 # PHASE 10C.3 - EVENT AGING ENGINE
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -8442,8 +8339,6 @@ def dependency_state_class(state):
     return "unknown"
 
 
-
-
 def build_dependency_node(label, node_type, state, detail="", ip="", role=""):
     state = normalize_dependency_state(state)
     return {
@@ -8465,8 +8360,6 @@ def get_device_dependency_state(device_name):
     state_value = clean_ascii(info.get("state", "UNKNOWN")) or "UNKNOWN"
     ip_value = clean_ascii(info.get("ip", DEVICES.get(device_name, "")))
     return state_value, ip_value
-
-
 
 
 def get_physical_topology_config():
@@ -8540,8 +8433,6 @@ def get_physical_topology_root():
 def get_physical_topology_primary_switch():
     infra = config.get("infrastructure", {}) if isinstance(config.get("infrastructure", {}), dict) else {}
     return get_infrastructure_name("main_switch")
-
-
 
 
 def is_core_topology_device(device_name):
@@ -8767,8 +8658,6 @@ def is_root_cause_switch_port(root_cause, port_index="", port_label=""):
     port_index = clean_ascii(port_index).lower()
     port_label = clean_ascii(port_label).lower()
     return rc_type == "switch port" and (rc_port in [port_index, port_label] or port_label in rc_port)
-
-
 
 
 def find_physical_link_root_cause_for_device(device_name):
@@ -10745,10 +10634,6 @@ def detect_map_device_type(name, ip=""):
 
 
 
-
-
-
-
 # PHASE 9A - ENTERPRISE INVENTORY ENGINE
 def get_infrastructure_name(role, fallback=""):
     """Resolve infrastructure by registry role without relying on device names.
@@ -10931,8 +10816,6 @@ def get_child_devices(parent_name):
         })
 
     return sorted(children, key=lambda item: item["name"].lower())
-
-
 
 
 
@@ -11636,10 +11519,6 @@ def get_inherited_switch_port_for_virtual_device(device_name):
     return port_info
 
 
-
-
-
-
 # ======================================================
 # PHASE 26B.7 - MAINTENANCE MODE INTELLIGENCE
 # ======================================================
@@ -12095,12 +11974,6 @@ def write_provisioning_audit(action, status_value, device_name, ip_address, deta
         "details": clean_ascii(details)
     })
     save_provisioning_audit(audit)
-
-
-
-
-
-
 
 
 
@@ -13057,10 +12930,6 @@ def build_dashboard_context():
     )
 
 
-
-
-
-
 # ======================================================
 # PHASE 16A.6A - NOC TOOLS CENTER
 # Safe read-only diagnostics + metadata-based SSH launch
@@ -13268,8 +13137,6 @@ NOC_SAFE_PORT_LABELS = {
 }
 
 
-
-
 # ======================================================
 # IEEE REGISTRATION AUTHORITY MAC VENDOR LOOKUP
 # ======================================================
@@ -13370,10 +13237,6 @@ def refresh_ieee_oui_cache(force=False):
         "errors": errors,
         "cache_directory": IEEE_OUI_CACHE_DIR
     }
-
-
-
-
 
 
 def _schedule_ieee_oui_refresh_if_needed():
@@ -13754,10 +13617,6 @@ def run_safe_network_scan(cidr="192.168.0.0/24"):
     return sorted(rows, key=lambda item: tuple(int(part) if part.isdigit() else 999 for part in item.get("ip", "0.0.0.0").split(".")))
 
 
-
-
-
-
 def get_switch_mac_address_table():
     """
     Read the Cisco switch MAC address table using SNMP.
@@ -13955,8 +13814,6 @@ def get_cached_switch_mac_address_table(max_age_seconds=60):
         return result
 
 
-
-
 def get_switch_port_utilization_statistics():
     """Return read-only interface counters for active/mapped switch ports."""
     load_config()
@@ -14050,16 +13907,6 @@ def get_switch_port_utilization_statistics():
 # PHASE 28.5 - MODULAR DASHBOARD PAGE ROUTES
 
 # PHASE 28.6 - CORE API ROUTES
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -14489,8 +14336,6 @@ def api_noc_tools_run():
     tool_name = payload.get("tool", "")
     target = payload.get("target", "")
     return jsonify(run_noc_tool(tool_name, target))
-
-
 
 
 def get_current_switch_ports():
@@ -14971,8 +14816,6 @@ def remove_port_mapping():
     return redirect(url_for("port_mapper"))
 
 
-
-
 @app.route("/api/assign-device-port", methods=["POST"])
 def api_assign_device_port():
     data = request.get_json(silent=True) or request.form
@@ -15060,8 +14903,6 @@ def reset_all_port_mappings():
     )
 
     return redirect(url_for("port_mapper"))
-
-
 
 
 @app.route("/save-topology-link", methods=["POST"])
@@ -15485,8 +15326,6 @@ def add_device():
 
 
 
-
-
 @app.route("/scheduled-maintenance/add", methods=["POST"])
 def scheduled_maintenance_add():
     load_config()
@@ -15702,8 +15541,6 @@ def clear_cisco_logs():
     return redirect(url_for("dashboard"))
 
 
-
-
 # PHASE 10D.2 - ENTERPRISE EVENT LOG CENTER
 # This page powers the left-side Dashboard link: /event-log
 # It reads the Monitor Server log file: logs/events.log
@@ -15887,8 +15724,6 @@ def clear_resolved_alerts():
     write_event("CONFIG | RESOLVED ALERT HISTORY CLEARED")
 
     return redirect(url_for("alerts_page"))
-
-
 
 
 def reset_notification_settings_to_safe_defaults():
@@ -16208,8 +16043,6 @@ def reset_notification_settings():
     return redirect(url_for("reset_center"))
 
 
-
-
 KB_CATEGORIES = [
     "Cisco",
     "Linux",
@@ -16520,12 +16353,6 @@ def import_knowledge_base():
         write_event(f"ERROR | KNOWLEDGE BASE IMPORT FAILED | {e}")
 
     return redirect(url_for("knowledge_base"))
-
-
-
-
-
-
 
 
 
@@ -17467,8 +17294,6 @@ def build_lifecycle_summary():
 
 
 
-
-
 # PHASE 13C.5C - HISTORICAL INTELLIGENCE NOISE SUPPRESSION
 # Suppress downstream SNMP timeout noise when a physical root cause already explains it.
 def get_device_name_by_ip(ip_address):
@@ -17508,8 +17333,6 @@ def get_active_physical_root_context():
         pass
 
     return {"active": False}
-
-
 
 
 def should_suppress_historical_line_due_to_root_cause(line):
@@ -18276,8 +18099,6 @@ def api_remote_restore_summary():
     if not remote_restore_available():
         return jsonify({"ok": False, "error": "remote_restore_engine.py is not available"}), 500
     return jsonify({"ok": True, "summary": build_remote_restore_summary(config)})
-
-
 
 
 # ======================================================
@@ -19324,22 +19145,15 @@ def build_phase26_infrastructure_payload():
 # PHASE 28.8 - TOPOLOGY LIFECYCLE API ROUTES
 
 
-
-
-
-
-
-
-
-
-
-
 # PHASE 28.7 - TOPOLOGY INTELLIGENCE API ROUTES
 
 
+# PHASE 30.5 - VALIDATED APPLICATION DEPENDENCY BOUNDARY
+APPLICATION_DEPENDENCIES = create_dependency_container(globals())
+
 # PHASE 30.4 - CENTRALIZED ROUTE REGISTRATION AND DEPENDENCY WIRING
-register_application_routes(app, globals())
+register_application_routes(app, APPLICATION_DEPENDENCIES)
 
 
 if __name__ == "__main__":
-    run_application(globals())
+    run_application(APPLICATION_DEPENDENCIES)
