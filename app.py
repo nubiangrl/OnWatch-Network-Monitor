@@ -105,6 +105,7 @@ from services.background_worker_service import (
     start_monitoring_worker,
     start_restore_worker,
 )
+from services.application_bootstrap_service import run_application
 from routes.dashboard import register_dashboard_routes
 from routes.api import (
     register_api_routes,
@@ -19370,46 +19371,5 @@ register_topology_intelligence_api_routes(
 )
 
 
-
-
-
-
-
 if __name__ == "__main__":
-    os.makedirs("logs", exist_ok=True)
-    load_config()
-    load_uptime_stats()
-
-    for name, ip in DEVICES.items():
-        status[name] = {
-            "ip": ip,
-            "state": "CHECKING",
-            "latency": "N/A",
-            "last_checked": "Starting...",
-            "last_change": "Starting..."
-        }
-        previous_status[name] = None
-
-    write_event("SYSTEM | Network Monitor Dashboard started")
-    if RELATIONSHIP_ENGINE_READY:
-        write_event(
-            f"SYSTEM | PHASE 27B RELATIONSHIP ENGINE READY | "
-            f"Relationships: {RELATIONSHIP_STORE.count() if RELATIONSHIP_STORE else 0}"
-        )
-    else:
-        write_event(
-            f"WARNING | PHASE 27B RELATIONSHIP ENGINE NOT READY | "
-            f"{RELATIONSHIP_MIGRATION}"
-        )
-
-    build_link_confidence_database(force=True)
-    rebuild_auto_infrastructure_links()
-    build_self_building_topology(force=True)
-    check_topology_changes(force=True)
-    analyze_root_cause_topology(force=True)
-
-    thread = start_monitoring_worker(monitor_loop)
-
-    app.run(host="0.0.0.0", port=5050)
-
-
+    run_application(globals())
